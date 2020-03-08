@@ -1,0 +1,391 @@
+(******************************************************************************)
+(* 11PC1101.AAX generated with FCB Release 6.2/1        22-MAY-2018  15:14:22 *)
+(* Pagelayout: Standard Master  A4 landscape  English     Rows: 88, Cols: 200 *)
+(* Node type: AC 450 with SW QC07-BAS41* 4.0          Base SW: QC07-BAS41 4.0 *)
+(* Additional options: QC07-COM41 4.0, QC07-LIB41 4.0, QC07-LIB42 4.0         *)
+(*                                                                            *)
+(*                                                                            *)
+(******************************************************************************)
+
+BEGIN PC11
+HEADER
+Design_ch        DH/MG
+Tech_ref         PVCS26A-E0220-01
+Resp_dept        O&G Projects
+Date             16-DEC-2015
+L_Text2          WEST Azeri Phase 2
+L_Text3          ACG Full Field Development
+L_Text4          AIOC Caspian Projects
+R_Text2          Node 11/51 Link Handler
+R_Text3          AC800M Slave Interface
+R_Text4          PSCR102/eMoC39702
+Rev_ind          5.2
+Language         E
+
+
+PCD-PAGE    1
+PC11    PCPGM (40,0)
+INAME Node11_LinkHandler
+       :ON                              D=1
+       :R                               0
+
+PC11.1    CONTRM (1000,0,0)
+       :ON                              1
+       :SINGLE                          0
+       :R                               0
+
+PC11.1.3    FUNCM
+INAME Reading_Status_Bits1_From_AC800M
+
+PC11.1.3.1    CONV-IB (IL,4,31)
+       :S                               1
+       :L                               0
+       :R                               0
+       :I                               =R511152.IL2
+       :O1                              N=MB300_LINK_STATUS1
+       :O2                              N=ASU1_Modbus_Status
+       :O3                              N=ASU2_Modbus_Status
+       :O4                              N=ASU3_Modbus_Status
+       :O5                              N=ASU_Modbus_Status
+       :O16                             N=LINK_15_STATUS1
+       :O17                             N=ASU_Dataset_Status
+
+
+PCD-PAGE    
+PC11.1.3.2    TRIGG
+       :1                               PC11.1.3.1:O17
+
+PC11.1.3.3    TOFF
+       :I                               PC11.1.3.2:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1132:CALC_VAL
+
+PC11.1.3.4    TRIGG
+       :1                               PC11.1.3.1:O2
+
+PC11.1.3.5    TOFF
+       :I                               PC11.1.3.4:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1133:CALC_VAL
+
+PC11.1.3.6    TRIGG
+       :1                               PC11.1.3.1:O3
+
+PC11.1.3.7    TOFF
+       :I                               PC11.1.3.6:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1134:CALC_VAL
+
+PC11.1.3.8    TRIGG
+       :1                               PC11.1.3.1:O4
+
+PC11.1.3.9    TOFF
+       :I                               PC11.1.3.8:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1135:CALC_VAL
+
+PC11.1.3.10    TRIGG
+       :1                               PC11.1.3.1:O5
+
+PC11.1.3.11    TOFF
+       :I                               PC11.1.3.10:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1131:CALC_VAL
+
+
+PCD-PAGE    
+PC11.1.2    FUNCM
+INAME Reading_Status_Bits_From_AC800M
+
+PC11.1.2.1    CONV-IB (IL,4,31)
+INAME From_Dataset
+       :S                               1
+       :L                               0
+       :R                               0
+       :SIGN                            N=LINK_15_DS_STATUS
+       :I                               =R511152.IL1,
+                                        N=STATUS_BITS_FRM_800M
+       :O1                              N=MB300_LINK_STATUS
+       :O2                              N=MOL1_Modbus_Status
+       :O3                              N=MOL2_Modbus_Status
+       :O4                              N=MOL3_Modbus_Status
+       :O5                              N=FlashGas_A_Status
+       :O6                              N=FlashGas_B_Status
+       :O7                              N=Sand_Mon_Status
+       :O8                              N=Met_Modbus_Status
+       :O9                              N=Gas02_Modbus_Status
+       :O10                             N=Gas03_Modbus_Status
+       :O11                             N=Liq01_Modbus_Status
+       :O12                             N=Liq04_Modbus_Status
+       :O13                             N=Gas05_Modbus_Status
+       :O14                             N=Gas06_Modbus_Status
+       :O15                             N=(Flow Comps Modbus)
+       :O16                             N=LINK_15_STATUS
+       :O17                             N=STAT_BITS_DS_STATUS
+       :O18                             N=Mol1_Datasets_Status
+       :O19                             N=Mol2_Datasets_Status
+       :O20                             N=Mol3_Datasets_Status
+       :O21                             N=FlashGas_A_DS_Status
+       :O22                             N=FlashGas_B_DS_Status
+       :O23                             N=SandMon_DS_Status
+       :O24                             N=Met_DS_Status
+       :O25                             N=Gas02_DS_Status
+       :O26                             N=Gas03_DS_Status
+       :O27                             N=Liq01_DS_Status
+       :O28                             N=Liq04_DS_Status
+       :O29                             N=Gas05_DS_Status
+       :O30                             N=Gas06_DS_Status
+       :O31                             N=(Flow Comps DS)
+
+
+PCD-PAGE    
+PC11.1.2.3    TRIGG
+       :1                               PC11.1.2.1:O1
+
+PC11.1.2.5    TOFF
+       :I                               PC11.1.2.3:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1101:CALC_VAL
+
+PC11.1.2.9    TRIGG
+       :1                               PC11.1.2.1:O2
+
+PC11.1.2.11    TOFF
+       :I                               PC11.1.2.9:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1102:CALC_VAL
+
+PC11.1.2.12    TRIGG
+       :1                               PC11.1.2.1:O3
+
+PC11.1.2.14    TOFF
+       :I                               PC11.1.2.12:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1103:CALC_VAL
+
+PC11.1.2.15    TRIGG
+       :1                               PC11.1.2.1:O4
+
+PC11.1.2.17    TOFF
+       :I                               PC11.1.2.15:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1104:CALC_VAL
+
+PC11.1.2.18    TRIGG
+       :1                               PC11.1.2.1:O5
+
+PC11.1.2.20    TOFF
+       :I                               PC11.1.2.18:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1105:CALC_VAL
+
+PC11.1.2.21    TRIGG
+       :1                               PC11.1.2.1:O6
+
+PC11.1.2.23    TOFF
+       :I                               PC11.1.2.21:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1106:CALC_VAL
+
+PC11.1.2.24    TRIGG
+       :1                               PC11.1.2.1:O7
+
+PC11.1.2.26    TOFF
+       :I                               PC11.1.2.24:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1107:CALC_VAL
+
+PC11.1.2.27    TRIGG
+       :1                               PC11.1.2.1:O8
+
+PC11.1.2.29    TOFF
+       :I                               PC11.1.2.27:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1108:CALC_VAL
+
+
+PCD-PAGE    
+PC11.1.2.30    TRIGG
+       :1                               PC11.1.2.1:O9
+
+PC11.1.2.32    TOFF
+       :I                               PC11.1.2.30:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1109:CALC_VAL
+
+PC11.1.2.36    TRIGG
+       :1                               PC11.1.2.1:O10
+
+PC11.1.2.38    TOFF
+       :I                               PC11.1.2.36:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1110:CALC_VAL
+
+PC11.1.2.39    TRIGG
+       :1                               PC11.1.2.1:O11
+
+PC11.1.2.41    TOFF
+       :I                               PC11.1.2.39:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1111:CALC_VAL
+
+PC11.1.2.42    TRIGG
+       :1                               PC11.1.2.1:O12
+
+PC11.1.2.44    TOFF
+       :I                               PC11.1.2.42:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1112:CALC_VAL
+
+PC11.1.2.45    TRIGG
+       :1                               PC11.1.2.1:O13
+
+PC11.1.2.47    TOFF
+       :I                               PC11.1.2.45:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1113:CALC_VAL
+
+PC11.1.2.48    TRIGG
+       :1                               PC11.1.2.1:O14
+
+PC11.1.2.50    TOFF
+       :I                               PC11.1.2.48:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1114:CALC_VAL
+
+PC11.1.2.51    TRIGG
+       :1                               PC11.1.2.1:O15
+
+PC11.1.2.53    TOFF
+       :I                               PC11.1.2.51:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1115:CALC_VAL
+
+
+PCD-PAGE    
+PC11.1.2.57    TRIGG
+       :1                               PC11.1.2.1:O17
+
+PC11.1.2.59    TOFF
+       :I                               PC11.1.2.57:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1116:CALC_VAL
+
+PC11.1.2.63    TRIGG
+       :1                               PC11.1.2.1:O18
+
+PC11.1.2.65    TOFF
+       :I                               PC11.1.2.63:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1117:CALC_VAL
+
+PC11.1.2.66    TRIGG
+       :1                               PC11.1.2.1:O19
+
+PC11.1.2.68    TOFF
+       :I                               PC11.1.2.66:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1118:CALC_VAL
+
+PC11.1.2.69    TRIGG
+       :1                               PC11.1.2.1:O20
+
+PC11.1.2.71    TOFF
+       :I                               PC11.1.2.69:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1119:CALC_VAL
+
+PC11.1.2.72    TRIGG
+       :1                               PC11.1.2.1:O21
+
+PC11.1.2.74    TOFF
+       :I                               PC11.1.2.72:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1120:CALC_VAL
+
+PC11.1.2.75    TRIGG
+       :1                               PC11.1.2.1:O22
+
+PC11.1.2.77    TOFF
+       :I                               PC11.1.2.75:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1121:CALC_VAL
+
+PC11.1.2.78    TRIGG
+       :1                               PC11.1.2.1:O23
+
+PC11.1.2.80    TOFF
+       :I                               PC11.1.2.78:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1122:CALC_VAL
+
+PC11.1.2.81    TRIGG
+       :1                               PC11.1.2.1:O24
+
+PC11.1.2.83    TOFF
+       :I                               PC11.1.2.81:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1123:CALC_VAL
+
+
+PCD-PAGE    
+PC11.1.2.84    TRIGG
+       :1                               PC11.1.2.1:O25
+
+PC11.1.2.86    TOFF
+       :I                               PC11.1.2.84:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1124:CALC_VAL
+
+PC11.1.2.90    TRIGG
+       :1                               PC11.1.2.1:O26
+
+PC11.1.2.92    TOFF
+       :I                               PC11.1.2.90:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1125:CALC_VAL
+
+PC11.1.2.93    TRIGG
+       :1                               PC11.1.2.1:O27
+
+PC11.1.2.95    TOFF
+       :I                               PC11.1.2.93:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1126:CALC_VAL
+
+PC11.1.2.96    TRIGG
+       :1                               PC11.1.2.1:O28
+
+PC11.1.2.98    TOFF
+       :I                               PC11.1.2.96:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1127:CALC_VAL
+
+PC11.1.2.99    TRIGG
+       :1                               PC11.1.2.1:O29
+
+PC11.1.2.101    TOFF
+       :I                               PC11.1.2.99:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1128:CALC_VAL
+
+PC11.1.2.102    TRIGG
+       :1                               PC11.1.2.1:O30
+
+PC11.1.2.104    TOFF
+       :I                               PC11.1.2.102:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1129:CALC_VAL
+
+PC11.1.2.105    TRIGG
+       :1                               PC11.1.2.1:O31
+
+PC11.1.2.107    TOFF
+       :I                               PC11.1.2.105:5
+       :TD                              D=10
+       :O                               =2D-SL-UA-1130:CALC_VAL
+
+
+END PC11
+
+
