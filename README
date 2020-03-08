@@ -1,0 +1,6 @@
+AMPLA Python implementation for AMPL code analysis.
+Read source AMPL code from AAX files, create collection of the logic blocs from the code.
+each logic block represents by an object and could be compared with the other one
+The tool to be used for statistical calculation, code comparision, controller load calculation (future)
+ignore comments, page divisions
+
