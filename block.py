@@ -74,6 +74,7 @@ class aax:
         self.el={}
         self.fname=fname
         status=0
+        self.lines=None
         try: # open aax file
             file=open(self.fname,'r')
             self.lines=file.readlines()
@@ -81,21 +82,17 @@ class aax:
         except:
             print('error reading file:'+self.fname)
             return
-## 
         address='' # address of the block 
         blkname='' # name of the block  or  pin
         pinname=''
         extra=''
         pinval='' 
         lpinval=[] # for multiple connections
-        elcnt=0 # number of elements in the line
-        
-## AMPLE parsing logic from here
-        
+        elcnt=0 # number of elements in the line       
+## AMPLE parsing logic from here        
         for  L in self.lines:
             line=L.split()
-            elcnt=len(line)  # count the elements in the line
-                
+            elcnt=len(line)  # count the elements in the line             
             if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
                 address=line[0] # get address
                 status=1 #    block mark
@@ -108,7 +105,6 @@ class aax:
                 else:
                     extra=''
                 self.el[address]=Block(address,blkname,extra) # create logic block obj
-                
             if elcnt>0 and line[0][:1]==':': # start of the pin definition 
                 pinname=line[0]# get pin name
                 status=2 #  pin mark
@@ -118,8 +114,7 @@ class aax:
                         if i>0:
                             st+=line[i]+' ' # put all of them in to one string
                     line.clear()
-                    line=[pinname,st]
-                        
+                    line=[pinname,st]                      
                 if elcnt>1:
                     pinval=line[1] #get pin value
                 if pinval[-1:]==',':# another value at the next line
@@ -127,7 +122,6 @@ class aax:
                     lpinval.append(pinval[:-1])
                 else:
                     self.el[address].apin(pinname,pinval)
-                    
             if elcnt==1 and status==3:
                 pinval=line[0]
                 if pinval[-1:]==',':
@@ -136,7 +130,6 @@ class aax:
                     lpinval.append(pinval)
                     self.el[address].apin(pinname,lpinval)
                     status=0
-        return
 
     def count(self,blkname='dummy'):
         counter=0
@@ -145,8 +138,6 @@ class aax:
                 counter+=1
         return counter
 
- 
-            
             
 ## simple format
 ## (* commentary notes *)
