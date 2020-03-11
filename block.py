@@ -5,6 +5,12 @@ NEQ=' <not equal> '
 NONE='NONE'
 _tab=30
 
+HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
+        'L_Text2','R_Text2',
+        'L_Text3','R_Text3',
+        'L_Text4','R_Text4',
+        'Rev_ind','Language')
+
 ##-----------------------------------------------------------------------
 
 class block:
@@ -36,7 +42,7 @@ class block:
         "string representation of the block"
         s=''
         for k in self.pins.keys():
-            s=s+'\t'+str(k).ljust(_tab)+self.getpin(k)+'\n'
+            s+='\t'+str(k).ljust(_tab)+self.getpin(k)+'\n'
         return "%s\t%s %s\n%s"%(self.address,self.name,self.extra,s)
 
     def __eq__(self,other):
@@ -56,16 +62,16 @@ class block:
             slist=list(self.pins.keys())
             olist=list(other.pins.keys())
             if self.name!=other.name:
-                s=s+self.name+NEQ+other.name+'\n'
+                s+=self.name+NEQ+other.name+'\n'
             if self.extra!=other.extra:
-                s=s+self.extra+NEQ+other.extra+'\n'
+                s+=self.extra+NEQ+other.extra+'\n'
             if len(slist)<len(olist): ## slist should always bigger
                 slist=list(other.pins.keys())
                 olist=list(self.pins.keys())
             for k in slist:
                 if k in olist:
                     if self.pins[k]!=other.pins[k]:
-                        s=s+'\t'+str(k).ljust(_tab)+self.getpin(k).ljust(_tab)+NEQ+other.getpin(k).rjust(_tab)+'\n'
+                        s+='\t'+str(k).ljust(_tab)+self.getpin(k).ljust(_tab)+NEQ+other.getpin(k).rjust(_tab)+'\n'
             for k in olist:
                 if k not in slist:
                     s=s+'\t'+str(k).ljust(_tab)+self.getpin(k).ljust(_tab)+NEQ+other.getpin(k).rjust(_tab)+'\n'
@@ -80,6 +86,8 @@ class aax:
         self.fname=fname # aax file name
         status=0 # used for parsing
         self.lines=None # lines collection from aax file
+        self.header={}
+        
         try: # open aax file
             file=open(self.fname,'r')
             self.lines=file.readlines()
@@ -98,6 +106,18 @@ class aax:
         for  L in self.lines:
             line=L.split()
             elcnt=len(line)  # count the elements in the line
+            if elcnt>0 and line[0] in HEADER:
+                ss=''
+                i=0
+                for s in line:
+                    if i==0:
+                        i+=1
+                    else:
+                        ss=ss+s+' '
+                        i+=1
+                        
+                self.header[line[0]]=ss
+                
             if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
                 address=line[0] # get address
                 status=1 #    block mark
@@ -153,17 +173,21 @@ class aax:
             skeys=self.el.keys()
             okeys=other.el.keys()
 
+            if self.header!=other.header:
+                s+='\nHeader is different:\n'
+                for k in HEADER:
+                    if self.header[k]!=other.header[k]:
+                        s+='\n'+str(k).ljust(_tab)+str(self.header[k]).rjust(_tab)+str(other.header[k]).rjust(_tab)
+                s+='\n'
             if len(skeys)!=len(okeys):
-                s=s+'\nNumers of logic blocks at %s =%d differnet from %s =%d\n'%(self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
+                s+='\nNumers of logic blocks at %s =%d differnet from %s =%d\n'%(self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
             for key in self.el.keys():
                 if key in other.el.keys():
                     if self.el[key]!=other.el[key]:
-                        s=s+'\nConflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
+                        s+='\nConflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
                 else:
-                    s=s+'\nAddress %s not found at %s but exist at %s\n'%(key,other.fname,self.fname)+str(self.el[key])
+                    s+='\nAddress %s not found at %s but exist at %s\n'%(key,other.fname,self.fname)+str(self.el[key])
             for key in other.el.keys():
                 if key not in self.el.keys():
-                    s=s+'\nAddress %s not found at %s but exist at %s\n'%(key,self.fname,other.fname)+str(other.el[key])
+                    s+='\nAddress %s not found at %s but exist at %s\n'%(key,self.fname,other.fname)+str(other.el[key])
         return s
-
-

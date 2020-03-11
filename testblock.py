@@ -1,19 +1,5 @@
 from block import *
 
-a=Block()
-b=Block()
-a.apin(1,"PC1.3.4.6")
-b.apin(1,"PC1.3.4.6")
-print(a==b)
-
-a.apin('pin1',12)
-b.apin('pin1',12)
-
-a.apin(2,8)
-b.apin(2,8)
-
-print(a.cmp(b))
-
 
 ##f=open('test.aax','r')
 ##l=f.readlines()
@@ -31,3 +17,5 @@ print(a.cmp(b))
 ##                print(s[0],s[1],sm) # print address, block name, and extra if exist
 
 a=aax('test.aax')
+b=aax('test1.aax')
+print(a.cmp(b))
