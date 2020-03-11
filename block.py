@@ -87,7 +87,7 @@ class aax:
         status=0 # used for parsing
         self.lines=None # lines collection from aax file
         self.header={}
-        
+
         try: # open aax file
             file=open(self.fname,'r')
             self.lines=file.readlines()
@@ -106,7 +106,7 @@ class aax:
         for  L in self.lines:
             line=L.split()
             elcnt=len(line)  # count the elements in the line
-            if elcnt>0 and line[0] in HEADER:
+            if elcnt>0 and line[0] in HEADER: # reading text from aax file header
                 ss=''
                 i=0
                 for s in line:
@@ -115,9 +115,8 @@ class aax:
                     else:
                         ss=ss+s+' '
                         i+=1
-                        
                 self.header[line[0]]=ss
-                
+
             if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
                 address=line[0] # get address
                 status=1 #    block mark
