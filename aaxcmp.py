@@ -14,3 +14,6 @@ try:
     print(file1.cmp(file2))
 except:
     print('fatal error')
+    exit()
+
+
