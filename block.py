@@ -55,17 +55,17 @@ class block:
                             return True
         return False
 
-    def __add__(self,pin):
-        "add pin with values first element is pin name rest of elements add as list or tuple"
-        if isinstance(pin,tuple) or isinstance(pin,list):
-            if len(pin)>=3:
-                self.addpin(pin[0],pin[1:len(pin)])
-            if len(pin)==2:
-                self.addpin(pin[0],pin[1])
+    def __add__(self,values):
+        "add pin with values, first element is pin name rest of the elements add as list or tuple"
+        if isinstance(values,tuple) or isinstance(values,list):
+            if len(values)>=3:
+                self.addpin(values[0],values[1:len(values)])
+            if len(values)==2:
+                self.addpin(values[0],values[1])
         return self
 
     def cmp(self,other):
-        "compare blocks and return reprt about differences"
+        "compare blocks and return report about differences"
         s=''
         if isinstance(other,block):
             slist=list(self.pins.keys())
@@ -95,7 +95,7 @@ class aax:
         self.fname=fname # aax file name
         status=0 # used for parsing
         self.lines=None # lines collection from aax file
-        self.header={}
+        self.header={} # aax header
 
         try: # open aax file
             file=open(self.fname,'r')
@@ -166,13 +166,23 @@ class aax:
                     lpinval=[]
                     status=0
 
-    def count(self,blkname='dummy'):
+    def countblock(self,blkname='dummy'):
         "count logic blocks in aax file"
         counter=0
-        for k in self.el.keys():
-            if self.el[k].name==blkname:
+        for ad in self.el.keys():
+            if self.el[ad].name==blkname:
                 counter+=1
         return counter
+
+    def countpin(self,blkname='dummy'):
+        "return average count of pins for given block type"
+        pcnt=0
+        bcnt=0
+        for ad in self.el.keys():
+            if self.el[ad].name==blkname:
+                bcnt+=1
+                pcnt+=len(self.el[ad].pins)
+        return round(pcnt/bcnt,1)
 
     def cmp(self,other):
         "compare aax files and return report"
@@ -199,3 +209,16 @@ class aax:
                 if key not in self.el.keys():
                     s+='\nAddress %s not found at %s but exist at %s\n'%(key,self.fname,other.fname)+str(other.el[key])
         return s
+
+    def statout(self):
+        "output statistics (block name, block count, average pins)"
+        s=''
+        blocks=()
+        stout=()
+        for ad in self.el.keys():
+            name=self.el[ad].name
+            if name not in blocks:
+                blocks=blocks+(name,)
+                stout=stout+((name,self.countblock(name),self.countpin(name)),)
+        return stout
+                
