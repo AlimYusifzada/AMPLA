@@ -3,7 +3,7 @@
 
 NEQ=' <not equal> '
 NONE='NONE'
-_tab=30
+_tab=16
 
 HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
         'L_Text2','R_Text2',
@@ -46,7 +46,7 @@ class block:
         return "%s\t%s %s\n%s"%(self.address,self.name,self.extra,s)
 
     def __eq__(self,other):
-        "compare blocks like blokA==blockB"
+        "compare blocks equal"
         if isinstance(other,block):
             if other.address==self.address:
                 if other.name==self.name:
@@ -54,6 +54,15 @@ class block:
                         if other.pins==self.pins:
                             return True
         return False
+
+    def __add__(self,pin):
+        "add pin with values first element is pin name rest of elements add as list or tuple"
+        if isinstance(pin,tuple) or isinstance(pin,list):
+            if len(pin)>=3:
+                self.addpin(pin[0],pin[1:len(pin)])
+            if len(pin)==2:
+                self.addpin(pin[0],pin[1])
+        return self
 
     def cmp(self,other):
         "compare blocks and return reprt about differences"
@@ -173,7 +182,7 @@ class aax:
             okeys=other.el.keys()
 
             if self.header!=other.header:
-                s+='\nHeader is different:\n'
+                s+='\nConflict at HEADER:\n'
                 for k in HEADER:
                     if self.header[k]!=other.header[k]:
                         s+='\n'+str(k).ljust(_tab)+str(self.header[k]).rjust(_tab)+str(other.header[k]).rjust(_tab)
