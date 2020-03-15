@@ -1,26 +1,27 @@
 AMPLA Python implementation for AMPL code analysis.
-Read source AMPL code from AAX files, create collection of the logic blocs from the code.
-each logic block represents by an object and could be compared with the other one
-The tool to be used for statistical calculation, code comparision, controller load calculation (future)
-ignore comments, page divisions
+Read source AMPL code from AAX files
+Each logic block represents by an object and could be compared with the other one
+There is a plan to upgrade the tool for statistical calculation(inprogress), controller loading calculation
+Master copy and latest revision is here: https://github.com/AlimYusifzada/AMPLA.git
 
 File_A=aax('fileA.aax') create File_A object and parse AMPL code from 'failA.aax'
 
-File_A.el dictionary contain all parsed logic blocks
-File_A.header fileA.aax file header with keys like 'Rev_ind' or 'Language'
-to access revision number use File_A.header['Rev_ind']
+File_A.el dictionary, contain all parsed logic blocks
+File_A.header dictionary, contain fileA.aax file header with keys like 'Rev_ind' or 'Language'
+Like, to access revision number use File_A.header['Rev_ind']
 
 File_A.el['PC##.##.##'] return parsed logic block at 'PC##.##.##'
 
 File_A.el['PC##.##.##']=File_A.el['PC##.##.##']+(pinname,value,value1,..) create new pin with values
+with similar result addpin() function usage
 File_A.el['PC##.##.##'].addpin(pinname,value) create new pin with one value
 File_A.el['PC##.##.##'].addpin(pinname,(value1,value2,..)) create new pin with several values
 
-compare blocks
+Compare blocks
 File_B=aax('FileB.aax')
-File_A.el['PC##.##.##..']==File_B.el['PC##.##.##..'] return True or False
+File_A.el['PC##.##.##..']==File_B.el['PC##.##.##..'] return True if they are equeal
 
-File_A.el['PC##.##.##'].cmp(File_B.el['PC##.##.##']) return string with results
+File_A.el['PC##.##.##'].cmp(File_B.el['PC##.##.##']) return string with block comparision report
 
-compare aax files
-File_A.cmp(File_B) return string with results
+Compare aax files
+File_A.cmp(File_B) return string with files comparision result
