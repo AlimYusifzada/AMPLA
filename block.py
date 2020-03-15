@@ -1,9 +1,14 @@
 ## version 0.1 Feb-24,2020 BAKU ABB ARMOR AY
 ## Advant Controllers AAX files parsing and comparision
+import sys
+if sys.version_info[0]<3:
+	print('Please use Python version 3 or above')
+	exit()
+
 
 NEQ=' <not equal> '
 NONE='NONE'
-_tab=16
+_tab=30
 
 HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
         'L_Text2','R_Text2',
@@ -11,7 +16,7 @@ HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
         'L_Text4','R_Text4',
         'Rev_ind','Language')
 
-##-----------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 class block:
 
@@ -146,7 +151,7 @@ class aax:
                     for i in range(elcnt):
                         if i>0:
                             st+=line[i]+' ' # put all of them in to one string
-                    line.clear()
+                    #line.clear()
                     line=[pinname,st]
                 if elcnt>1:
                     pinval=line[1] #get pin value
@@ -190,7 +195,6 @@ class aax:
         if isinstance(other,aax):
             skeys=self.el.keys()
             okeys=other.el.keys()
-
             if self.header!=other.header:
                 s+='\nConflict at HEADER:\n'
                 for k in HEADER:
@@ -202,7 +206,7 @@ class aax:
             for key in self.el.keys():
                 if key in other.el.keys():
                     if self.el[key]!=other.el[key]:
-                        s+='\nConflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
+                        s+='\nconflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
                 else:
                     s+='\nAddress %s not found at %s but exist at %s\n'%(key,other.fname,self.fname)+str(self.el[key])
             for key in other.el.keys():
