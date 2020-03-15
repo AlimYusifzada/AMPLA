@@ -25,3 +25,7 @@ File_A.el['PC##.##.##'].cmp(File_B.el['PC##.##.##']) return string with block co
 
 Compare aax files
 File_A.cmp(File_B) return string with files comparision result
+
+File_A.labels dictionary contains all labels
+File_A.getlabel('PC##.##.##:pin') return label assigned to that pin or None
+
