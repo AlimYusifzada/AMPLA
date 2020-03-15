@@ -2,7 +2,7 @@
 ## Advant Controllers AAX files parsing and comparision
 import sys
 if sys.version_info[0]<3:
-	print('Please use Python version 3 or above')
+	print('Please use Python version 3+')
 	exit()
 
 
@@ -21,7 +21,7 @@ HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
 class block:
 
     def __init__(self,address='PC',name='dummy',extra='()'):
-        "create logic block"
+        "Create object for logic block"
         self.pins={} ## block pins (keys) and connections {pin:connection,..}
         self.name=name ## block name
         self.address=address ## PC##.##.##...
@@ -29,22 +29,22 @@ class block:
         return
 
     def getpin(self,pin): ##
-        "get string value of the pin"
+        "Get string value of the pin"
         if pin in self.pins.keys():
             return str(self.pins[pin])
         else:
             return NONE
 
     def addpin(self,pin,value):
-        "create a pin with a value"
+        "Create a pin with a value. Value could be any type"
         if pin in self.pins.keys():
-            print('pin %s already exist'%pin)
+            print('...pin %s already exist'%pin)
             return False
         self.pins[pin]=value
         return True
 
     def __str__(self):
-        "string representation of the block"
+        "Test representation of the block"
         s=''
         for k in self.pins.keys():
             s+='\t'+str(k).ljust(_tab)+self.getpin(k)+'\n'
@@ -61,16 +61,20 @@ class block:
         return False
 
     def __add__(self,values):
-        "add pin with values, first element is pin name rest of the elements add as list or tuple"
+        "Add pin with values, first element is pin name rest of the elements added as list or tuple"
         if isinstance(values,tuple) or isinstance(values,list):
             if len(values)>=3:
-                self.addpin(values[0],values[1:len(values)])
+                    self.addpin(values[0],values[1:len(values)])
             if len(values)==2:
-                self.addpin(values[0],values[1])
+                    self.addpin(values[0],values[1])
+            else:
+                    print('...second operand must have two or more elements in the list')
+        else:
+                print('...second operand must be list or tuple')
         return self
 
     def cmp(self,other):
-        "compare blocks and return report about differences"
+        "Compare blocks and return differences report"
         s=''
         if isinstance(other,block):
             slist=list(self.pins.keys())
@@ -95,7 +99,7 @@ class block:
 class aax:
 
     def __init__(self,fname):
-        "parsing aax file"
+        "Create object and parsing AAX file"
         self.el={} # logic elements (blocks)
         self.fname=fname # aax file name
         status=0 # used for parsing
@@ -107,7 +111,7 @@ class aax:
             self.lines=file.readlines()
             file.close()
         except:
-            print('error reading file:'+self.fname)
+            print('...error reading file:'+self.fname)
             return
         address='' # address of the block
         blkname='' # name of the block  or  pin
@@ -172,7 +176,7 @@ class aax:
                     status=0
 
     def countblock(self,blkname='dummy'):
-        "count logic blocks in aax file"
+        "Count entries of the logic block"
         counter=0
         for ad in self.el.keys():
             if self.el[ad].name==blkname:
@@ -180,23 +184,25 @@ class aax:
         return counter
 
     def countpin(self,blkname='dummy'):
-        "return average count of pins for given block type"
+        "Return average count of pins for given block type"
         pcnt=0
         bcnt=0
         for ad in self.el.keys():
             if self.el[ad].name==blkname:
                 bcnt+=1
                 pcnt+=len(self.el[ad].pins)
+        if bcnt==0: # stop div by 0
+                bcnt=1
         return round(pcnt/bcnt,1)
 
     def cmp(self,other):
-        "compare aax files and return report"
+        "Compare AAX files and return text report"
         s=''
         if isinstance(other,aax):
             skeys=self.el.keys()
             okeys=other.el.keys()
             if self.header!=other.header:
-                s+='\nConflict at HEADER:\n'
+                s+='\nConflict at the HEADER:\n'
                 for k in HEADER:
                     if self.header[k]!=other.header[k]:
                         s+='\n'+str(k).ljust(_tab)+str(self.header[k]).rjust(_tab)+str(other.header[k]).rjust(_tab)
@@ -206,7 +212,7 @@ class aax:
             for key in self.el.keys():
                 if key in other.el.keys():
                     if self.el[key]!=other.el[key]:
-                        s+='\nconflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
+                        s+='\nConflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
                 else:
                     s+='\nAddress %s not found at %s but exist at %s\n'%(key,other.fname,self.fname)+str(self.el[key])
             for key in other.el.keys():
@@ -215,7 +221,7 @@ class aax:
         return s
 
     def statout(self):
-        "output statistics (block name, block count, average pins)"
+        "Return list with statistic data: (block name, block usage count, average pins number)"
         s=''
         blocks=()
         stout=()
