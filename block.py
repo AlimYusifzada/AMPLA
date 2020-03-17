@@ -21,13 +21,13 @@ class block:
 
         def __init__(self,address='PC',name='dummy',extra='()'):
                 "Create object for logic block"
-                self.pins={} ## block pins (keys) and connections {pin:connection,..}
-                self.name=name ## block name
-                self.address=address ## PC##.##.##...
-                self.extra=extra ## everything in the brackets
+                self.pins={} # pins (keys) and connections {pin:connection,..}
+                self.name=name # block name
+                self.address=address # PC##.##.##...
+                self.extra=extra # everything in the brackets
                 return
 
-        def getpin(self,pin): ##
+        def getpin(self,pin):
                 "Get string value of the pin"
                 if pin in self.pins.keys():
                     return str(self.pins[pin])
@@ -60,14 +60,17 @@ class block:
                 return False
 
         def __add__(self,values):
-                "Add new pin with values, first element is pin name rest of the elements added as list or tuple"
+                "Add new pin with values, \
+				first element is pin name \
+				rest of the elements added as list or tuple"
                 if isinstance(values,tuple) or isinstance(values,list):
                     if len(values)>=3:
                             self.addpin(values[0],values[1:len(values)])
                     if len(values)==2:
                             self.addpin(values[0],values[1])
                     else:
-                            print('...second operand must have two or more elements in the list')
+                            print('...second operand must have two \
+									or more elements in the list')
                 else:
                         print('...second operand must be a list or tuple')
                 return self
@@ -88,10 +91,14 @@ class block:
                     for k in slist:
                         if k in olist:
                             if self.pins[k]!=other.pins[k]:
-                                s+='\t'+str(k).ljust(_tab)+self.getpin(k).ljust(_tab)+NEQ+other.getpin(k).rjust(_tab)+'\n'
+                                s+='\t'+str(k).ljust(_tab)+ \
+								 self.getpin(k).ljust(_tab)+ \
+								 NEQ+other.getpin(k).rjust(_tab)+'\n'
                     for k in olist:
                         if k not in slist:
-                            s=s+'\t'+str(k).ljust(_tab)+self.getpin(k).ljust(_tab)+NEQ+other.getpin(k).rjust(_tab)+'\n'
+                            s=s+'\t'+str(k).ljust(_tab)+ \
+							 self.getpin(k).ljust(_tab)+ \
+							 NEQ+other.getpin(k).rjust(_tab)+'\n'
                 return s
 
 
@@ -175,14 +182,15 @@ class aax:
                 self.readlabels() # populate labels at the end dont need to call it deliberately
 
         def readlabels(self):
-                "Populate dictionary 'self.labels' with addresses and labels ;) return it as result. Run by default"
+                "Populate dictionary 'self.labels' with addresses and labels ;) \
+				 return it as result"
                 def glb(vx):
                         if vx[0:2]=='N=': # label found
                                 s=str(addr)+str(piname)
                         else:
                                 s=''
                         return s
-                
+
                 for addr in self.el: # start for each logic block
                         for piname in self.el[addr].pins: # for all pins
                                 pinval=self.el[addr].pins[piname] # ger pin val
@@ -195,15 +203,15 @@ class aax:
                                         if len(glb(pinval))>2:
                                                 self.labels[glb(pinval)]=pinval[2:]
                 return self.labels
-        
+
         def getlabel(self,addr):
                 "Return label by the address"
                 if addr in self.labels.keys():
                         return self.labels[addr]
                 else:
                         return None
-                                                
-                                                                
+
+
         def countblock(self,blkname='dummy'):
                 "Count entries of the logic block"
                 counter=0
@@ -234,23 +242,30 @@ class aax:
                         s+='\nConflict at the HEADER:\n'
                         for k in HEADER:
                             if self.header[k]!=other.header[k]:
-                                s+='\n'+str(k).ljust(_tab)+str(self.header[k]).rjust(_tab)+str(other.header[k]).rjust(_tab)
+                                s+='\n'+str(k).ljust(_tab)+ \
+								 str(self.header[k]).rjust(_tab)+ \
+								 str(other.header[k]).rjust(_tab)
                         s+='\n'
                     if len(skeys)!=len(okeys):
-                        s+='\nNumers of logic blocks at %s =%d differnet from %s =%d\n'%(self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
+                        s+='\nNumers of logic blocks at %s =%d differnet from %s =%d\n'% \
+						 (self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
                     for key in self.el.keys():
                         if key in other.el.keys():
                             if self.el[key]!=other.el[key]:
-                                s+='\nConflict at %s\n'%(key)+str(self.el[key].cmp(other.el[key]))
+                                s+='\nConflict at %s\n'%(key)+ \
+								 str(self.el[key].cmp(other.el[key]))
                         else:
-                            s+='\nAddress %s not found at %s but exist at %s\n'%(key,other.fname,self.fname)+str(self.el[key])
+                            s+='\nAddress %s not found at %s but exist at %s\n'% \
+							 (key,other.fname,self.fname)+str(self.el[key])
                     for key in other.el.keys():
                         if key not in self.el.keys():
-                            s+='\nAddress %s not found at %s but exist at %s\n'%(key,self.fname,other.fname)+str(other.el[key])
+                            s+='\nAddress %s not found at %s but exist at %s\n'% \
+							 (key,self.fname,other.fname)+str(other.el[key])
                 return s
 
         def statout(self):
-                "Return list with statistic data: (block name, block usage count, average pins number)"
+                "Return list with statistic data: \
+				 (block name, block usage count, average pins number)"
                 s=''
                 blocks=()
                 stout=()
@@ -260,4 +275,3 @@ class aax:
                         blocks=blocks+(name,)
                         stout=stout+((name,self.countblock(name),self.countpin(name)),)
                 return stout
-                
