@@ -61,8 +61,8 @@ class block:
 
         def __add__(self,values):
                 "Add new pin with values, \
-				first element is pin name \
-				rest of the elements added as list or tuple"
+		first element is pin name \
+		rest of the elements added as list or tuple"
                 if isinstance(values,tuple) or isinstance(values,list):
                     if len(values)>=3:
                             self.addpin(values[0],values[1:len(values)])
@@ -70,7 +70,7 @@ class block:
                             self.addpin(values[0],values[1])
                     else:
                             print('...second operand must have two \
-									or more elements in the list')
+					or more elements in the list')
                 else:
                         print('...second operand must be a list or tuple')
                 return self
@@ -92,13 +92,13 @@ class block:
                         if k in olist:
                             if self.pins[k]!=other.pins[k]:
                                 s+='\t'+str(k).ljust(_tab)+ \
-								 self.getpin(k).ljust(_tab)+ \
-								 NEQ+other.getpin(k).rjust(_tab)+'\n'
+				 self.getpin(k).ljust(_tab)+ \
+				 NEQ+other.getpin(k).rjust(_tab)+'\n'
                     for k in olist:
                         if k not in slist:
                             s=s+'\t'+str(k).ljust(_tab)+ \
-							 self.getpin(k).ljust(_tab)+ \
-							 NEQ+other.getpin(k).rjust(_tab)+'\n'
+				 self.getpin(k).ljust(_tab)+ \
+				 NEQ+other.getpin(k).rjust(_tab)+'\n'
                 return s
 
 
@@ -243,29 +243,29 @@ class aax:
                         for k in HEADER:
                             if self.header[k]!=other.header[k]:
                                 s+='\n'+str(k).ljust(_tab)+ \
-								 str(self.header[k]).rjust(_tab)+ \
-								 str(other.header[k]).rjust(_tab)
+				 str(self.header[k]).rjust(_tab)+ \
+				 str(other.header[k]).rjust(_tab)
                         s+='\n'
                     if len(skeys)!=len(okeys):
                         s+='\nNumers of logic blocks at %s =%d differnet from %s =%d\n'% \
-						 (self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
+			 (self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
                     for key in self.el.keys():
                         if key in other.el.keys():
                             if self.el[key]!=other.el[key]:
                                 s+='\nConflict at %s\n'%(key)+ \
-								 str(self.el[key].cmp(other.el[key]))
+				 str(self.el[key].cmp(other.el[key]))
                         else:
                             s+='\nAddress %s not found at %s but exist at %s\n'% \
-							 (key,other.fname,self.fname)+str(self.el[key])
+				(key,other.fname,self.fname)+str(self.el[key])
                     for key in other.el.keys():
                         if key not in self.el.keys():
                             s+='\nAddress %s not found at %s but exist at %s\n'% \
-							 (key,self.fname,other.fname)+str(other.el[key])
+				 (key,self.fname,other.fname)+str(other.el[key])
                 return s
 
         def statout(self):
                 "Return list with statistic data: \
-				 (block name, block usage count, average pins number)"
+		 (block name, block usage count, average pins number)"
                 s=''
                 blocks=()
                 stout=()
