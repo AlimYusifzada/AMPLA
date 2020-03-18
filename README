@@ -7,7 +7,8 @@ Master copy and latest revision is here: https://github.com/AlimYusifzada/AMPLA.
 You need pyhton version 3 and above to use that tool
 At the moment only command line interface is available.
 
-your_directory\>python3 aaxcmp.py FileA.aax FileB.aax -l -i -s -h
+...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax -l -i -s -h
+.../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx -l -i -s -h
     
     -i compare logic blocs
     -l compare line by line (system)
@@ -33,7 +34,7 @@ File_A.el['PC##.##.##'].addpin(pinname,value) create new pin with one value
 
 File_A.el['PC##.##.##'].addpin(pinname,(value1,value2,..)) create new pin with several values
 
-Compare blocks
+Compare blocks:
 
 File_B=aax('FileB.aax')
 
