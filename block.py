@@ -3,7 +3,7 @@
 import sys
 if sys.version_info[0]<3:
 	print('Please use Python version 3+')
-	exit()
+#	sys.exit()
 
 NEQ=' <not equal> '
 NONE='NONE'

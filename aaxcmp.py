@@ -1,3 +1,4 @@
+
 from block import *
 import sys
 import difflib as Dif
@@ -8,12 +9,14 @@ file2=''
 options=()
 
 def help():
-    print('aaxcmp [file1.aax] [file2.aax] <options>')
+    print('\naaxcmp [file1.aax] [file2.aax] <options>\n')
     print('options could be:')
-    print(' -i  compare logic blocs')
-    print(' -l  compare line by line')
+    print(' -i compare logic blocs')
+    print(' -l compare line by line (system)')
     print(' -s print some statistics (in development)')
     print(' -h print this help')
+    print('position of the options keys in command line, determine the sequence of the output')
+    print('AAX files names location in the command line are not fixed but both should be present')
     return
 
 print('Mar,2020,AY AMPL logic block compare')
@@ -21,7 +24,7 @@ print('Mar,2020,AY AMPL logic block compare')
 
 if len(sys.argv)<3:
     help()
-    exit(0)
+    sys.exit(0)
           
 for arg in sys.argv[1:]:
     if arg[0]=='-' and len(arg)==2: # option
@@ -53,6 +56,11 @@ for op in options:
     if op=='-l':
         d=Dif.Differ()
         cmpres=d.compare(fileOne.lines,fileTwo.lines)
+        print('\n line by line comparision legend\n')
+        print('\n If line started with [space] the line is equal in both files')
+        print('\n If line started with [-] the line  exist in the first file only')
+        print('\n If line started with [+] the line exist in the second file only')
+        print('\n If line started with [?] the line does not exist in both files\n')
         for i in cmpres:
             print(i,end='')
     if op=='-h':
