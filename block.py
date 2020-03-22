@@ -239,7 +239,7 @@ class aax:
                     skeys=self.el.keys()
                     okeys=other.el.keys()
                     if self.header!=other.header:
-                        s+='\nConflict at the HEADER:\n'
+                        s+='\nConflict at HEADER:\n'
                         for k in HEADER:
                             if self.header[k]!=other.header[k]:
                                 s+='\n'+str(k).ljust(_tab)+ \
@@ -247,20 +247,22 @@ class aax:
 				 str(other.header[k]).rjust(_tab)
                         s+='\n'
                     if len(skeys)!=len(okeys):
-                        s+='\nNumers of logic blocks at %s =%d differnet from %s =%d\n'% \
-			 (self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
+                        s+='\nNumers of logic blocks are different\n \
+		at %s =%d\n \
+		at %s =%d\n'% \
+		(self.fname,len(self.el.keys()),other.fname,len(other.el.keys()))
                     for key in self.el.keys():
                         if key in other.el.keys():
                             if self.el[key]!=other.el[key]:
                                 s+='\nConflict at %s\n'%(key)+ \
-				 str(self.el[key].cmp(other.el[key]))
+			str(self.el[key].cmp(other.el[key]))
                         else:
                             s+='\nAddress %s not found at %s but exist at %s\n'% \
-				(key,other.fname,self.fname)+str(self.el[key])
+		        (key,other.fname,self.fname)+str(self.el[key])
                     for key in other.el.keys():
                         if key not in self.el.keys():
                             s+='\nAddress %s not found at %s but exist at %s\n'% \
-				 (key,self.fname,other.fname)+str(other.el[key])
+			(key,self.fname,other.fname)+str(other.el[key])
                 return s
 
         def statout(self):

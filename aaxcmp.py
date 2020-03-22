@@ -3,7 +3,7 @@
 from block import *
 import sys
 import difflib as dif
-import tkinter as tk
+#import tkinter as tk
 from txtcolour import *
 
 
@@ -17,8 +17,8 @@ def help():
     print(' -i compare logic blocs ;)')
     print(' -l compare line by line ;)')
     print(' -L compare line by line with selected conflicts')
-    print(' -s print some statistics (dont use - in development)')
-    print(' -w start GUI (dont use - in development)')
+#    print(' -s print some statistics (dont use - in development)')
+#    print(' -w start GUI (dont use - in development)')
     print(' -h print this help')
 
     print('\n;) report friendly option')
@@ -33,11 +33,11 @@ if len(sys.argv)<3:
     sys.exit(0)
           
 for arg in sys.argv[1:]:
-    if arg[0]=='-' and len(arg)==2: # option
+    if arg[0]=='-' and len(arg)==2: # options
         options=options+(arg,)
-    elif file1=='':
+    elif file1=='' and len(arg)>3 and arg[-3:].lower()=='aax':
         file1=arg
-    elif file2=='':
+    elif file2=='' and len(arg)>3 and arg[-3:].lower()=='aax':
         file2=arg
 
 if file1=='' or file2=='':
