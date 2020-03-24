@@ -16,7 +16,7 @@ def help():
     print('options could be:')
     print(' -i compare logic blocs ;)')
     print(' -l compare line by line ;)')
-    print(' -L compare line by line with selected conflicts')
+    print(' -L compare line by line with selected conflicts (use in terminal)')
 #    print(' -s print some statistics (dont use - in development)')
 #    print(' -w start GUI (dont use - in development)')
     print(' -h print this help')
@@ -31,7 +31,7 @@ print('Mar,2020,AY AMPL logic block compare')
 if len(sys.argv)<3:
     help()
     sys.exit(0)
-          
+
 for arg in sys.argv[1:]:
     if arg[0]=='-' and len(arg)==2: # options
         options=options+(arg,)
@@ -79,4 +79,4 @@ for op in options:
                 print(i,end='')
     if op=='-h':
         help()
-    
+

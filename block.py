@@ -1,12 +1,14 @@
-## version 0.1 Feb-24,2020 BAKU ABB ARMOR AY
+## v0.1 Feb-24,2020 BAKU ABB ARMOR AY
+## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
 ## Advant Controllers AAX files parsing and comparision
 import sys
 if sys.version_info[0]<3:
 	print('Please use Python version 3+')
 	sys.exit()
 
-NEQ=' <not equal> '
-NONE='NONE'
+NEQ='<->'
+NEX='pin not exist'
+NONE='no value assigned'
 _tab=30
 
 HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
@@ -32,7 +34,7 @@ class block:
                 if pin in self.pins.keys():
                     return str(self.pins[pin])
                 else:
-                    return NONE
+                    return NEX
 
         def addpin(self,pin,value):
                 "Create a pin with a value. Value could be any type"
@@ -78,6 +80,7 @@ class block:
         def cmp(self,other):
                 "Compare blocks and return differences report"
                 s=''
+                pnf=False
                 if isinstance(other,block):
                     slist=list(self.pins.keys())
                     olist=list(other.pins.keys())
@@ -88,10 +91,19 @@ class block:
                     if len(slist)<len(olist): ## slist should always bigger
                         slist=list(other.pins.keys())
                         olist=list(self.pins.keys())
+                    if len(slist)!=len(olist):
+                        s+='number of pins are different!'+ \
+                        str(' %d '%len(slist)).rjust(_tab)+ \
+                        'vs'+ \
+                        str(' %d '%len(olist)).ljust(_tab)+'\n'
                     for k in slist:
                         if k in olist:
                             if self.pins[k]!=other.pins[k]:
                                 s+='\t'+str(k).ljust(_tab)+ \
+				 self.getpin(k).ljust(_tab)+ \
+				 NEQ+other.getpin(k).rjust(_tab)+'\n'
+                        else:
+                            s+='\t'+str(k).ljust(_tab)+ \
 				 self.getpin(k).ljust(_tab)+ \
 				 NEQ+other.getpin(k).rjust(_tab)+'\n'
                     for k in olist:
@@ -164,6 +176,8 @@ class aax:
                             line=[pinname,st]
                         if elcnt>1:
                             pinval=line[1] #get pin value
+                        if elcnt==1:
+                            pinval=NONE #empty pin
                         if pinval[-1:]==',':# another value at the next line
                             status=3
                             lpinval.append(pinval[:-1])
@@ -254,7 +268,7 @@ class aax:
                     for key in self.el.keys():
                         if key in other.el.keys():
                             if self.el[key]!=other.el[key]:
-                                s+='\nConflict at %s\n'%(key)+ \
+                                s+='\nConflict at %s %s\n'%(key,self.el[key].name)+ \
 			str(self.el[key].cmp(other.el[key]))
                         else:
                             s+='\nAddress %s not found at %s but exist at %s\n'% \
