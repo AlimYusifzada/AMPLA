@@ -128,7 +128,7 @@ class aax:
                     self.Lines=file.readlines()
                     file.close()
                 except:
-                    print('...error reading file:'+self.fName)
+                    print('...error reading file: ...'+self.fName[-10:])
                     return
                 address='' # address of the block
                 BlockName='' # NAME of the block  or  pin
@@ -192,7 +192,6 @@ class aax:
                             self.Block[address].addpin(PinName,lpinval) # add list to the pin
                             lpinval=[]
                             status=0
-##                self.readlabels() # populate labels at the end dont need to call it deliberately
 
         def GetLabels(self):
                 "Populate dictionary 'self.Labels' with addresses and labels ;) \
@@ -216,14 +215,6 @@ class aax:
                                         if len(glb(pinval))>2:
                                                 self.Labels[glb(pinval)]=pinval[2:]
                 return self.Labels
-
-##        def GetLabel(self,addr):
-##                "Return label by the address"
-##                if addr in self.Labels.keys():
-##                        return self.Labels[addr]
-##                else:
-##                        return None
-
 
         def CountBlock(self,BlockName='dummy'):
                 "Count entries of the logic block"
@@ -261,21 +252,21 @@ class aax:
                         s+='\n'
                     if len(skeys)!=len(okeys):
                         s+='\nNumers of logic blocks are different\n \
-		at %s =%d\n \
-		at %s =%d\n'% \
-		(self.fName,len(self.Block.keys()),other.fName,len(other.Block.keys()))
+		at ..%s =%d\n \
+		at ..%s =%d\n'% \
+		(self.fName[-10:],len(self.Block.keys()),other.fName[-10:],len(other.Block.keys()))
                     for key in self.Block.keys():
                         if key in other.Block.keys():
                             if self.Block[key]!=other.Block[key]:
                                 s+='\nConflict at %s %s\n'%(key,self.Block[key].Name)+ \
 			str(self.Block[key].cmp(other.Block[key]))
                         else:
-                            s+='\naddress %s not found at %s but exist at %s\n'% \
-		        (key,other.fName,self.fName)+str(self.Block[key])
+                            s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+		        (key,other.fName[-10:],self.fName[-10:])+str(self.Block[key])
                     for key in other.Block.keys():
                         if key not in self.Block.keys():
-                            s+='\naddress %s not found at %s but exist at %s\n'% \
-			(key,self.fName,other.fName)+str(other.Block[key])
+                            s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+			(key,self.fName[-10:],other.fName[-10:])+str(other.Block[key])
                 return s
 
         def statout(self):

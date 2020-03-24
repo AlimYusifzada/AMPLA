@@ -36,9 +36,6 @@ class mainGUI:
         self.cmpOutput.insert('1.0',str(fA.cmp(fB)))
 
 
-
-
-
 def aaxgui():
     mainwin=Tk()
     win=mainGUI(mainwin)
