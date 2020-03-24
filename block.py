@@ -11,11 +11,11 @@ NEX='pin not exist'
 NONE='no value assigned'
 TAB=30
 
-HEADER=('Design_ch','Tech_ref','Resp_dept','Date',
-        'L_Text2','R_Text2',
-        'L_Text3','R_Text3',
-        'L_Text4','R_Text4',
-        'Rev_ind','Language')
+HEADER=('design_ch','tech_ref','resp_dept','date',
+        'l_text2','r_text2',
+        'l_text3','r_text3',
+        'l_text4','r_text4',
+        'rev_ind','language')
 
 #-----------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ class aax:
                 for  L in self.Lines:
                     line=L.split()
                     elcnt=len(line)  # count the elements in the line
-                    if elcnt>0 and line[0] in HEADER: # reading text from aax file header
+                    if elcnt>0 and line[0].lower() in HEADER: # reading text from aax file header
                         ss=''
                         i=0
                         for s in line:
@@ -150,7 +150,7 @@ class aax:
                             else:
                                 ss=ss+s+' '
                                 i+=1
-                        self.Header[line[0]]=ss
+                        self.Header[line[0].lower()]=ss
                     if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
                         address=line[0] # get address
                         status=1 #    block mark
