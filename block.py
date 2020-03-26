@@ -7,9 +7,11 @@ if sys.version_info[0]<3:
 	sys.exit()
 
 NEQ='<->'
+NEok='<- ok ->'
 NEX='pin not exist'
 NONE='no value assigned'
 TAB=30
+nSPC=-16
 
 HEADER=('design_ch','tech_ref','resp_dept','date',
         'l_text2','r_text2',
@@ -80,6 +82,7 @@ class block:
         def cmp(self,other):
                 "Compare blocks and return differences report"
                 s=''
+                dlm=''
                 if isinstance(other,block):
                     slist=list(self.Pins.keys())
                     olist=list(other.Pins.keys())
@@ -128,7 +131,7 @@ class aax:
                     self.Lines=file.readlines()
                     file.close()
                 except:
-                    print('...error reading file: ...'+self.fName[-10:])
+                    print('...error reading file: ...'+self.fName[nSPC:])
                     return
                 address='' # address of the block
                 BlockName='' # NAME of the block  or  pin
@@ -254,7 +257,7 @@ class aax:
                         s+='\nNumers of logic blocks are different\n \
 		at ..%s =%d\n \
 		at ..%s =%d\n'% \
-		(self.fName[-10:],len(self.Block.keys()),other.fName[-10:],len(other.Block.keys()))
+		(self.fName[nSPC:],len(self.Block.keys()),other.fName[nSPC:],len(other.Block.keys()))
                     for key in self.Block.keys():
                         if key in other.Block.keys():
                             if self.Block[key]!=other.Block[key]:
@@ -262,11 +265,11 @@ class aax:
 			str(self.Block[key].cmp(other.Block[key]))
                         else:
                             s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-		        (key,other.fName[-10:],self.fName[-10:])+str(self.Block[key])
+		        (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Block[key])
                     for key in other.Block.keys():
                         if key not in self.Block.keys():
                             s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-			(key,self.fName[-10:],other.fName[-10:])+str(other.Block[key])
+			(key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Block[key])
                 return s
 
         def statout(self):

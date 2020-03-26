@@ -58,7 +58,7 @@ def help():
     print('AAX files names location in the command line are not fixed but both should be present')
     return
 
-print('Mar,2020,AY AMPL logic block compare')
+print('Mar/2020, Baku ABB, AY, AMPL logic (aax files) compare tool')
 
 if len(sys.argv)<3:
     help()
