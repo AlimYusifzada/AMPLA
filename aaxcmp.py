@@ -4,6 +4,7 @@ from block import *
 import sys
 import difflib as dif
 from tkinter import Frame,Label, Button, Entry, Text, Tk
+from tkinter import scrolledtext as STX
 ##from txtcolour import *
 
 
@@ -16,6 +17,7 @@ class mainGUI:
 
     def __init__(self,root):
         self.root=root
+
         Label(text='gui interface for aaxcmp rev0.2 Mar/2020').grid(row=0,column=1,sticky='E')
         Label(text='AAX file before:').grid(row=1,column=0,sticky='E')
         self.FBefore=Entry(root,width=100)
@@ -25,8 +27,8 @@ class mainGUI:
         self.FAfter.grid(row=2,column=1,sticky='W')
 
         self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0)
-        self.cmpOutput=Text(root)
-        self.cmpOutput.grid(row=4,column=1)
+        self.cmpOutput=STX.ScrolledText(root)
+        self.cmpOutput.grid(row=3,column=1)
 
     def icompare(self):
         fA=aax(self.FBefore.get())

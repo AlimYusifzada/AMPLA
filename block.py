@@ -11,7 +11,7 @@ NEok='<- ok ->'
 NEX='pin not exist'
 NONE='no value assigned'
 TAB=30
-nSPC=-16
+nSPC=-20
 
 HEADER=('design_ch','tech_ref','resp_dept','date',
         'l_text2','r_text2',
@@ -54,7 +54,7 @@ class block:
                 return "%s\t%s %s\n%s"%(self.Address,self.Name,self.Extra,s)
 
         def __eq__(self,other):
-                "compare blocks equal"
+                "Compare blocks, return True or False"
                 if isinstance(other,block):
                     if other.Address==self.Address:
                         if other.Name==self.Name:
@@ -80,10 +80,12 @@ class block:
                 return self
 
         def cmp(self,other):
-                "Compare blocks and return differences report"
+                "Compare blocks, return difference report"
                 s=''
                 dlm=''
                 if isinstance(other,block):
+                    if self==other:
+                        return s
                     slist=list(self.Pins.keys())
                     olist=list(other.Pins.keys())
                     if self.Name!=other.Name:
@@ -119,7 +121,7 @@ class block:
 class aax:
         def __init__(self,fname):
                 "Create object and parsing AAX file"
-                self.Block={} # logic elements (blocks)
+                self.Blocks={} # logic elements (blocks)
                 self.fName=fname # aax file NAME
                 status=0 # used for parsing
                 self.Lines=None # lines collection from aax file
@@ -165,7 +167,7 @@ class aax:
                             extra=line[2] # get extra params
                         else:
                             extra=''
-                        self.Block[address]=block(address,BlockName,extra) # create logic block obj
+                        self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
                     if elcnt>0 and line[0][:1]==':': # start of the pin definition
                         PinName=line[0]# get pin NAME
                         status=2 #  pin mark
@@ -184,7 +186,7 @@ class aax:
                             status=3
                             lpinval.append(pinval[:-1])
                         else:
-                            self.Block[address].addpin(PinName,pinval) # last value for the pin
+                            self.Blocks[address].addpin(PinName,pinval) # last value for the pin
                             status=0
                     if elcnt==1 and status==3: # one of the values for the pin - add it to the list
                         pinval=line[0]
@@ -192,7 +194,7 @@ class aax:
                             lpinval.append(pinval[:-1])
                         else: # this is a last value for the pin
                             lpinval.append(pinval)
-                            self.Block[address].addpin(PinName,lpinval) # add list to the pin
+                            self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
                             lpinval=[]
                             status=0
 
@@ -206,9 +208,9 @@ class aax:
                                 s=''
                         return s
 
-                for addr in self.Block: # start for each logic block
-                        for pname in self.Block[addr].Pins: # for all PINS
-                                pinval=self.Block[addr].Pins[pname] # ger pin val
+                for addr in self.Blocks: # start for each logic block
+                        for pname in self.Blocks[addr].Pins: # for all PINS
+                                pinval=self.Blocks[addr].Pins[pname] # ger pin val
                                 if type(pinval)==list or type(pinval)==tuple: # several connections
                                         for val in pinval:
                                                 if type(val)==str:
@@ -222,8 +224,8 @@ class aax:
         def CountBlock(self,BlockName='dummy'):
                 "Count entries of the logic block"
                 counter=0
-                for ad in self.Block.keys():
-                    if self.Block[ad].Name==BlockName:
+                for ad in self.Blocks.keys():
+                    if self.Blocks[ad].Name==BlockName:
                         counter+=1
                 return counter
 
@@ -231,10 +233,10 @@ class aax:
                 "Return average count of pins for given block type"
                 pcnt=0
                 bcnt=0
-                for ad in self.Block.keys():
-                    if self.Block[ad].Name==BlockName:
+                for ad in self.Blocks.keys():
+                    if self.Blocks[ad].Name==BlockName:
                         bcnt+=1
-                        pcnt+=len(self.Block[ad].Pins)
+                        pcnt+=len(self.Blocks[ad].Pins)
                 if bcnt==0: # stop div by 0
                         bcnt=1
                 return round(pcnt/bcnt,1)
@@ -243,8 +245,8 @@ class aax:
                 "Compare AAX files and return text report"
                 s=''
                 if isinstance(other,aax):
-                    skeys=self.Block.keys()
-                    okeys=other.Block.keys()
+                    skeys=self.Blocks.keys()
+                    okeys=other.Blocks.keys()
                     if self.Header!=other.Header:
                         s+='\nConflict at HEADER:\n'
                         for k in HEADER:
@@ -257,19 +259,19 @@ class aax:
                         s+='\nNumers of logic blocks are different\n \
 		at ..%s =%d\n \
 		at ..%s =%d\n'% \
-		(self.fName[nSPC:],len(self.Block.keys()),other.fName[nSPC:],len(other.Block.keys()))
-                    for key in self.Block.keys():
-                        if key in other.Block.keys():
-                            if self.Block[key]!=other.Block[key]:
-                                s+='\nConflict at %s %s\n'%(key,self.Block[key].Name)+ \
-			str(self.Block[key].cmp(other.Block[key]))
+		(self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
+                    for key in self.Blocks.keys():
+                        if key in other.Blocks.keys():
+                            if self.Blocks[key]!=other.Blocks[key]:
+                                s+='\nConflict at %s %s\n'%(key,self.Blocks[key].Name)+ \
+			str(self.Blocks[key].cmp(other.Blocks[key]))
                         else:
                             s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-		        (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Block[key])
-                    for key in other.Block.keys():
-                        if key not in self.Block.keys():
+		        (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
+                    for key in other.Blocks.keys():
+                        if key not in self.Blocks.keys():
                             s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-			(key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Block[key])
+			(key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
                 return s
 
         def statout(self):
@@ -278,8 +280,8 @@ class aax:
                 s=''
                 blocks=()
                 stout=()
-                for ad in self.Block.keys():
-                    NAME=self.Block[ad].Name
+                for ad in self.Blocks.keys():
+                    NAME=self.Blocks[ad].Name
                     if NAME not in blocks:
                         blocks=blocks+(NAME,)
                         stout=stout+((NAME,self.CountBlock(NAME),self.AveragePins(NAME)),)
