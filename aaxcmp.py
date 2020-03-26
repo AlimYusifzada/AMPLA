@@ -16,23 +16,21 @@ class mainGUI:
 
     def __init__(self,root):
         self.root=root
-        self.label=Label(text='enter aax file names in the fields below')
-        self.entry_A=Entry(root,width=80)
-        self.entry_B=Entry(root,width=80)
-        self.cmpOutput=Text(root,width=120)
+        Label(text='gui interface for aaxcmp rev0.2 Mar/2020').grid(row=0,column=1,sticky='E')
+        Label(text='AAX file before:').grid(row=1,column=0,sticky='E')
+        self.FBefore=Entry(root,width=100)
+        self.FBefore.grid(row=1,column=1,sticky='W')
+        Label(text='AAX file after:').grid(row=2,column=0,sticky='E')
+        self.FAfter=Entry(root,width=100)
+        self.FAfter.grid(row=2,column=1,sticky='W')
 
-        self.cmpBTN=Button(root,text='COMPARE',width=40,command=self.icompare)
-
-        self.label.pack()
-        self.entry_A.pack()
-        self.entry_B.pack()
-        self.cmpBTN.pack()
-
-        self.cmpOutput.pack()
+        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0)
+        self.cmpOutput=Text(root)
+        self.cmpOutput.grid(row=4,column=1)
 
     def icompare(self):
-        fA=aax(self.entry_A.get())
-        fB=aax(self.entry_B.get())
+        fA=aax(self.FBefore.get())
+        fB=aax(self.FAfter.get())
         self.cmpOutput.insert('1.0',str(fA.cmp(fB)))
 
 
@@ -55,7 +53,7 @@ def help():
 ##    print(' -w start GUI (dont use - in development)')
     print(' -h print this help')
 
-    print('\n ;) report friendly option')
+    print('\n ;) report friendly option\n')
     print('position of the options keys in command line, determine the sequence of the output')
     print('AAX files names location in the command line are not fixed but both should be present')
     return
@@ -95,14 +93,14 @@ for op in options:
         print(fileOne.statout())
         print('File %s'%fileTwo.fname)
         print(fileTwo.statout())
-    if op=='-L':
-        d=dif.Differ()
-        cmpres=d.compare(fileOne.lines,fileTwo.lines)
-        for i in cmpres:
-            if i[0]=='-' or i[0]=='+' or i[0]=='?':
-                print(CSELECTED+i+CEND,end='')
-            else:
-                print(i,end='')
+##    if op=='-L':
+##        d=dif.Differ()
+##        cmpres=d.compare(fileOne.lines,fileTwo.lines)
+##        for i in cmpres:
+##            if i[0]=='-' or i[0]=='+' or i[0]=='?':
+##                print(CSELECTED+i+CEND,end='')
+##            else:
+##                print(i,end='')
     if op=='-l':
         d=dif.Differ()
         cmpres=d.compare(fileOne.lines,fileTwo.lines)
