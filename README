@@ -21,26 +21,26 @@ In Python environment:
 
 File_A=aax('FileA.aax') create File_A object and parse AMPL code from 'FileA.aax'
 
-File_A.el      dictionary, contain all parsed logic blocks
-File_A.header  dictionary, contain FileA.aax file header with keys like 'Rev_ind' or 'Language'
+File_A.Blocks      dictionary, contain all parsed logic blocks
+File_A.Header  dictionary, contain FileA.aax file header with keys like 'Rev_ind' or 'Language'
 
-To access AAX revision number use File_A.header['Rev_ind']
+To access AAX revision number use File_A.Header['Rev_ind']
 
-File_A.el['PC##.##.##'] contain parsed logic block at 'PC##.##.##'
+File_A.Blocks['PC##.##.##'] contain parsed logic block at 'PC##.##.##'
 
-File_A.el['PC##.##.##']=File_A.el['PC##.##.##']+(pinname,value,value1,..) create new pin with values
+File_A.Blocks['PC##.##.##']=File_A.Blocks['PC##.##.##']+(pinname,value,value1,..) create new pin with values
 
-File_A.el['PC##.##.##'].addpin(pinname,value) create new pin with one value
+File_A.Blocks['PC##.##.##'].addpin(pinname,value) create new pin with one value
 
-File_A.el['PC##.##.##'].addpin(pinname,(value1,value2,..)) create new pin with several values
+File_A.Blocks['PC##.##.##'].addpin(pinname,(value1,value2,..)) create new pin with several values
 
 Compare blocks:
 
 File_B=aax('FileB.aax')
 
-File_A.el['PC##.##.##']==File_B.el['PC##.##.##'] return True if they are equeal
+File_A.Blocks['PC##.##.##']==File_B.Blocks['PC##.##.##'] return True if they are equeal
 
-File_A.el['PC##.##.##'].cmp(File_B.el['PC##.##.##']) return string with block comparision report
+File_A.Blocks['PC##.##.##'].cmp(File_B.Blocks['PC##.##.##']) return string with block comparision report
 
 Compare aax files
 File_A.cmp(File_B) return string with files comparision result
