@@ -24,7 +24,11 @@ HEADER=('design_ch','tech_ref','resp_dept','date',
 class block:
 
         def __init__(self,address='PC',NAME='dummy',extra='()'):
-                "Create object for logic block"
+                "Constructor, create logic block instance\n \
+                Pins: contain logic block pins (dictionary keys) and values\n \
+                Name: logic block name like MOVE,OR,AND,..\n \
+                Adress: logic block address like PC12.1.1.2\n \
+                Extra: the logic block parameters MOVE(B,16)"
                 self.Pins={} # pins (keys) and connections {pin:connection,..}
                 self.Name=NAME # block NAME
                 self.Address=address # PC##.##.##...
@@ -32,7 +36,7 @@ class block:
                 return
 
         def getpin(self,pin):
-                "Get string value of the pin"
+                "Return string value of the pin"
                 if pin in self.Pins.keys():
                     return str(self.Pins[pin])
                 else:
@@ -64,8 +68,7 @@ class block:
                 return False
 
         def __add__(self,values):
-                "Add new pin with values, \
-		first element is pin NAME \
+                "Add new pin with values, first element is pin NAME\n \
 		rest of the elements added as list or tuple"
                 if isinstance(values,tuple) or isinstance(values,list):
                     if len(values)>=3:
@@ -120,7 +123,12 @@ class block:
 
 class aax:
         def __init__(self,fname):
-                "Create object and parsing AAX file"
+                "Constructor, create AAX file instance, read/analize logic\n \
+                Blocks: contains all logic blocks from AAX file\n \
+                fName: full path to AMPL aax file including file name\n \
+                Lines: text lines from AMPL file\n \
+                Header: AMPL code header\n \
+                Labels: all labels with addresses in the AMPL code"
                 self.Blocks={} # logic elements (blocks)
                 self.fName=fname # aax file NAME
                 status=0 # used for parsing
@@ -199,8 +207,8 @@ class aax:
                             status=0
 
         def GetLabels(self):
-                "Populate dictionary 'self.Labels' with addresses and labels ;) \
-				 return it as result"
+                "Populate dictionary 'self.Labels'\n \
+                 with addresses and labels, then return it as result"
                 def glb(vx):
                         if vx[0:2]=='N=': # label found
                                 s=str(addr)+str(pname)
@@ -220,6 +228,7 @@ class aax:
                                         if len(glb(pinval))>2:
                                                 self.Labels[glb(pinval)]=pinval[2:]
                 return self.Labels
+        _getlabels=GetLabels
 
         def CountBlock(self,BlockName='dummy'):
                 "Count entries of the logic block"
@@ -228,6 +237,7 @@ class aax:
                     if self.Blocks[ad].Name==BlockName:
                         counter+=1
                 return counter
+        _countblock=CountBlock
 
         def AveragePins(self,BlockName='dummy'):
                 "Return average count of pins for given block type"
@@ -240,6 +250,7 @@ class aax:
                 if bcnt==0: # stop div by 0
                         bcnt=1
                 return round(pcnt/bcnt,1)
+        _averagepins=AveragePins
 
         def cmp(self,other):
                 "Compare AAX files and return text report"
@@ -273,9 +284,10 @@ class aax:
                             s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
 			(key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
                 return s
+        _cmp=cmp
 
-        def statout(self):
-                "Return list with statistic data: \
+        def StatOut(self):
+                "Return list with statistic data:\n \
 		 (block NAME, block usage count, average pins number)"
                 s=''
                 blocks=()
@@ -284,5 +296,6 @@ class aax:
                     NAME=self.Blocks[ad].Name
                     if NAME not in blocks:
                         blocks=blocks+(NAME,)
-                        stout=stout+((NAME,self.CountBlock(NAME),self.AveragePins(NAME)),)
+                        stout=stout+((NAME,self._countblock(NAME),self._averagepins(NAME)),)
                 return stout
+        _statout=StatOut

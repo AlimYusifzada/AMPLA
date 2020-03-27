@@ -26,7 +26,7 @@ class mainGUI:
         self.FAfter=Entry(root,width=100)
         self.FAfter.grid(row=2,column=1,sticky='W')
 
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0)
+        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0,sticky='N')
         self.cmpOutput=STX.ScrolledText(root)
         self.cmpOutput.grid(row=3,column=1)
 
@@ -34,6 +34,7 @@ class mainGUI:
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
         self.cmpOutput.insert('1.0',str(fA.cmp(fB)))
+
 
 
 def aaxgui():
@@ -105,7 +106,7 @@ for op in options:
 ##                print(i,end='')
     if op=='-l':
         d=dif.Differ()
-        cmpres=d.compare(fileOne.lines,fileTwo.lines)
+        cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
         print('\n line by line comparision legend\n')
         print('\n If line started with [space] the line is equal in both files')
         print('\n If line started with [-] the line  exist in the first file only')
