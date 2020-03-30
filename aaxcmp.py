@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from block import *
 import sys
 import difflib as dif
@@ -19,17 +18,17 @@ class mainGUI:
     def __init__(self,root):
         self.root=root
 
-        Label(text='gui interface for aaxcmp rev0.2 Mar/2020').grid(row=0,column=1,sticky='E')
-        Label(text='AAX file before:').grid(row=1,column=0,sticky='E')
+        Label(text='gui interface for aaxcmp rev0.2 Mar/2020').grid(row=0,column=1,sticky='E'+'W')
+        Label(text='AAX file before:').grid(row=1,column=0,sticky='E'+'W')
         self.FBefore=Entry(root,width=wwidth)
-        self.FBefore.grid(row=1,column=1,sticky='W')
-        Label(text='AAX file after:').grid(row=2,column=0,sticky='E')
+        self.FBefore.grid(row=1,column=1,sticky='W'+'E')
+        Label(text='AAX file after:').grid(row=2,column=0,sticky='E'+'W')
         self.FAfter=Entry(root,width=wwidth)
-        self.FAfter.grid(row=2,column=1,sticky='W')
+        self.FAfter.grid(row=2,column=1,sticky='W'+'E')
 
         self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0,sticky='N')
-        self.cmpOutput=STX.ScrolledText(root,width=wwidth)
-        self.cmpOutput.grid(row=3,column=1)
+        self.cmpOutput=STX.ScrolledText(root)
+        self.cmpOutput.grid(row=3,column=1,sticky='N'+'S'+'w'+'E')
 
     def icompare(self):
         fA=aax(self.FBefore.get())
