@@ -10,6 +10,7 @@ from tkinter import scrolledtext as STX
 
 file1=''
 file2=''
+wwidth=120
 options=()
 
 
@@ -20,14 +21,14 @@ class mainGUI:
 
         Label(text='gui interface for aaxcmp rev0.2 Mar/2020').grid(row=0,column=1,sticky='E')
         Label(text='AAX file before:').grid(row=1,column=0,sticky='E')
-        self.FBefore=Entry(root,width=100)
+        self.FBefore=Entry(root,width=wwidth)
         self.FBefore.grid(row=1,column=1,sticky='W')
         Label(text='AAX file after:').grid(row=2,column=0,sticky='E')
-        self.FAfter=Entry(root,width=100)
+        self.FAfter=Entry(root,width=wwidth)
         self.FAfter.grid(row=2,column=1,sticky='W')
 
         self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0,sticky='N')
-        self.cmpOutput=STX.ScrolledText(root)
+        self.cmpOutput=STX.ScrolledText(root,width=wwidth)
         self.cmpOutput.grid(row=3,column=1)
 
     def icompare(self):
