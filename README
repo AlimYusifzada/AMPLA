@@ -5,7 +5,6 @@ There is a plan to upgrade the tool for statistical calculations (inprogress), c
 Master copy and latest revision are here: https://github.com/AlimYusifzada/AMPLA.git
 
 You need pyhton version 3 and above to use that tool
-At the moment only command line interface is available.
 
 ...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax -l -i -s -h
 .../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx -l -i -s -h
@@ -19,32 +18,32 @@ At the moment only command line interface is available.
 
 In Python environment:
 
-File_A=aax('FileA.aax') create File_A object and parse AMPL code from 'FileA.aax'
+from block import *
 
-File_A.Blocks      dictionary, contain all parsed logic blocks
-File_A.Header  dictionary, contain FileA.aax file header with keys like 'Rev_ind' or 'Language'
+File_A=aax('FileA.aax') ## create File_A object and parse AMPL code from 'FileA.aax'
 
-To access AAX revision number use File_A.Header['Rev_ind']
+File_A.Blocks      ##dictionary, contain all parsed logic blocks
+File_A.Header  ##dictionary, contain FileA.aax file header with keys like 'Rev_ind' or 'Language'
 
-File_A.Blocks['PC##.##.##'] contain parsed logic block at 'PC##.##.##'
+##To access AAX revision number use File_A.Header['Rev_ind']
 
-File_A.Blocks['PC##.##.##']=File_A.Blocks['PC##.##.##']+(pinname,value,value1,..) create new pin with values
+File_A.Blocks['PC##.##.##'] ##contain parsed logic block at 'PC##.##.##'
 
-File_A.Blocks['PC##.##.##'].addpin(pinname,value) create new pin with one value
+File_A.Blocks['PC##.##.##']=File_A.Blocks['PC##.##.##']+(pinname,value,value1,..) ##create new pin with values
 
-File_A.Blocks['PC##.##.##'].addpin(pinname,(value1,value2,..)) create new pin with several values
+File_A.Blocks['PC##.##.##'].AddPin(pinname,value) ##create new pin with one value
 
-Compare blocks:
+File_A.Blocks['PC##.##.##'].AddPin(pinname,(value1,value2,..)) ##create new pin with several values
 
 File_B=aax('FileB.aax')
 
-File_A.Blocks['PC##.##.##']==File_B.Blocks['PC##.##.##'] return True if they are equeal
+File_A.Blocks['PC##.##.##']==File_B.Blocks['PC##.##.##'] ##return True if they are equeal
 
-File_A.Blocks['PC##.##.##'].cmp(File_B.Blocks['PC##.##.##']) return string with block comparision report
+File_A.Blocks['PC##.##.##'].cmp(File_B.Blocks['PC##.##.##']) ##return string with block comparision report
 
-Compare aax files
+##Compare aax files
 File_A.cmp(File_B) return string with files comparision result
 
-File_A.labels dictionary contains all labels
-File_A.getlabel('PC##.##.##:pin') return label assigned to that pin or None
+#File_A.Labels ##dictionary contains all labels
+File_A.GetLabels() ##find all labels at aax file and populate File_A.Labels dictionaly
 
