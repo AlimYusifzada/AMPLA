@@ -123,7 +123,7 @@ class block:
 
 class aax:
         def __init__(self,fname):
-                "Constructor, create AAX file instance, read/analize logic\n \
+                "Constructor, create AAX file instance, parse AMPL logic\n \
                 Blocks: contains all logic blocks from AAX file\n \
                 fName: full path to AMPL aax file including file name\n \
                 Lines: text lines from AMPL file\n \
