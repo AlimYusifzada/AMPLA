@@ -4,7 +4,7 @@ Each logic block represents by an object and could be compared with the other on
 There is a plan to upgrade the tool for statistical calculations (inprogress) and controller loading calculations (future)
 Master copy and latest revision are here: https://github.com/AlimYusifzada/AMPLA.git
 
-You need pyhton version 3 and above to use that tool or use pyinstaller to create standalone executable.
+You need Pyhton version 3 and above to use that tool or use pyinstaller to create standalone executable.
 py files: block.py and aaxcmp.py should be in the same directory.
 If you run it without options - simple GUI is activated.
 
