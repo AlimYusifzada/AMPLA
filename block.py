@@ -38,15 +38,15 @@ class block:
         def getpin(self,pin):
                 "Return string value of the pin"
                 if pin in self.Pins.keys():
-                    return str(self.Pins[pin])
+                        return str(self.Pins[pin])
                 else:
-                    return NEX
+                        return NEX
 
         def addpin(self,pin,value):
                 "Create a pin with a value. Value could be any type"
                 if pin in self.Pins.keys():
-                    print('...pin %s already exist'%pin)
-                    return False
+                        print('...pin %s already exist'%pin)
+                        return False
                 self.Pins[pin]=value
                 return True
 
@@ -54,30 +54,30 @@ class block:
                 "Test representation of the block"
                 s=''
                 for k in self.Pins.keys():
-                    s+='\t'+str(k).ljust(TAB)+self.getpin(k)+'\n'
+                        s+='\t'+str(k).ljust(TAB)+self.getpin(k)+'\n'
                 return "%s\t%s %s\n%s"%(self.Address,self.Name,self.Extra,s)
 
         def __eq__(self,other):
                 "Compare blocks, return True or False"
                 if isinstance(other,block):
-                    if other.Address==self.Address:
-                        if other.Name==self.Name:
-                            if other.Extra==self.Extra:
-                                if other.Pins==self.Pins:
-                                    return True
+                        if other.Address==self.Address:
+                                if other.Name==self.Name:
+                                            if other.Extra==self.Extra:
+                                                        if other.Pins==self.Pins:
+                                                                    return True
                 return False
 
         def __add__(self,values):
                 "Add new pin with values, first element is pin NAME\n \
-		rest of the elements added as list or tuple"
+                rest of the elements added as list or tuple"
                 if isinstance(values,tuple) or isinstance(values,list):
-                    if len(values)>=3:
-                            self.addpin(values[0],values[1:len(values)])
-                    if len(values)==2:
-                            self.addpin(values[0],values[1])
-                    else:
-                            print('...second operand must have two \
-					or more elements in the list')
+                        if len(values)>=3:
+                                self.addpin(values[0],values[1:len(values)])
+                        if len(values)==2:
+                                self.addpin(values[0],values[1])
+                        else:
+                                print('...second operand must have two \
+                                        or more elements in the list')
                 else:
                         print('...second operand must be a list or tuple')
                 return self
@@ -87,37 +87,37 @@ class block:
                 s=''
                 dlm=''
                 if isinstance(other,block):
-                    if self==other:
-                        return s
-                    slist=list(self.Pins.keys())
-                    olist=list(other.Pins.keys())
-                    if self.Name!=other.Name:
-                        s+=self.Name+NEQ+other.Name+'\n'
-                    if self.Extra!=other.Extra:
-                        s+=self.Extra+NEQ+other.Extra+'\n'
-                    if len(slist)<len(olist): ## slist should always bigger
-                        slist=list(other.Pins.keys())
-                        olist=list(self.Pins.keys())
-                    if len(slist)!=len(olist):
-                        s+='Number of PINS are different!'+ \
-                        str(' %d '%len(slist)).rjust(TAB)+ \
-                        'vs'+ \
-                        str(' %d '%len(olist)).ljust(TAB)+'\n'
-                    for k in slist:
-                        if k in olist:
-                            if self.Pins[k]!=other.Pins[k]:
-                                s+='\t'+str(k).ljust(TAB)+ \
-				 self.getpin(k).ljust(TAB)+ \
-				 NEQ+other.getpin(k).rjust(TAB)+'\n'
-                        else:
-                            s+='\t'+str(k).ljust(TAB)+ \
-				 self.getpin(k).ljust(TAB)+ \
-				 NEQ+other.getpin(k).rjust(TAB)+'\n'
-                    for k in olist:
-                        if k not in slist:
-                            s=s+'\t'+str(k).ljust(TAB)+ \
-				 self.getpin(k).ljust(TAB)+ \
-				 NEQ+other.getpin(k).rjust(TAB)+'\n'
+                        if self==other:
+                                return s
+                        slist=list(self.Pins.keys())
+                        olist=list(other.Pins.keys())
+                        if self.Name!=other.Name:
+                                s+=self.Name+NEQ+other.Name+'\n'
+                        if self.Extra!=other.Extra:
+                                s+=self.Extra+NEQ+other.Extra+'\n'
+                        if len(slist)<len(olist): ## slist should always bigger
+                                slist=list(other.Pins.keys())
+                                olist=list(self.Pins.keys())
+                        if len(slist)!=len(olist):
+                                s+='Number of PINS are different!'+ \
+                                str(' %d '%len(slist)).rjust(TAB)+ \
+                                'vs'+ \
+                                str(' %d '%len(olist)).ljust(TAB)+'\n'
+                        for k in slist:
+                                if k in olist:
+                                        if self.Pins[k]!=other.Pins[k]:
+                                                s+='\t'+str(k).ljust(TAB)+ \
+                                                 self.getpin(k).ljust(TAB)+ \
+                                                 NEQ+other.getpin(k).rjust(TAB)+'\n'
+                                else:
+                                            s+='\t'+str(k).ljust(TAB)+ \
+                                                 self.getpin(k).ljust(TAB)+ \
+                                                 NEQ+other.getpin(k).rjust(TAB)+'\n'
+                                for k in olist:
+                                        if k not in slist:
+                                                    s=s+'\t'+str(k).ljust(TAB)+ \
+                                                         self.getpin(k).ljust(TAB)+ \
+                                                         NEQ+other.getpin(k).rjust(TAB)+'\n'
                 return s
 
 
@@ -137,12 +137,12 @@ class aax:
                 self.Labels={} # strore labels {"PC##.##.##":label}
 
                 try: # open aax file
-                    file=open(self.fName,'r')
-                    self.Lines=file.readlines()
-                    file.close()
+                            file=open(self.fName,'r')
+                            self.Lines=file.readlines()
+                            file.close()
                 except:
-                    print('...error reading file: ...'+self.fName[nSPC:])
-                    return
+                            print('...error reading file: ...'+self.fName[nSPC:])
+                            return
                 address='' # address of the block
                 BlockName='' # NAME of the block  or  pin
                 PinName=''
@@ -152,63 +152,63 @@ class aax:
                 elcnt=0 # number of elements in the line
                 ## AMPLE parsing logic from here
                 for  L in self.Lines:
-                    line=L.split()
-                    elcnt=len(line)  # count the elements in the line
-                    if elcnt>0 and line[0].lower() in HEADER: # reading text from aax file header
-                        ss=''
-                        i=0
-                        for s in line:
-                            if i==0:
-                                i+=1
-                            else:
-                                ss=ss+s+' '
-                                i+=1
-                        self.Header[line[0].lower()]=ss
-                    if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
-                        address=line[0] # get address
-                        status=1 #    block mark
-                        if elcnt>1:
-                            BlockName=line[1] # get blok NAME
-                        else:
-                            BlockName=''
-                        if elcnt>2:
-                            extra=line[2] # get extra params
-                        else:
-                            extra=''
-                        self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
-                    if elcnt>0 and line[0][:1]==':': # start of the pin definition
-                        PinName=line[0]# get pin NAME
-                        status=2 #  pin mark
-                        if elcnt>2: # if there are spaces in the pin value
-                            st=''
-                            for i in range(elcnt):
-                                if i>0:
-                                    st+=line[i]+' ' # put all of them in to one string
-                            #line.clear()
-                            line=[PinName,st]
-                        if elcnt>1:
-                            pinval=line[1] #get pin value
-                        if elcnt==1:
-                            pinval=NONE #empty pin
-                        if pinval[-1:]==',':# another value at the next line
-                            status=3
-                            lpinval.append(pinval[:-1])
-                        else:
-                            self.Blocks[address].addpin(PinName,pinval) # last value for the pin
-                            status=0
-                    if elcnt==1 and status==3: # one of the values for the pin - add it to the list
-                        pinval=line[0]
-                        if pinval[-1:]==',': # there are still another value at the next line
-                            lpinval.append(pinval[:-1])
-                        else: # this is a last value for the pin
-                            lpinval.append(pinval)
-                            self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
-                            lpinval=[]
-                            status=0
+                            line=L.split()
+                            elcnt=len(line)  # count the elements in the line
+                            if elcnt>0 and line[0].lower() in HEADER: # reading text from aax file header
+                                        ss=''
+                                        i=0
+                                        for s in line:
+                                            if i==0:
+                                                i+=1
+                                            else:
+                                                ss=ss+s+' '
+                                                i+=1
+                                        self.Header[line[0].lower()]=ss
+                            if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
+                                        address=line[0] # get address
+                                        status=1 #    block mark
+                                        if elcnt>1:
+                                                    BlockName=line[1] # get blok NAME
+                                        else:
+                                                    BlockName=''
+                                        if elcnt>2:
+                                                    extra=line[2] # get extra params
+                                        else:
+                                                    extra=''
+                                        self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
+                            if elcnt>0 and line[0][:1]==':': # start of the pin definition
+                                        PinName=line[0]# get pin NAME
+                                        status=2 #  pin mark
+                                        if elcnt>2: # if there are spaces in the pin value
+                                                    st=''
+                                                    for i in range(elcnt):
+                                                                if i>0:
+                                                                            st+=line[i]+' ' # put all of them in to one string
+                                                    line=[PinName,st]
+                                        if elcnt>1:
+                                                    pinval=line[1] #get pin value
+                                        if elcnt==1:
+                                                    pinval=NONE #empty pin
+                                        if pinval[-1:]==',':# another value at the next line
+                                                    status=3
+                                                    lpinval.append(pinval[:-1])
+                                        else:
+                                                    self.Blocks[address].addpin(PinName,pinval) # last value for the pin
+                                                    status=0
+                            if elcnt==1 and status==3: # one of the values for the pin - add it to the list
+                                        pinval=line[0]
+                                        if pinval[-1:]==',': # there are still another value at the next line
+                                                    lpinval.append(pinval[:-1])
+                                        else: # this is a last value for the pin
+                                                    lpinval.append(pinval)
+                                                    self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
+                                                    lpinval=[]
+                                                    status=0
 
         def GetLabels(self):
                 "Populate dictionary 'self.Labels'\n \
                  with addresses and labels, then return it as result"
+
                 def glb(vx):
                         if vx[0:2]=='N=': # label found
                                 s=str(addr)+str(pname)
@@ -234,8 +234,8 @@ class aax:
                 "Count entries of the logic block"
                 counter=0
                 for ad in self.Blocks.keys():
-                    if self.Blocks[ad].Name==BlockName:
-                        counter+=1
+                        if self.Blocks[ad].Name==BlockName:
+                                counter+=1
                 return counter
         _countblock=CountBlock
 
@@ -244,9 +244,9 @@ class aax:
                 pcnt=0
                 bcnt=0
                 for ad in self.Blocks.keys():
-                    if self.Blocks[ad].Name==BlockName:
-                        bcnt+=1
-                        pcnt+=len(self.Blocks[ad].Pins)
+                        if self.Blocks[ad].Name==BlockName:
+                                bcnt+=1
+                                pcnt+=len(self.Blocks[ad].Pins)
                 if bcnt==0: # stop div by 0
                         bcnt=1
                 return round(pcnt/bcnt,1)
@@ -256,46 +256,46 @@ class aax:
                 "Compare AAX files and return text report"
                 s=''
                 if isinstance(other,aax):
-                    skeys=self.Blocks.keys()
-                    okeys=other.Blocks.keys()
-                    if self.Header!=other.Header:
-                        s+='\nConflict at HEADER:\n'
-                        for k in HEADER:
-                            if self.Header[k]!=other.Header[k]:
-                                s+='\n'+str(k).ljust(TAB)+ \
-				 str(self.Header[k]).rjust(TAB)+ \
-				 str(other.Header[k]).rjust(TAB)
+                        skeys=self.Blocks.keys()
+                        okeys=other.Blocks.keys()
+                        if self.Header!=other.Header:
+                                s+='\nConflict at HEADER:\n'
+                                for k in HEADER:
+                                        if self.Header[k]!=other.Header[k]:
+                                                s+='\n'+str(k).ljust(TAB)+ \
+                                                         str(self.Header[k]).rjust(TAB)+ \
+                                                         str(other.Header[k]).rjust(TAB)
                         s+='\n'
-                    if len(skeys)!=len(okeys):
-                        s+='\nNumers of logic blocks are different\n \
-		at ..%s =%d\n \
-		at ..%s =%d\n'% \
-		(self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
-                    for key in self.Blocks.keys():
-                        if key in other.Blocks.keys():
-                            if self.Blocks[key]!=other.Blocks[key]:
-                                s+='\nConflict at %s %s\n'%(key,self.Blocks[key].Name)+ \
-			str(self.Blocks[key].cmp(other.Blocks[key]))
-                        else:
-                            s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-		        (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
-                    for key in other.Blocks.keys():
-                        if key not in self.Blocks.keys():
-                            s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-			(key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
+                        if len(skeys)!=len(okeys):
+                                s+='\nNumers of logic blocks are different\n \
+                                        at ..%s =%d\n \
+                                        at ..%s =%d\n'% \
+                                        (self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
+                        for key in self.Blocks.keys():
+                                if key in other.Blocks.keys():
+                                    if self.Blocks[key]!=other.Blocks[key]:
+                                        s+='\nConflict at %s %s\n'%(key,self.Blocks[key].Name)+ \
+                                                str(self.Blocks[key].cmp(other.Blocks[key]))
+                                else:
+                                        s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+                                                (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
+                        for key in other.Blocks.keys():
+                                if key not in self.Blocks.keys():
+                                        s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+                                                (key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
                 return s
         _cmp=cmp
 
         def StatOut(self):
                 "Return list with statistic data:\n \
-		 (block NAME, block usage count, average pins number)"
+                 (block NAME, block usage count, average pins number)"
                 s=''
                 blocks=()
                 stout=()
                 for ad in self.Blocks.keys():
-                    NAME=self.Blocks[ad].Name
-                    if NAME not in blocks:
-                        blocks=blocks+(NAME,)
-                        stout=stout+((NAME,self._countblock(NAME),self._averagepins(NAME)),)
+                        NAME=self.Blocks[ad].Name
+                        if NAME not in blocks:
+                                blocks=blocks+(NAME,)
+                                stout=stout+((NAME,self._countblock(NAME),self._averagepins(NAME)),)
                 return stout
         _statout=StatOut
