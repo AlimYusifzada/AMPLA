@@ -4,7 +4,7 @@ import sys
 import difflib as dif
 from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import scrolledtext as STX
-##from txtcolour import *
+from txtcolour import *
 
 rev='0.3'
 
@@ -48,11 +48,11 @@ def aaxgui():
 
 
 def help():
-    print('\naaxcmp [file1.aax] [file2.aax] <options>\n')
+    print('\n./aaxcmp.py [file1.aax] [file2.aax] <options>\n')
     print('options could be:')
     print(' -i compare logic blocs ;)')
     print(' -l compare line by line ;)')
-##    print(' -L compare line by line with selected conflicts (use in terminal)')
+    print(' -L compare line by conflicts selected (linux terminal tested)')
 ##    print(' -s print some statistics (dont use - in development)')
 ##    print(' -w start GUI (dont use - in development)')
     print(' -h print this help')
@@ -62,7 +62,7 @@ def help():
     print('AAX files names location in the command line are not fixed but both should be present')
     return
 
-print('Mar/2020,rev%s, Baku ABB, AlimY, AMPL logic (aax files) compare tool'%rev)
+print('\n aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
 
 if len(sys.argv)<3:
     help()
@@ -97,14 +97,14 @@ for op in options:
         print(fileOne.statout())
         print('File %s'%fileTwo.fname)
         print(fileTwo.statout())
-##    if op=='-L':
-##        d=dif.Differ()
-##        cmpres=d.compare(fileOne.lines,fileTwo.lines)
-##        for i in cmpres:
-##            if i[0]=='-' or i[0]=='+' or i[0]=='?':
-##                print(CSELECTED+i+CEND,end='')
-##            else:
-##                print(i,end='')
+    if op=='-L':
+        d=dif.Differ()
+        cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
+        for i in cmpres:
+            if i[0]=='-' or i[0]=='+' or i[0]=='?':
+                print(CSELECTED+i+CEND,end='')
+            else:
+                print(i,end='')
     if op=='-l':
         d=dif.Differ()
         cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
