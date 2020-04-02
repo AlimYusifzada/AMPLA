@@ -6,6 +6,7 @@ from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import scrolledtext as STX
 ##from txtcolour import *
 
+rev='0.3'
 
 file1=''
 file2=''
@@ -18,7 +19,7 @@ class mainGUI:
     def __init__(self,root):
         self.root=root
 
-        Label(text='gui interface for aaxcmp rev0.2 Mar/2020').grid(row=0,column=1,sticky='E'+'W')
+        Label(text='gui interface for aaxcmp rev %s Mar/2020'%rev).grid(row=0,column=1,sticky='E'+'W')
         Label(text='AAX file before:').grid(row=1,column=0,sticky='E'+'W')
         self.FBefore=Entry(root,width=wwidth)
         self.FBefore.grid(row=1,column=1,sticky='W'+'E')
@@ -40,7 +41,7 @@ class mainGUI:
 def aaxgui():
     mainwin=Tk()
     win=mainGUI(mainwin)
-    win.title='aaxcmp with GUI rev0.2'
+    win.title='aaxcmp with GUI rev%s'%rev
     mainwin.mainloop()
     pass
 
@@ -61,7 +62,7 @@ def help():
     print('AAX files names location in the command line are not fixed but both should be present')
     return
 
-print('Mar/2020, Baku ABB, AY, AMPL logic (aax files) compare tool')
+print('Mar/2020,rev%s, Baku ABB, AlimY, AMPL logic (aax files) compare tool'%rev)
 
 if len(sys.argv)<3:
     help()
