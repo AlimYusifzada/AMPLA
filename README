@@ -31,7 +31,7 @@ File_A.Header  ##dictionary, contain FileA.aax file header with keys like 'Rev_i
 
 File_A.Blocks['PC##.##.##'] ##contain parsed logic block at 'PC##.##.##'
 
-File_A.Blocks['PC##.##.##']=File_A.Blocks['PC##.##.##']+(pinname,value,value1,..) ##create new pin with values
+File_A.Blocks['PC##.##.##']+=(pinname,value,value1,..) ##create new pin with values
 
 File_A.Blocks['PC##.##.##'].AddPin(pinname,value) ##create new pin with one value
 
