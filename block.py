@@ -1,6 +1,8 @@
 ## v0.1 Feb-24,2020 BAKU ABB ARMOR AY
 ## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
+## v0.3 add INAME parsing and compare
 ## Advant Controllers AAX files parsing and comparision
+
 import sys
 if sys.version_info[0]<3:
 	print('Please use Python version 3+')
@@ -182,16 +184,18 @@ class aax:
                                     self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
 
                         if elcnt>0 and status==1 and line[0]=='INAME':
-                                    self.Blocks[address].Description=line[1]
+                                    st=''
+                                    for e in line[1:]:
+                                            st+=e
+                                    self.Blocks[address].Description=st
 
                         if elcnt>0 and line[0][:1]==':': # start of the pin definition
                                     PinName=line[0]# get pin NAME
                                     status=2 #  pin mark
                                     if elcnt>2: # if there are spaces in the pin value
                                                 st=''
-                                                for i in range(elcnt):
-                                                            if i>0:
-                                                                        st+=line[i]+' ' # put all of them in to one string
+                                                for e in line[1:]:
+                                                        st+=e+' ' # put all back in to one string
                                                 line=[PinName,st]
                                     if elcnt>1:
                                                 pinval=line[1] #get pin value
