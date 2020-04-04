@@ -18,9 +18,19 @@ If you run it without options - simple GUI is activated.
     position of the options keys in command line, determine the sequence of the output
     AAX files names location in the command line are not fixed but both should be present
 
-In Python environment:
+In output stream:
+    delimeter   <-!->    use to emphasise important differences.
+    delimeter   <-ok->   use to separate different but not important changes
 
-from block import *
+using AMPLA in In Python environment:
+
+from block import *   ## imort all classes 'block' and 'aax'
+
+# create logic blocks and populate pins with values in python code
+MoveBlock=block('PC##.##.##','MOVE','(B,2)') # create logic block MOVE object
+MoveBlock+=(':1','=DIC12:CALC_VAL') # create pin and assign value
+MoveBlock+=(':2','=DIC13:CALC_VAL') 
+MoveBlock+=(':10','PC1.2.3:1','PC1.2.3:3') # creaate pin with several connections
 
 File_A=aax('FileA.aax') ## create File_A object and parse AMPL code from 'FileA.aax'
 
