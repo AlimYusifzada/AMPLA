@@ -4,11 +4,15 @@ Each logic block represents by an object and could be compared with the other on
 There is a plan to upgrade the tool for statistical calculations (inprogress) and controller loading calculations (future)
 Master copy and latest revision are here: https://github.com/AlimYusifzada/AMPLA.git
 
-You need Pyhton version 3 and above to use that tool or use pyinstaller to create standalone executable.
-py files: block.py and aaxcmp.py should be in the same directory.
-If you run it without options - simple GUI is activated.
+You need Pyhton3 to use that tool or use standalone executable.
+py files: ampla.py and aaxcmp.py should be in the same directory.
+If you run it without options - simple GUI will activated.
 
+--------------------------------------------------------------------------------------------------------------------------------
+how to use it from MS Windows command line:
 ...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax -l -i -s -h
+
+how to use it from Linux terminal:
 .../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx -l -i -s -h
     
     -i compare logic blocs
@@ -20,9 +24,11 @@ If you run it without options - simple GUI is activated.
 
 In output stream:
     delimeter   <-!->    use to emphasise important differences.
-    delimeter   <-ok->   use to separate different but not important changes
+    delimeter   <-ok->   use to separate non important differences (codevise)
+---------------------------------------------------------------------------------------------------------------------------------
 
-using AMPLA in In Python environment:
+
+Using AMPLA in In Python environment:
 
 from block import *   ## imort all classes 'block' and 'aax'
 
@@ -56,6 +62,6 @@ File_A.Blocks['PC##.##.##'].cmp(File_B.Blocks['PC##.##.##']) ##return string wit
 ##Compare aax files
 File_A.cmp(File_B) return string with files comparision result
 
-#File_A.Labels ##dictionary contains all labels
+##File_A.Labels contains all labels with their addresses
 File_A.GetLabels() ##find all labels at aax file and populate File_A.Labels dictionaly
 
