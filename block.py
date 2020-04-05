@@ -107,7 +107,7 @@ class block:
                               'vs'+ \
                               str(' %d '%len(olist)).ljust(TAB)+'\n'
                         for k in slist:
-                              if k in olist:
+                              if k in olist: 
                                   if self.Pins[k]!=other.Pins[k]:
                                           s+='\t'+str(k).ljust(TAB)+ \
                                            self.getpin(k).ljust(TAB)+ \
