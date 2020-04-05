@@ -1,7 +1,8 @@
 ## v0.1 Feb-24,2020 BAKU ABB ARMOR AY
 ## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
-## v0.3 add INAME parsing and compare
 ## Advant Controllers AAX files parsing and comparision
+
+## THIS IS OLD REISION - DON'T USE
 
 import sys
 if sys.version_info[0]<3:
