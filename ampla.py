@@ -135,10 +135,11 @@ class aax:
                   Labels: all labels with addresses in the AMPL code"
                   self.Blocks={} # logic elements (blocks)
                   self.fName=fname # aax file NAME
-                  status=0 # used for parsing
                   self.Lines=None # lines collection from aax file
                   self.Header={} # aax header
                   self.Labels={} # strore labels {"PC##.##.##":label}
+
+                  status=0 # used for parsing
 
                   try: # open aax file
                         file=open(self.fName,'r')
@@ -316,9 +317,12 @@ class aax:
       _statout=StatOut
 
       def CRef(self,tag='dummy'):
-            "Cross refferense search for the tag \
+            "Cross referense search for the tag_name \
             return tuple of addresses where it was found.\
-            CRef(NONE) search for unconnected pins"
+            CRef(NONE) search for unconnected pins \
+            to print all blocks out use as shown below \
+            for a in f.CRef('tag_name'): \
+                print(f.Blocks[a[:a.index(':')]]) "
             out=()
             for addr in self.Blocks:
                 for pin in self.Blocks[addr].Pins:

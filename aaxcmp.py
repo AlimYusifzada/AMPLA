@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-from block import *
+from ampla import *
 import sys
 import difflib as dif
 from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import scrolledtext as STX
 from txtcolour import *
 
-rev='0.3'
+rev='0.4'
 
 file1=''
 file2=''
 wwidth=120
 options=()
-
+files=()
 
 class mainGUI:
 
@@ -50,42 +50,41 @@ def aaxgui():
 def help():
     print('\n./aaxcmp.py [file1.aax] [file2.aax] <options>\n')
     print('options could be:')
-    print(' -i compare logic blocs ;)')
-    print(' -l compare line by line ;)')
+    print(' -i compare logic blocs')
+    print(' -l compare line by line')
     print(' -L compare line by conflicts selected (linux terminal tested)')
+    print(' -rTAG_NAME cross refference of TAG_NAME at file1.aax and file2.aax')
+    print('            NOTE: spaces are not applicable')
 ##    print(' -s print some statistics (dont use - in development)')
 ##    print(' -w start GUI (dont use - in development)')
     print(' -h print this help')
-
-    print('\n ;) report friendly option\n')
-    print('position of the options keys in command line, determine the sequence of the output')
+    print('position of the options keys in the command line, determine the sequence of the output')
     print('AAX files names location in the command line are not fixed but both should be present')
     return
 
 print('\n aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
 
-if len(sys.argv)<3:
+if len(sys.argv)<2:
     help()
     aaxgui()
     sys.exit(0)
 
 for arg in sys.argv[1:]:
-    if arg[0]=='-' and len(arg)==2: # options
+    if arg[0]=='-': # options
         if arg not in options:
-            options=options+(arg,)
-    elif file1=='' and len(arg)>3 and arg[-3:].lower()=='aax':
-        file1=arg
-    elif file2=='' and len(arg)>3 and arg[-3:].lower()=='aax':
-        file2=arg
+            options+=(arg,)
+    if arg[-3:].lower()=='aax':
+        if arg not in files:
+            files+=(arg,)
 
-if file1=='' or file2=='':
+if len(files)<2:
     print('\ncant find both files in arguments\n')
     help()
     sys.exit(-1)
 
 try:
-    fileOne=aax(file1)
-    fileTwo=aax(file2)
+    fileOne=aax(files[0])
+    fileTwo=aax(files[1])
 except:
     sys.exit(-2)
 
@@ -117,4 +116,15 @@ for op in options:
                 print(i,end='')
     if op=='-h':
         help()
+
+    if op[:2]=='-r':
+        print('\n\tSearching %s at %s\n'%(op[2:],fileOne.fName))
+        for cradd in fileOne.CRef(op[2:]):
+            print(fileOne.Blocks[cradd[:cradd.index(':')]])
+        print('\n\tSearching %s at %s\n'%(op[2:],fileTwo.fName))
+        for cradd in fileTwo.CRef(op[2:]):
+            print(fileTwo.Blocks[cradd[:cradd.index(':')]])
+
+
+
 
