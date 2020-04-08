@@ -9,16 +9,20 @@ py files: ampla.py and aaxcmp.py should be in the same directory.
 If you run it without options - simple GUI will activated.
 
 --------------------------------------------------------------------------------------------------------------------------------
-how to use it from MS Windows command line:
-...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax -l -i -s -h
+run from MS Windows command line:
+...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax <options>
 
-how to use it from Linux terminal:
-.../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx -l -i -s -h
+run from Linux terminal:
+.../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx <options>
     
+    <options>
     -i compare logic blocs
     -l compare line by line (system)
     -s print some statistics (in development)
     -h print this help
+    -rTAG_NAME cross refference of the TAG_NAME at FileA.aax and FileB.aax
+               NOTE:spaces are not applicable
+    
     position of the options keys in command line, determine the sequence of the output
     AAX files names location in the command line are not fixed but both should be present
 
