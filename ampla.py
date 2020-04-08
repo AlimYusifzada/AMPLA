@@ -1,6 +1,8 @@
 ## v0.1 Feb-24,2020 BAKU ABB ARMOR AY
 ## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
 ## v0.3 add INAME parsing and compare
+## v0.4 add cross refference search aax.CRef() function
+
 ## Advant Controllers AAX files parsing and comparision
 
 import sys
@@ -123,7 +125,7 @@ class block:
                 return s
 
 class aax:
-      
+
       def __init__(self,fname):
                   "Constructor, create AAX file instance, parse AMPL logic\n \
                   Blocks: contains all logic blocks from AAX file\n \
@@ -304,11 +306,24 @@ class aax:
             (block NAME, block usage count, average pins number)"
             s=''
             blocks=()
-            stout=()
+            out=()
             for ad in self.Blocks.keys():
                   NAME=self.Blocks[ad].Name
                   if NAME not in blocks:
-                        blocks=blocks+(NAME,)
-                        stout=stout+((NAME,self._countblock(NAME),self._averagepins(NAME)),)
-            return stout
+                        blocks+=(NAME,)
+                        out+=((NAME,self._countblock(NAME),self._averagepins(NAME)),)
+            return out
       _statout=StatOut
+
+      def CRef(self,tag='dummy'):
+            "Cross refferense search for the tag \
+            return tuple of addresses where it was found.\
+            CRef(NONE) search for unconnected pins"
+            out=()
+            for addr in self.Blocks:
+                for pin in self.Blocks[addr].Pins:
+                    pinval=self.Blocks[addr].getpin(pin)
+                    if tag in pinval:
+                        out+=(str(addr)+str(pin),)
+            return out
+      _cref=CRef
