@@ -4,7 +4,7 @@ import sys
 import difflib as dif
 from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import scrolledtext as STX
-from txtcolour import *
+##from txtcolour import *
 
 rev='0.4'
 
@@ -36,8 +36,6 @@ class mainGUI:
         fB=aax(self.FAfter.get())
         self.cmpOutput.insert('1.0',str(fA.cmp(fB)))
 
-
-
 def aaxgui():
     mainwin=Tk()
     win=mainGUI(mainwin)
@@ -45,14 +43,12 @@ def aaxgui():
     mainwin.mainloop()
     pass
 
-
-
 def help():
     print('\n./aaxcmp.py [file1.aax] [file2.aax] <options>\n')
     print('options could be:')
     print(' -i compare logic blocs')
     print(' -l compare line by line')
-    print(' -L compare line by conflicts selected (linux terminal tested)')
+##    print(' -L compare line by conflicts selected (linux terminal tested)')
     print(' -rTAG_NAME cross refference of TAG_NAME at file1.aax and file2.aax')
     print('            NOTE: spaces are not applicable')
 ##    print(' -s print some statistics (dont use - in development)')
@@ -70,7 +66,7 @@ if len(sys.argv)<2:
     sys.exit(0)
 
 for arg in sys.argv[1:]:
-    if arg[0]=='-': # options
+    if arg[0]=='-':
         if arg not in options:
             options+=(arg,)
     if arg[-3:].lower()=='aax':
@@ -96,14 +92,14 @@ for op in options:
         print(fileOne.statout())
         print('File %s'%fileTwo.fname)
         print(fileTwo.statout())
-    if op=='-L':
-        d=dif.Differ()
-        cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
-        for i in cmpres:
-            if i[0]=='-' or i[0]=='+' or i[0]=='?':
-                print(CSELECTED+i+CEND,end='')
-            else:
-                print(i,end='')
+##    if op=='-L':
+##        d=dif.Differ()
+##        cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
+##        for i in cmpres:
+##            if i[0]=='-' or i[0]=='+' or i[0]=='?':
+##                print(CSELECTED+i+CEND,end='')
+##            else:
+##                print(i,end='')
     if op=='-l':
         d=dif.Differ()
         cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
@@ -117,12 +113,20 @@ for op in options:
     if op=='-h':
         help()
 
-    if op[:2]=='-r':
-        print('\n\tSearching %s at %s\n'%(op[2:],fileOne.fName))
+    if op[:2]=='-r' and len(op[2:])>0:
+        print('\n\t%s at %s\n'%(op[2:],fileOne.fName))
         for cradd in fileOne.CRef(op[2:]):
             print(fileOne.Blocks[cradd[:cradd.index(':')]])
-        print('\n\tSearching %s at %s\n'%(op[2:],fileTwo.fName))
+        print('\n\t%s at %s\n'%(op[2:],fileTwo.fName))
         for cradd in fileTwo.CRef(op[2:]):
+            print(fileTwo.Blocks[cradd[:cradd.index(':')]])
+    
+    if op=='-v':
+        print('\n\tUnconnected pins at %s\n'%fileOne.fName)
+        for cradd in fileOne.CRef(NONE):
+            print(fileOne.Blocks[cradd[:cradd.index(':')]])
+        print('\n\tUnconnected pins at %s\n'%fileTwo.fName)
+        for cradd in fileTwo.CRef(NONE):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
 
 
