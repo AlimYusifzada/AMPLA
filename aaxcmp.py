@@ -6,7 +6,7 @@ from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import scrolledtext as STX
 ##from txtcolour import *
 
-rev='0.4'
+rev='0.5'
 
 file1=''
 file2=''
@@ -19,22 +19,36 @@ class mainGUI:
     def __init__(self,root):
         self.root=root
 
-        Label(text='gui interface for aaxcmp rev %s Mar/2020'%rev).grid(row=0,column=1,sticky='E'+'W')
-        Label(text='AAX file before:').grid(row=1,column=0,sticky='E'+'W')
+        Label(text='gui interface for aaxcmp rev %s Mar/2020'%rev).grid(row=0,column=10,sticky='E'+'W')
+        Label(text='AAX file before:').grid(row=1,column=9,sticky='E'+'W')
         self.FBefore=Entry(root,width=wwidth)
-        self.FBefore.grid(row=1,column=1,sticky='W'+'E')
-        Label(text='AAX file after:').grid(row=2,column=0,sticky='E'+'W')
+        self.FBefore.grid(row=1,column=10,sticky='W'+'E')
+        Label(text='AAX file after:').grid(row=2,column=9,sticky='E'+'W')
         self.FAfter=Entry(root,width=wwidth)
-        self.FAfter.grid(row=2,column=1,sticky='W'+'E')
+        self.FAfter.grid(row=2,column=10,sticky='W'+'E')
+        self.TagEdit=Entry(root)
+        self.TagEdit.grid(row=2,column=1,sticky='W'+'E')
 
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=3,column=0,sticky='N')
+        self.cmpBTN=Button(root,text='cmp',command=self.icompare).grid(row=1,column=0)
+        self.voidBTN=Button(root,text='xref tag below',command=self.vpins).grid(row=1,column=1)
         self.cmpOutput=STX.ScrolledText(root)
-        self.cmpOutput.grid(row=3,column=1,sticky='N'+'S'+'w'+'E')
+        self.cmpOutput.grid(row=3,column=1,sticky='N'+'S'+'w'+'E',columnspan=10)
 
     def icompare(self):
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
-        self.cmpOutput.insert('1.0',str(fA.cmp(fB)))
+        self.cmpOutput.insert('0.0',str(fA.cmp(fB)))
+
+    def vpins(self):
+        fA=aax(self.FBefore.get())
+        fB=aax(self.FAfter.get())
+        s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fA.fName))
+        for cradd in fA.CRef(self.TagEdit.get()):
+            s+=str(fA.Blocks[cradd[:cradd.index(':')]])
+        s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
+        for cradd in fB.CRef(self.TagEdit.get()):
+            s+=str(fB.Blocks[cradd[:cradd.index(':')]])
+        self.cmpOutput.insert('0.0',s)
 
 def aaxgui():
     mainwin=Tk()
@@ -49,8 +63,9 @@ def help():
     print(' -i compare logic blocs')
     print(' -l compare line by line')
 ##    print(' -L compare line by conflicts selected (linux terminal tested)')
-    print(' -rTAG_NAME cross refference of TAG_NAME at file1.aax and file2.aax')
+    print(' -rTAG_NAME cross reference of TAG_NAME at file1.aax and file2.aax')
     print('            NOTE: spaces are not applicable')
+    print(' -v search for unconnected pins')
 ##    print(' -s print some statistics (dont use - in development)')
 ##    print(' -w start GUI (dont use - in development)')
     print(' -h print this help')
@@ -120,7 +135,7 @@ for op in options:
         print('\n\t%s at %s\n'%(op[2:],fileTwo.fName))
         for cradd in fileTwo.CRef(op[2:]):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
-    
+
     if op=='-v':
         print('\n\tUnconnected pins at %s\n'%fileOne.fName)
         for cradd in fileOne.CRef(NONE):
