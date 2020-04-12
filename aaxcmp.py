@@ -25,35 +25,28 @@ class mainGUI:
     def __init__(self,root):
         self.root=root
 
-## LABELS
+## LABELS & PICTURES
         root.title('AAXCMP GUI rev %s Mar/2020'%rev)
-        ##Label(text='gui interface for aaxcmp rev %s Mar/2020'%rev).grid(row=rowINFO,column=10,sticky='E'+'W')
-        Label(text='AAX file before:').grid(row=rowBefore,column=9,sticky='E'+'W')
-        Label(text='AAX file after:').grid(row=rowAfter,column=9,sticky='E'+'W')
-
+        Label(text='AAX file BEFORE:').grid(row=rowBefore,column=9,sticky='E'+'W')
+        Label(text='AAX file AFTER:').grid(row=rowAfter,column=9,sticky='E'+'W')
 ## OUTPUT
         self.cmpOutput=STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT,column=0,sticky='N'+'S'+'w'+'E',columnspan=11)
-
 ## ENTRIES
-
 ## AAX file entry - BEFORE
         self.FBefore=Entry(root,width=wwidth)
         self.FBefore.grid(row=rowBefore,column=10,sticky='W'+'E')
-
 ## AAX file entry - AFTER
         self.FAfter=Entry(root,width=wwidth)
         self.FAfter.grid(row=rowAfter,column=10,sticky='W'+'E')
-
 ## TAG NAME entry - cross reference
         self.TagEdit=Entry(root)
         self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
-
 ## BUTTONS
 ## button COMPARE
-        self.cmpBTN=Button(root,text='Compare',command=self.icompare).grid(row=rowBUTTONS,column=1)
+        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=1)
 ## button CROSS REFERENCE
-        self.voidBTN=Button(root,text='Cross reference',command=self.vpins).grid(row=rowBUTTONS,column=2)
+        self.voidBTN=Button(root,text='XREFERENCE',command=self.vpins).grid(row=rowBUTTONS,column=2)
 
     def icompare(self):
         fA=aax(self.FBefore.get())
@@ -84,7 +77,7 @@ def help():
     print('options could be:')
     print(' -i compare logic blocs')
     print(' -l compare line by line')
-    print(' -L compare line by conflicts selected (linux terminal tested)')
+    print(' -L compare line by line with conflicts selected (linux terminal only)')
     print(' -rTAG_NAME cross reference of TAG_NAME at file1.aax and file2.aax')
     print('            NOTE: spaces are not applicable')
     print(' -v search for unconnected pins')
@@ -95,11 +88,6 @@ def help():
 
 print('\n aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
 
-if len(sys.argv)<2:
-    help()
-    aaxgui()
-    sys.exit(0)
-
 for arg in sys.argv[1:]:
     if arg[0]=='-':
         if arg not in options:
@@ -108,26 +96,31 @@ for arg in sys.argv[1:]:
         if arg not in files:
             files+=(arg,)
 
-if len(files)<2:
-    print('\ncant find both files in arguments\n')
+if len(files)<1 or len(options)<1:
     help()
+    aaxgui()
     sys.exit(-1)
-
 try:
-    fileOne=aax(files[0])
-    fileTwo=aax(files[1])
+    if len(files)>=2:
+        fileOne=aax(files[0])
+        fileTwo=aax(files[1])
 except:
     sys.exit(-2)
 
 for op in options:
     if op=='-i':
+        print('\n\tBLOCKS COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print(fileOne.cmp(fileTwo))
+        print('_'*wwidth)
     if op=='-s':
+        print('\n\tSTAT.INFO:\t','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print('File %s'%fileOne.fname)
         print(fileOne.statout())
         print('File %s'%fileTwo.fname)
         print(fileTwo.statout())
+        print('_'*wwidth)
     if op=='-L':
+        print('\n\tL2L COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         d=dif.Differ()
         cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
         for i in cmpres:
@@ -135,6 +128,7 @@ for op in options:
                 print(CSELECTED+i+CEND,end='')
             else:
                 print(i,end='')
+        print('_'*wwidth)
     if op=='-l':
         d=dif.Differ()
         cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
@@ -143,27 +137,28 @@ for op in options:
         print('\n If line started with [-] the line  exist in the first file only')
         print('\n If line started with [+] the line exist in the second file only')
         print('\n If line started with [?] the line does not exist in both files\n')
+        print('\n\tL2L COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         for i in cmpres:
                 print(i,end='')
+        print('_'*wwidth)
     if op=='-h':
         help()
 
     if op[:2]=='-r' and len(op[2:])>0:
-        print('\n\t%s at %s\n'%(op[2:],fileOne.fName))
+        print('\n\tXREFERENCE %s at:\t'%op[2:],'%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
+        print('\n\n\t%s at %s\n'%(op[2:],fileOne.fName))
         for cradd in fileOne.CRef(op[2:]):
             print(fileOne.Blocks[cradd[:cradd.index(':')]])
-        print('\n\t%s at %s\n'%(op[2:],fileTwo.fName))
+        print('\n\n\t%s at %s\n'%(op[2:],fileTwo.fName))
         for cradd in fileTwo.CRef(op[2:]):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
-
+        print('_'*wwidth)
     if op=='-v':
-        print('\n\tUnconnected pins at %s\n'%fileOne.fName)
+        print('\n\tVOID PINs at: ','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
+        print('\n\n\tUnconnected pins at %s\n'%fileOne.fName)
         for cradd in fileOne.CRef(NONE):
             print(fileOne.Blocks[cradd[:cradd.index(':')]])
-        print('\n\tUnconnected pins at %s\n'%fileTwo.fName)
+        print('\n\n\tUnconnected pins at %s\n'%fileTwo.fName)
         for cradd in fileTwo.CRef(NONE):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
-
-
-
-
+        print('_'*wwidth)
