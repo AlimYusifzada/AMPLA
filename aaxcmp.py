@@ -10,7 +10,7 @@ rev='0.5'
 
 file1=''
 file2=''
-wwidth=120
+wwidth=60
 options=()
 files=()
 
@@ -51,7 +51,9 @@ class mainGUI:
     def icompare(self):
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
+        self.cmpOutput.insert('0.0','_'*wwidth)
         self.cmpOutput.insert('0.0',str(fA.cmp(fB)))
+        self.cmpOutput.insert('0.0','_'*wwidth)
 
     def vpins(self):
         fA=aax(self.FBefore.get())
@@ -62,7 +64,9 @@ class mainGUI:
         s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
         for cradd in fB.CRef(self.TagEdit.get()):
             s+=str(fB.Blocks[cradd[:cradd.index(':')]])
+        self.cmpOutput.insert('0.0','_'*wwidth)
         self.cmpOutput.insert('0.0',s)
+        self.cmpOutput.insert('0.0','_'*wwidth)
 
 def aaxgui():
     mainwin=Tk()
