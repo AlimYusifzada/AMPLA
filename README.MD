@@ -15,7 +15,7 @@ run from **Linux** terminal:
 
 >**-l** compare line by line
 
->**-s** print some statistics in development
+>**-s** print some statistics __in development__
 
 >**-h** print this help
 
