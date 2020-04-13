@@ -1,4 +1,4 @@
-**AMPLA** is **Python** implementation for **AMPL** code compare/analysis.
+**AMPLA** is **Python3** implementation for **AMPL** code compare/analysis.
 Read source **AMPL** code from **AAX** files.
 Each logic block represents by an object and could be compared with the other one.
 
