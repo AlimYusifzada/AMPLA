@@ -17,7 +17,7 @@ run from Linux terminal:
     -l compare line by line (system)
     -s print some statistics (in development)
     -h print this help
-    -rTAG_NAME cross refference of the TAG_NAME at FileA.aax and FileB.aax
+    -rTAG_NAME cross reference of the TAG_NAME at FileA.aax and FileB.aax
                NOTE:spaces are not applicable, case sensitive
     -v search for unconeccted, void pins 
     
