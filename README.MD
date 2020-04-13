@@ -1,14 +1,14 @@
-AMPLA is Python implementation for AMPL code compare/analysis.
+**AMPLA** is **Python** implementation for **AMPL** code compare/analysis.
 Read source AMPL code from AAX files
 Each logic block represents by an object and could be compared with the other one
 
-py files: ampla.py and aaxcmp.py should be in the same directory.
-If you run it without options - simple GUI will activated.
+**py** files: **ampla.py** and **aaxcmp.py** should be in the same directory.
+If you run it without options simple GUI will activated.
 
-run from MS Windows command line:
+run from **MS Windows** command line:
 ...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax <options>
 
-run from Linux terminal:
+run from **Linux** terminal:
 .../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx <options>
     
     <options>
