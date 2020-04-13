@@ -5,7 +5,6 @@ Each logic block represents by an object and could be compared with the other on
 py files: ampla.py and aaxcmp.py should be in the same directory.
 If you run it without options - simple GUI will activated.
 
---------------------------------------------------------------------------------------------------------------------------------
 run from MS Windows command line:
 ...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax <options>
 
@@ -27,5 +26,4 @@ run from Linux terminal:
 In output stream:
     delimeter   <-!->    use to emphasise important differences.
     delimeter   <-ok->   use to separate non important differences (codevise)
----------------------------------------------------------------------------------------------------------------------------------
 
