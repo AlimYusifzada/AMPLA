@@ -6,22 +6,22 @@ Each logic block represents by an object and could be compared with the other on
 If you run it without options simple **GUI** will activated.
 
 run from **MS Windows** command line:
->...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax <options>
+> ...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax <options>
 
 run from **Linux** terminal:
->.../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx <options>
+> .../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx <options>
     
->.-i compare logic blocs
+>**-i** compare logic blocs
 
->.-l compare line by line
+>**-l** compare line by line
 
->.-s print some statistics in development
+>**-s** print some statistics in development
 
->.-h print this help
+>**-h** print this help
 
->.-rTAG_NAME cross reference of the TAG_NAME at FileA.aax and FileB.aax NOTE:spaces are not applicable, case sensitive
+>**-rTAG_NAME** cross reference of the TAG_NAME at FileA.aax and FileB.aax NOTE:spaces are not applicable, case sensitive
 
->.-v search for unconeccted, void pins
+>**-v** search for unconeccted, void pins
 
 position of the keys in command line, determine sequence of the output data
 AAX files names location in the command line are not fixed but both should be present
