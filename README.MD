@@ -5,10 +5,10 @@ Each logic block represents by an object and could be compared with the other on
 **py** files: **ampla.py** and **aaxcmp.py** should be in the same directory. 
 If you run it without options simple **GUI** will be activated.
 
-run from **MS Windows** command line:
+To run from **MS Windows** command line:
 > ...\your_directory_at_mswindows>python3 aaxcmp.py FileA.aax FileB.aax {keys}
 
-run from **Linux** terminal:
+To run from **Linux** terminal:
 > .../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx {keys}
 
 >**keys**
