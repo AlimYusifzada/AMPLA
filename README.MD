@@ -11,7 +11,7 @@ run from **MS Windows** command line:
 run from **Linux** terminal:
 *.../your_directory_at_linux$./aaxcmp.py FileA.aax FileB.axx <options>*
     
-    <options>
+    **options**
     -i *compare logic blocs*
     -l *compare line by line*
     -s *print some statistics in development*
