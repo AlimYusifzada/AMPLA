@@ -17,7 +17,7 @@ To run from **Linux** terminal:
 > - **-s** print some statistics
 > - **-h** print this help
 > - **-rTAG_NAME** cross reference of the TAG_NAME at FileA.aax and FileB.aax NOTE:spaces are not applicable, case sensitive
-> - **-v** search for unconeccted, void pins
+> - **-v** search for unconnected, void pins
 
 position of the *keys* in command line, determine sequence of the output data
 **AAX** files names location in the command line are not fixed but both should be present
