@@ -2,7 +2,7 @@
 Read source **AMPL** code from **AAX** files.
 Each logic block represents by an object and could be compared with the other one.
 
-**py** files: **ampla.py** and **aaxcmp.py** should be in the same directory.
+**py** files: **ampla.py** and **aaxcmp.py** should be in the same directory. 
 If you run it without options simple **GUI** will activated.
 
 run from **MS Windows** command line:
