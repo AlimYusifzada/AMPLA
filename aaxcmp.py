@@ -51,9 +51,9 @@ class mainGUI:
     def icompare(self):
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
-        self.cmpOutput.insert('0.0','_'*wwidth)
+#        self.cmpOutput.insert('0.0','_'*wwidth)
         self.cmpOutput.insert('0.0',str(fA.cmp(fB)))
-        self.cmpOutput.insert('0.0','_'*wwidth)
+#        self.cmpOutput.insert('0.0','_'*wwidth)
 
     def vpins(self):
         fA=aax(self.FBefore.get())
@@ -64,9 +64,9 @@ class mainGUI:
         s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
         for cradd in fB.CRef(self.TagEdit.get()):
             s+=str(fB.Blocks[cradd[:cradd.index(':')]])
-        self.cmpOutput.insert('0.0','_'*wwidth)
+#        self.cmpOutput.insert('0.0','_'*wwidth)
         self.cmpOutput.insert('0.0',s)
-        self.cmpOutput.insert('0.0','_'*wwidth)
+#        self.cmpOutput.insert('0.0','_'*wwidth)
 
 def aaxgui():
     mainwin=Tk()
@@ -77,7 +77,8 @@ def aaxgui():
     pass
 
 def help():
-    print('\n./aaxcmp.py [file1.aax] [file2.aax] <options>\n')
+    print('linux: $./aaxcmp.py [file1.aax] [file2.aax] <options>')
+    print('mswin: >python3 aaxcmp.py [file1.aax] [file2.aax] <options>')
     print('options could be:')
     print(' -i compare logic blocs')
     print(' -l compare line by line')
@@ -90,8 +91,8 @@ def help():
     print('AAX files names location in the command line are not fixed but both should be present')
     return
 
-print('\n aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
-
+print('aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
+print('Many thanks to Stuart Redman, for the help debugging and fix issues')
 for arg in sys.argv[1:]:
     if arg[0]=='-':
         if arg not in options:
@@ -115,14 +116,14 @@ for op in options:
     if op=='-i':
         print('\n\tBLOCKS COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print(fileOne.cmp(fileTwo))
-        print('_'*wwidth)
+        #print('_'*wwidth)
     if op=='-s':
         print('\n\tSTAT.INFO:\t','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print('File %s'%fileOne.fname)
         print(fileOne.statout())
         print('File %s'%fileTwo.fname)
         print(fileTwo.statout())
-        print('_'*wwidth)
+        #print('_'*wwidth)
     if op=='-L':
         print('\n\tL2L COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         d=dif.Differ()
@@ -132,7 +133,7 @@ for op in options:
                 print(CSELECTED+i+CEND,end='')
             else:
                 print(i,end='')
-        print('_'*wwidth)
+        #print('_'*wwidth)
     if op=='-l':
         d=dif.Differ()
         cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
@@ -144,7 +145,7 @@ for op in options:
         print('\n\tL2L COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         for i in cmpres:
                 print(i,end='')
-        print('_'*wwidth)
+        #print('_'*wwidth)
     if op=='-h':
         help()
 
@@ -156,7 +157,7 @@ for op in options:
         print('\n\n\t%s at %s\n'%(op[2:],fileTwo.fName))
         for cradd in fileTwo.CRef(op[2:]):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
-        print('_'*wwidth)
+        #print('_'*wwidth)
     if op=='-v':
         print('\n\tVOID PINs at: ','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print('\n\n\tUnconnected pins at %s\n'%fileOne.fName)
@@ -165,4 +166,4 @@ for op in options:
         print('\n\n\tUnconnected pins at %s\n'%fileTwo.fName)
         for cradd in fileTwo.CRef(NONE):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
-        print('_'*wwidth)
+        #print('_'*wwidth)

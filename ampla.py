@@ -169,8 +169,8 @@ class aax:
                                           if i==0:
                                                 i+=1
                                           else:
-                                                ss=ss+s+' '
-                                                i+=1
+                                            ss=ss+s+' '
+                                            i+=1
                                     self.Header[line[0].lower()]=ss
 
                         if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
@@ -277,6 +277,7 @@ class aax:
                   if self.Header!=other.Header:
                           s+='\nConflict at HEADER:'
                           for k in HEADER:
+                                if k in other.Header:
                                   if self.Header[k]!=other.Header[k]:
                                           s+='\n\t'+str(k).ljust(TAB)+ \
                                                    str(self.Header[k]).ljust(TAB)+NEok+ \
