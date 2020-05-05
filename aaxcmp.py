@@ -92,7 +92,7 @@ def help():
     return
 
 print('aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
-print('Many thanks to Stuart Redman, for the help debugging and fix issues')
+print('Many thanks to Stuart Redman, for the help in debugging and fixing issues')
 for arg in sys.argv[1:]:
     if arg[0]=='-':
         if arg not in options:

@@ -1,0 +1,71 @@
+(******************************************************************************)
+(* 16TU0101.AAX generated with FCB Release 6.2/1        02-MAY-2020  09:48:13 *)
+(* Pagelayout: Standard Master  A4 landscape  English     Rows: 60, Cols: 185 *)
+(* Node type: Safeguard 400 1.6             Base SW: QC01/QC05-BAS11 11.0/5.x *)
+(* Additional options: QC01-LIB11 11.0, QC01-LIB12 11.0, QC05-CEM11 5.x       *)
+(*                                                                            *)
+(*                                                                            *)
+(******************************************************************************)
+
+BEGIN PC1
+HEADER
+
+
+PCD-PAGE    1
+PC1    PCPGM (40,0)
+       :ON                              D=1
+       :R                               0
+
+PC1.1    CONTRM (1000,0,0)
+       :ON                              1
+       :SINGLE                          0
+       :R                               0
+
+PC1.1.1    BLOCK
+       :ON                              1
+
+PC1.1.1.1    ANALYSE (1,1)
+       :MPLDH1                          D=8.900000E+01
+       :HYS                             D=1.000000E+00
+       :MPLD                            =N16_17-LOAD
+       :CLDH1                           D=7.400000E+01
+
+PC1.1.1.2    TON
+       :I                               PC1.1.1.1:MPLD>H1
+       :TD                              D=30
+
+PC1.1.1.3    MOVE (B,1)
+       :1                               0
+       :21                              =CLOCK_SYNCH:CLK_MAST
+
+PC1.1.1.4    MOVE (I,2)
+       :1                               D=2
+       :2                               D=0
+       :21                              =CLOCK_SYNCH:LOC_TIME
+       :22                              =CLOCK_SYNCH:CLK_SEND
+
+PC1.1.1.5    TIME
+
+
+PCD-PAGE    
+PC1.1.1.6    CONV (T,IL)
+       :I                               PC1.1.1.5:TIME
+       :O                               =#3H-TIME
+
+
+PCD-PAGE    
+"Maintenance Enable Override Timer"
+PC1.1.2    BLOCK
+INAME (BYPASS ENABLE TIMER)
+       :ON                              1
+
+PC1.1.2.1    MONO
+       :RTG                             0
+       :I                               =3H-XHS792031C
+       :TP                              D=60
+       :O                               =3H-XHS792031CX:CALC_VAL
+
+
+END PC1
+
+
