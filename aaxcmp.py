@@ -3,10 +3,11 @@ from ampla import *
 import sys
 import difflib as dif
 from tkinter import Frame,Label, Button, Entry, Text, Tk
+from tkinter import filedialog
 from tkinter import scrolledtext as STX
 ##from txtcolour import *
 
-rev='0.5'
+rev='0.6'
 
 file1=''
 file2=''
@@ -44,9 +45,23 @@ class mainGUI:
         self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
 ## BUTTONS
 ## button COMPARE
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=1)
+        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=9)
 ## button CROSS REFERENCE
         self.voidBTN=Button(root,text='XREFERENCE',command=self.vpins).grid(row=rowBUTTONS,column=2)
+## button BROWSE
+        self.browseBTN=Button(root,text='BROWSE',command=self.aaxbrowse).grid(row=rowBUTTONS,column=10)
+
+
+
+    def aaxbrowse(self):
+         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "/",
+                                                    title = "Select AAX file BEFORE",
+                                                    filetype =(("aax files","*.aax"),("all files","*.*")) )
+                            )
+         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "/",
+                                                    title = "Select AAX file AFTER",
+                                                    filetype =(("aax files","*.aax"),("all files","*.*")) )
+                            )
 
     def icompare(self):
         fA=aax(self.FBefore.get())
