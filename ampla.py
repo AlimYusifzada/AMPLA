@@ -277,7 +277,7 @@ class aax:
                   if self.Header!=other.Header:
                           s+='\nConflict at HEADER:'
                           for k in HEADER:
-                                if k in other.Header:
+                                if k in other.Header and k in self.Header:
                                   if self.Header[k]!=other.Header[k]:
                                           s+='\n\t'+str(k).ljust(TAB)+ \
                                                    str(self.Header[k]).ljust(TAB)+NEok+ \
