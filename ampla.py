@@ -108,20 +108,20 @@ class block:
                               'vs'+ \
                               str(' %d '%len(olist)).ljust(TAB)+'\n'
                         for k in slist:
-                              if k in olist:
-                                  if self.Pins[k]!=other.Pins[k]:
-                                          s+='\t'+str(k).ljust(TAB)+ \
-                                           self.getpin(k).ljust(TAB)+ \
-                                           NEQ+other.getpin(k).rjust(TAB)+'\n'
-                              else:
-                                      s+='\t'+str(k).ljust(TAB)+ \
-                                           self.getpin(k).ljust(TAB)+ \
-                                           NEQ+other.getpin(k).rjust(TAB)+'\n'
-                              for k in olist:
-                                  if k not in slist:
-                                              s=s+'\t'+str(k).ljust(TAB)+ \
+                                if k in olist:
+                                        if self.Pins[k]!=other.Pins[k]:
+                                                s+='\t'+str(k).ljust(TAB)+ \
                                                    self.getpin(k).ljust(TAB)+ \
                                                    NEQ+other.getpin(k).rjust(TAB)+'\n'
+                                elif self.getpin(k)!=NEX and other.getpin(k)!=NONE:
+                                        s+='\t'+str(k).ljust(TAB)+ \
+                                                self.getpin(k).ljust(TAB)+ \
+                                                NEQ+other.getpin(k).rjust(TAB)+'\n'
+                        for k in olist:
+                                if k not in slist:
+                                        s=s+'\t'+str(k).ljust(TAB)+ \
+                                                self.getpin(k).ljust(TAB)+ \
+                                                NEQ+other.getpin(k).rjust(TAB)+'\n'
                 return s
 
 class aax:
