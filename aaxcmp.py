@@ -7,7 +7,7 @@ from tkinter import filedialog
 from tkinter import scrolledtext as STX
 ##from txtcolour import *
 
-rev='0.6'
+rev='0.7'
 
 file1=''
 file2=''
@@ -27,7 +27,7 @@ class mainGUI:
         self.root=root
 
 ## LABELS & PICTURES
-        root.title('AAXCMP GUI rev %s Mar/2020'%rev)
+        root.title('AAXCMP GUI rev:%s ampla_rev:%s'%(rev,ampla_rev))
         Label(text='AAX file BEFORE:').grid(row=rowBefore,column=9,sticky='E'+'W')
         Label(text='AAX file AFTER:').grid(row=rowAfter,column=9,sticky='E'+'W')
 ## OUTPUT
@@ -66,9 +66,8 @@ class mainGUI:
     def icompare(self):
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
-#        self.cmpOutput.insert('0.0','_'*wwidth)
         self.cmpOutput.insert('0.0',str(fA.cmp(fB)))
-#        self.cmpOutput.insert('0.0','_'*wwidth)
+        self.cmpOutput.insert('0.0','Discrepancies between\n%s\nand\n%s\n'%(fA.fName,fB.fName))
 
     def vpins(self):
         fA=aax(self.FBefore.get())
@@ -79,9 +78,8 @@ class mainGUI:
         s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
         for cradd in fB.CRef(self.TagEdit.get()):
             s+=str(fB.Blocks[cradd[:cradd.index(':')]])
-#        self.cmpOutput.insert('0.0','_'*wwidth)
         self.cmpOutput.insert('0.0',s)
-#        self.cmpOutput.insert('0.0','_'*wwidth)
+
 
 def aaxgui():
     mainwin=Tk()
@@ -106,7 +104,7 @@ def help():
     print('AAX files names location in the command line are not fixed but both should be present')
     return
 
-print('aaxcmp,rev%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%rev)
+print('aaxcmp rev%s,ampla_rev:%s,Baku ABB,Mar/2020,AlimYusifzada,AMPL logic (aax files) compare tool'%(rev,ampla_rev))
 print('Many thanks to Stuart Redman, for the help in debugging and fixing issues')
 for arg in sys.argv[1:]:
     if arg[0]=='-':

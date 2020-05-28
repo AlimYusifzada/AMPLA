@@ -2,6 +2,7 @@
 ## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
 ## v0.3 add INAME parsing and compare
 ## v0.4 add cross refference search aax.CRef() function
+## v0.5 remove unneccessary message in output log
 
 ## Advant Controllers AAX files parsing and comparision
 
@@ -10,6 +11,7 @@ if sys.version_info[0]<3:
 	print('Please use Python version 3+')
 	sys.exit()
 
+ampla_rev='0.5'
 NEQ=' <- ! -> '
 NEok=' <- ok -> '
 NEX='pin not exist'
@@ -113,7 +115,7 @@ class block:
                                                 s+='\t'+str(k).ljust(TAB)+ \
                                                    self.getpin(k).ljust(TAB)+ \
                                                    NEQ+other.getpin(k).rjust(TAB)+'\n'
-                                elif self.getpin(k)!=NEX and other.getpin(k)!=NONE:
+                                elif self.getpin(k)!=NONE and other.getpin(k)!=NEX:
                                         s+='\t'+str(k).ljust(TAB)+ \
                                                 self.getpin(k).ljust(TAB)+ \
                                                 NEQ+other.getpin(k).rjust(TAB)+'\n'
