@@ -132,21 +132,21 @@ for op in options:
         #print('_'*wwidth)
     if op=='-s':
         print('\n\tSTAT.INFO:\t','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
-        print('File %s'%fileOne.fname)
-        print(fileOne.statout())
-        print('File %s'%fileTwo.fname)
-        print(fileTwo.statout())
+        print('File %s'%fileOne.fName)
+        print(fileOne._statout)
+        print('File %s'%fileTwo.fName)
+        print(fileTwo._statout)
         #print('_'*wwidth)
-    if op=='-L':
-        print('\n\tL2L COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
-        d=dif.Differ()
-        cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
-        for i in cmpres:
-            if i[0]=='-' or i[0]=='+' or i[0]=='?':
-                print(CSELECTED+i+CEND,end='')
-            else:
-                print(i,end='')
-        #print('_'*wwidth)
+    # if op=='-L':
+    #     print('\n\tL2L COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
+    #     d=dif.Differ()
+    #     cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
+    #     for i in cmpres:
+    #         if i[0]=='-' or i[0]=='+' or i[0]=='?':
+    #             print(CSELECTED+i+CEND,end='')
+    #         else:
+    #             print(i,end='')
+    #     #print('_'*wwidth)
     if op=='-l':
         d=dif.Differ()
         cmpres=d.compare(fileOne.Lines,fileTwo.Lines)
