@@ -56,11 +56,11 @@ class mainGUI:
     def aaxbrowse(self):
          self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "/",
                                                     title = "Select AAX file BEFORE",
-                                                    filetype =(("aax files","*.aax"),("all files","*.*")) )
+                                                    filetypes =[("aax files","*.aax"),("all files","*.*")] )
                             )
          self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "/",
                                                     title = "Select AAX file AFTER",
-                                                    filetype =(("aax files","*.aax"),("all files","*.*")) )
+                                                    filetypes =[("aax files","*.aax"),("all files","*.*")] )
                             )
 
     def icompare(self):
