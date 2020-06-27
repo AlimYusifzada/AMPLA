@@ -89,7 +89,6 @@ class block:
         def cmp(self,other):
                 "Compare blocks, return difference report"
                 s=''
-                dlm=''
                 if isinstance(other,block):
                         if self==other:
                                 return s
@@ -194,7 +193,7 @@ class aax:
                                             st+=e
                                     self.Blocks[address].Description=st
 
-                        if elcnt>0 and line[0][:1]==':': # start of the pin definition
+                        if status==1 and line[0][:1]==':': # start of the pin definition
                                     PinName=line[0]# get pin NAME
                                     status=2 #  pin mark
                                     if elcnt>2: # if there are spaces in the pin value
@@ -211,7 +210,7 @@ class aax:
                                                 lpinval.append(pinval[:-1])
                                     else:
                                                 self.Blocks[address].addpin(PinName,pinval) # last value for the pin
-                                                status=0
+                                                status=1
 
                         if elcnt==1 and status==3: # one of the values for the pin - add it to the list
                                   pinval=line[0]
@@ -221,7 +220,7 @@ class aax:
                                               lpinval.append(pinval)
                                               self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
                                               lpinval=[]
-                                              status=0
+                                              status=1
 
       def GetLabels(self):
             "Populate dictionary 'self.Labels'\n \
@@ -308,7 +307,6 @@ class aax:
       def StatOut(self):
             "Return list with statistic data:\n \
             (block NAME, block usage count, average pins number)"
-            s=''
             blocks=()
             out=()
             for ad in self.Blocks.keys():
