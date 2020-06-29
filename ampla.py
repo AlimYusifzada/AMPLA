@@ -160,63 +160,70 @@ class aax:
 
                   ## AMPLE parsing logic from here
                   for  L in self.Lines:
-                        line=L.split()
+                        line=L.split() # read line and split by spaces
                         elcnt=len(line)  # count the elements in the line
+                        if elcnt>0:
+                                if line[0].lower() in HEADER: # reading text from aax file header
+                                        ss=''
+                                        i=0
+                                        for s in line:
+                                                if i==0:
+                                                        i+=1
+                                                else:
+                                                        ss=ss+s+' '
+                                                        i+=1
+                                        self.Header[line[0].lower()]=ss
+                                        continue
+                        
+                                if line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
+                                        address=line[0] # get address
+                                        status=1 #    block mark if status ==1 we are inside logic block
+                                        if elcnt>1:
+                                                BlockName=line[1] # get blok NAME
+                                        else:
+                                                BlockName=''
+                                        if elcnt>2:
+                                                extra=line[2] # get extra params
+                                        else:
+                                                extra=''
+                                        self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
+                                        continue
 
-                        if elcnt>0 and line[0].lower() in HEADER: # reading text from aax file header
-                                    ss=''
-                                    i=0
-                                    for s in line:
-                                          if i==0:
-                                                i+=1
-                                          else:
-                                            ss=ss+s+' '
-                                            i+=1
-                                    self.Header[line[0].lower()]=ss
+                                if status==1 and line[0]=='INAME':
+                                        if elcnt>1:
+                                                st=''
+                                                for e in line[1:]:
+                                                        st+=e
+                                                self.Blocks[address].Description=st
+                                        continue
 
-                        if elcnt>0 and line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
-                                    address=line[0] # get address
-                                    status=1 #    block mark
-                                    if elcnt>1:
-                                              BlockName=line[1] # get blok NAME
-                                    else:
-                                              BlockName=''
-                                    if elcnt>2:
-                                              extra=line[2] # get extra params
-                                    else:
-                                              extra=''
-                                    self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
-
-                        if elcnt>0 and status==1 and line[0]=='INAME':
-                                    st=''
-                                    for e in line[1:]:
-                                            st+=e
-                                    self.Blocks[address].Description=st
-
-                        if status==1 and line[0][:1]==':': # start of the pin definition
-                                    PinName=line[0]# get pin NAME
-                                    status=2 #  pin mark
-                                    if elcnt>2: # if there are spaces in the pin value
+                                if status==1 and line[0][:1]==':': # start of the pin definition
+                                        PinName=line[0]# get pin NAME
+                                        if elcnt>=2: # if there are spaces in the pin value
                                                 st=''
                                                 for e in line[1:]:
                                                         st+=e+' ' # put all back in to one string
-                                                line=[PinName,st]
-                                    if elcnt>1:
-                                                pinval=line[1] #get pin value
-                                    if elcnt==1:
+                                                pinval=st
+
+                                        if elcnt==1:
                                                 pinval=NONE #empty pin
-                                    if pinval[-1:]==',':# another value at the next line
-                                                status=3
+
+                                        if pinval[-1:]==',':# another value at the next line
+                                                if status!=2:
+                                                        lpinval=[]
+                                                status=2 #  pin mark pin value could ocupy several lines
                                                 lpinval.append(pinval[:-1])
-                                    else:
+                                                continue
+                                        else:
                                                 self.Blocks[address].addpin(PinName,pinval) # last value for the pin
                                                 status=1
+                                                continue
 
-                        if elcnt==1 and status==3: # one of the values for the pin - add it to the list
-                                  pinval=line[0]
-                                  if pinval[-1:]==',': # there are still another value at the next line
+                                if status==2: # one of the values for the pin - add it to the list
+                                        pinval=line[0]
+                                        if pinval[-1:]==',': # there are still another value at the next line
                                               lpinval.append(pinval[:-1])
-                                  else: # this is a last value for the pin
+                                        else: # this is a last value for the pin
                                               lpinval.append(pinval)
                                               self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
                                               lpinval=[]
