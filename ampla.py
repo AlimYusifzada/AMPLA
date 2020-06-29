@@ -2,7 +2,8 @@
 ## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
 ## v0.3 add INAME parsing and compare
 ## v0.4 add cross refference search aax.CRef() function
-## v0.5 remove unneccessary message in output log
+## v0.5 remove unneccessary message in output log - SR
+## v0.6 AMPL parsing debugging -AY
 
 ## Advant Controllers AAX files parsing and comparision
 
@@ -11,7 +12,7 @@ if sys.version_info[0]<3:
 	print('Please use Python version 3+')
 	sys.exit()
 
-ampla_rev='0.5'
+ampla_rev='0.6'
 NEQ=' <- ! -> '
 NEok=' <- ok -> '
 NEX='pin not exist'
@@ -92,37 +93,39 @@ class block:
                 if isinstance(other,block):
                         if self==other:
                                 return s
+
                         slist=list(self.Pins.keys())
                         olist=list(other.Pins.keys())
+
+                        if len(slist)<len(olist): ## slist should always bigger...
+                              slist=list(other.Pins.keys())
+                              olist=list(self.Pins.keys())          
+
+# check number of the pins - do we need that?
+#                         if len(slist)!=len(olist):
+#                               s+='Number of PINS are different!'+ \
+#                               str(' %d '%len(slist)).rjust(TAB)+ \
+#                               'vs'+ \
+#                               str(' %d '%len(olist)).ljust(TAB)+'\n'
+# block name and config parameters compare
                         if self.Name!=other.Name:
                               s+='\t'+self.Name+NEQ+other.Name+'\n'
                         if self.Extra!=other.Extra:
                               s+='\t'+self.Extra+NEQ+other.Extra+'\n'
                         if self.Description!=other.Description:
                               s+='\t'+self.Description.ljust(TAB)+NEok+other.Description.rjust(TAB)+'\n'
-                        if len(slist)<len(olist): ## slist should always bigger
-                              slist=list(other.Pins.keys())
-                              olist=list(self.Pins.keys())
-                        if len(slist)!=len(olist):
-                              s+='Number of PINS are different!'+ \
-                              str(' %d '%len(slist)).rjust(TAB)+ \
-                              'vs'+ \
-                              str(' %d '%len(olist)).ljust(TAB)+'\n'
+# compare pins
                         for k in slist:
                                 if k in olist:
                                         if self.Pins[k]!=other.Pins[k]:
                                                 s+='\t'+str(k).ljust(TAB)+ \
-                                                   self.getpin(k).ljust(TAB)+ \
-                                                   NEQ+other.getpin(k).rjust(TAB)+'\n'
-                                elif self.getpin(k)!=NONE and other.getpin(k)!=NEX:
-                                        s+='\t'+str(k).ljust(TAB)+ \
-                                                self.getpin(k).ljust(TAB)+ \
-                                                NEQ+other.getpin(k).rjust(TAB)+'\n'
+                                                   str(self.Pins[k]).ljust(TAB)+ \
+                                                   NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
                         for k in olist:
                                 if k not in slist:
                                         s=s+'\t'+str(k).ljust(TAB)+ \
-                                                self.getpin(k).ljust(TAB)+ \
-                                                NEQ+other.getpin(k).rjust(TAB)+'\n'
+                                                str(self.Pins[k]).ljust(TAB)+ \
+                                                NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
                 return s
 
 class aax:
@@ -174,8 +177,8 @@ class aax:
                                                         i+=1
                                         self.Header[line[0].lower()]=ss
                                         continue
-                        
-                                if line[0][:2]=='PC' and line[0][2:3].isdigit(): #start of the logic block
+
+                                if line[0][:2]=='PC' and line[0][2:3].isdigit() and status!=2: #start of the logic block
                                         address=line[0] # get address
                                         status=1 #    block mark if status ==1 we are inside logic block
                                         if elcnt>1:
@@ -202,15 +205,14 @@ class aax:
                                         if elcnt>=2: # if there are spaces in the pin value
                                                 st=''
                                                 for e in line[1:]:
-                                                        st+=e+' ' # put all back in to one string
+                                                        st+=e+'' # put all back in to one string
                                                 pinval=st
 
                                         if elcnt==1:
                                                 pinval=NONE #empty pin
 
                                         if pinval[-1:]==',':# another value at the next line
-                                                if status!=2:
-                                                        lpinval=[]
+                                                lpinval=[]
                                                 status=2 #  pin mark pin value could ocupy several lines
                                                 lpinval.append(pinval[:-1])
                                                 continue
@@ -220,7 +222,13 @@ class aax:
                                                 continue
 
                                 if status==2: # one of the values for the pin - add it to the list
-                                        pinval=line[0]
+                                        if elcnt>1: # if there are spaces in the pin value
+                                                st=''
+                                                for e in line:
+                                                        st+=e+'' # put all back in to one string
+                                                pinval=st
+                                        else:
+                                                pinval=line[0]
                                         if pinval[-1:]==',': # there are still another value at the next line
                                               lpinval.append(pinval[:-1])
                                         else: # this is a last value for the pin
