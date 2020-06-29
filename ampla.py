@@ -100,14 +100,15 @@ class block:
                         if len(slist)<len(olist): ## slist should always bigger...
                               slist=list(other.Pins.keys())
                               olist=list(self.Pins.keys())          
+                              
 
-# check number of the pins - do we need that?
-#                         if len(slist)!=len(olist):
-#                               s+='Number of PINS are different!'+ \
-#                               str(' %d '%len(slist)).rjust(TAB)+ \
-#                               'vs'+ \
-#                               str(' %d '%len(olist)).ljust(TAB)+'\n'
-# block name and config parameters compare
+                        if len(slist)!=len(olist):
+                              s+='Number of PINS are different!'+ \
+                              str(' %d '%len(slist)).rjust(TAB)+ \
+                              'vs'+ \
+                              str(' %d '%len(olist)).ljust(TAB)+'\n'
+
+
                         if self.Name!=other.Name:
                               s+='\t'+self.Name+NEQ+other.Name+'\n'
                         if self.Extra!=other.Extra:
@@ -121,11 +122,6 @@ class block:
                                                 s+='\t'+str(k).ljust(TAB)+ \
                                                    str(self.Pins[k]).ljust(TAB)+ \
                                                    NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
-                        for k in olist:
-                                if k not in slist:
-                                        s=s+'\t'+str(k).ljust(TAB)+ \
-                                                str(self.Pins[k]).ljust(TAB)+ \
-                                                NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
                 return s
 
 class aax:

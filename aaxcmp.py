@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 from ampla import *
 import sys
+import os
 import difflib as dif
 from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import filedialog
 from tkinter import scrolledtext as STX
 ##from txtcolour import *
 
-rev='0.7'
+rev='0.8'
 
 file1=''
 file2=''
@@ -44,10 +45,12 @@ class mainGUI:
         self.TagEdit=Entry(root)
         self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
 ## BUTTONS
-## button COMPARE
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=9)
 ## button CROSS REFERENCE
         self.voidBTN=Button(root,text='XREFERENCE',command=self.vpins).grid(row=rowBUTTONS,column=2)
+## button view in notepad
+        self.cleanBTN=Button(root,text='EDIT',command=self.opentxt).grid(row=rowBUTTONS,column=8)
+## button COMPARE
+        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=9)
 ## button BROWSE
         self.browseBTN=Button(root,text='BROWSE',command=self.aaxbrowse).grid(row=rowBUTTONS,column=10)
 
@@ -66,6 +69,10 @@ class mainGUI:
                                                     filetypes =[("aax files","*.aax"),("aax files","*.AAX"),("all files","*.*")] )
                             )
 
+    def opentxt(self):
+        os.startfile(self.FBefore.get())
+        os.startfile(self.FAfter.get())
+
     def icompare(self):
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
@@ -76,17 +83,18 @@ class mainGUI:
         fA=aax(self.FBefore.get())
         fB=aax(self.FAfter.get())
         s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fA.fName))
-        for cradd in fA.CRef(self.TagEdit.get()):
-            s+=str(fA.Blocks[cradd[:cradd.index(':')]])
-        s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
-        for cradd in fB.CRef(self.TagEdit.get()):
-            s+=str(fB.Blocks[cradd[:cradd.index(':')]])
-        self.cmpOutput.insert('0.0',s)
+        if len(s)>0:
+            for cradd in fA.CRef(self.TagEdit.get()):
+                s+=str(fA.Blocks[cradd[:cradd.index(':')]])
+            s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
+            for cradd in fB.CRef(self.TagEdit.get()):
+                s+=str(fB.Blocks[cradd[:cradd.index(':')]])
+            self.cmpOutput.insert('0.0',s)
 
 
 def aaxgui():
     mainwin=Tk()
-    win=mainGUI(mainwin)
+    mainGUI(mainwin)
     mainwin.grid_rowconfigure(rowOUTPUT,weight=1)
     mainwin.grid_columnconfigure(0,weight=1)
     mainwin.mainloop()
