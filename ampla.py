@@ -20,6 +20,7 @@ NONE='no value assigned'
 TAB=30
 nSPC=-20
 
+
 HEADER=('design_ch','tech_ref','resp_dept','date',
         'l_text2','r_text2',
         'l_text3','r_text3',
@@ -143,7 +144,7 @@ class aax:
 
                   try: # open aax file
                         file=open(self.fName,'r')
-                        self.Lines=file.readlines()
+                        self.Lines=file.readlines() #read aax file to Lines
                         file.close()
                   except:
                         print('...error reading file: ...'+self.fName[nSPC:])

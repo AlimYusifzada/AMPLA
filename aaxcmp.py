@@ -12,7 +12,7 @@ rev='0.8'
 
 file1=''
 file2=''
-wwidth=60
+wwidth=50
 options=()
 files=()
 
@@ -21,6 +21,8 @@ rowBUTTONS=1
 rowBefore=2
 rowAfter=3
 rowOUTPUT=4
+
+
 
 class mainGUI:
 
@@ -46,14 +48,13 @@ class mainGUI:
         self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
 ## BUTTONS
 ## button CROSS REFERENCE
-        self.voidBTN=Button(root,text='XREFERENCE',command=self.vpins).grid(row=rowBUTTONS,column=2)
+        self.voidBTN=Button(root,text='x-reference search',command=self.vpins).grid(row=rowBUTTONS,column=2)
 ## button view in notepad
-        self.cleanBTN=Button(root,text='EDIT',command=self.opentxt).grid(row=rowBUTTONS,column=8)
+        self.cleanBTN=Button(root,text='Edit files',command=self.opentxt).grid(row=rowBUTTONS,column=8)
 ## button COMPARE
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=9)
+        self.cmpBTN=Button(root,text='Compare report',command=self.icompare).grid(row=rowBUTTONS,column=9)
 ## button BROWSE
-        self.browseBTN=Button(root,text='BROWSE',command=self.aaxbrowse).grid(row=rowBUTTONS,column=10)
-
+        self.browseBTN=Button(root,text='Browse',command=self.aaxbrowse).grid(row=rowBUTTONS,column=10)
 
 
     def aaxbrowse(self):
