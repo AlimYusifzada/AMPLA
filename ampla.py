@@ -94,35 +94,38 @@ class block:
                 if isinstance(other,block):
                         if self==other:
                                 return s
-
                         slist=list(self.Pins.keys())
                         olist=list(other.Pins.keys())
-
-                        if len(slist)<len(olist): ## slist should always bigger...
-                              slist=list(other.Pins.keys())
-                              olist=list(self.Pins.keys())          
-                              
-
-                        if len(slist)!=len(olist):
-                              s+='Number of PINS are different!'+ \
-                              str(' %d '%len(slist)).rjust(TAB)+ \
-                              'vs'+ \
-                              str(' %d '%len(olist)).ljust(TAB)+'\n'
-
-
+                        # if len(slist)<len(olist): ## slist should always bigger...???
+                        #       slist=list(other.Pins.keys())
+                        #       olist=list(self.Pins.keys())          
                         if self.Name!=other.Name:
                               s+='\t'+self.Name+NEQ+other.Name+'\n'
                         if self.Extra!=other.Extra:
                               s+='\t'+self.Extra+NEQ+other.Extra+'\n'
                         if self.Description!=other.Description:
                               s+='\t'+self.Description.ljust(TAB)+NEok+other.Description.rjust(TAB)+'\n'
-# compare pins
+                # compare pins
+                        if len(slist)!=len(olist):
+                              s+='Number of PINS are different!'+ \
+                              str(' %d '%len(slist)).rjust(TAB)+ \
+                              'vs'+ \
+                              str(' %d '%len(olist)).ljust(TAB)+'\n'
                         for k in slist:
-                                if k in olist:
-                                        if self.Pins[k]!=other.Pins[k]:
+                                if k in olist: # pin defined in both logic blocks
+                                        if self.Pins[k]!=other.Pins[k]: 
                                                 s+='\t'+str(k).ljust(TAB)+ \
-                                                   str(self.Pins[k]).ljust(TAB)+ \
-                                                   NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
+                                                        str(self.Pins[k]).ljust(TAB)+ \
+                                                        NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
+                                else: # pin is not in other block
+                                        s+='\t'+str(k).ljust(TAB)+ \
+                                                str(self.Pins[k]).ljust(TAB)+ \
+                                                NEQ+NEX.rjust(TAB)+'\n'
+                        for k in olist:
+                                if k not in slist:
+                                        s+='\t'+str(k).ljust(TAB)+ \
+                                                NEX.ljust(TAB)+ \
+                                                NEQ+str(other.Pins[k]).rjust(TAB)+ '\n'
                 return s
 
 class aax:
@@ -142,7 +145,8 @@ class aax:
 
                   status=0 # used for parsing
 
-                  try: # open aax file
+                  # open aax file
+                  try: 
                         file=open(self.fName,'r')
                         self.Lines=file.readlines() #read aax file to Lines
                         file.close()
@@ -160,54 +164,53 @@ class aax:
 
                   ## AMPLE parsing logic from here
                   for  L in self.Lines:
-                        line=L.split() # read line and split by spaces
-                        elcnt=len(line)  # count the elements in the line
+                        word=L.split() # read line and split by spaces
+                        elcnt=len(word)  # count the elements in the line
                         if elcnt>0:
-                                if line[0].lower() in HEADER: # reading text from aax file header
+                                # reading text from aax file header
+                                if word[0].lower() in HEADER: 
                                         ss=''
                                         i=0
-                                        for s in line:
+                                        for s in word:
                                                 if i==0:
                                                         i+=1
                                                 else:
                                                         ss=ss+s+' '
                                                         i+=1
-                                        self.Header[line[0].lower()]=ss
+                                        self.Header[word[0].lower()]=ss
                                         continue
-
-                                if line[0][:2]=='PC' and line[0][2:3].isdigit() and status!=2: #start of the logic block
-                                        address=line[0] # get address
-                                        status=1 #    block mark if status ==1 we are inside logic block
+                                #start of the logic block status=1 get address, name and params
+                                if word[0][:2]=='PC' and word[0][2:3].isdigit() and status!=2: 
+                                        address=word[0] # get address
+                                        status=1 # block mark if status ==1 we are inside logic block
                                         if elcnt>1:
-                                                BlockName=line[1] # get blok NAME
+                                                BlockName=word[1] # get blok NAME
                                         else:
-                                                BlockName=''
+                                                BlockName='' # address without logic block! not possible
                                         if elcnt>2:
-                                                extra=line[2] # get extra params
+                                                extra=word[2] # get extra params
                                         else:
                                                 extra=''
                                         self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
                                         continue
-
-                                if status==1 and line[0]=='INAME':
+                                # try read block name if exist
+                                if status==1 and word[0]=='INAME':
                                         if elcnt>1:
                                                 st=''
-                                                for e in line[1:]:
+                                                for e in word[1:]:
                                                         st+=e
                                                 self.Blocks[address].Description=st
                                         continue
-
-                                if status==1 and line[0][:1]==':': # start of the pin definition
-                                        PinName=line[0]# get pin NAME
+                                # read pins
+                                if status==1 and word[0][:1]==':': # start of the pin definition
+                                        PinName=word[0]# get pin NAME
                                         if elcnt>=2: # if there are spaces in the pin value
                                                 st=''
-                                                for e in line[1:]:
+                                                for e in word[1:]:
                                                         st+=e+'' # put all back in to one string
                                                 pinval=st
-
                                         if elcnt==1:
                                                 pinval=NONE #empty pin
-
                                         if pinval[-1:]==',':# another value at the next line
                                                 lpinval=[]
                                                 status=2 #  pin mark pin value could ocupy several lines
@@ -217,15 +220,15 @@ class aax:
                                                 self.Blocks[address].addpin(PinName,pinval) # last value for the pin
                                                 status=1
                                                 continue
-
+                                # if pin has several values (output)
                                 if status==2: # one of the values for the pin - add it to the list
                                         if elcnt>1: # if there are spaces in the pin value
                                                 st=''
-                                                for e in line:
+                                                for e in word:
                                                         st+=e+'' # put all back in to one string
                                                 pinval=st
                                         else:
-                                                pinval=line[0]
+                                                pinval=word[0]
                                         if pinval[-1:]==',': # there are still another value at the next line
                                               lpinval.append(pinval[:-1])
                                         else: # this is a last value for the pin
@@ -244,7 +247,7 @@ class aax:
                   else:
                           s=''
                   return s
-
+            
             for addr in self.Blocks: # start for each logic block
                   for pname in self.Blocks[addr].Pins: # for all PINS
                           pinval=self.Blocks[addr].Pins[pname] # ger pin val
@@ -256,6 +259,7 @@ class aax:
                           elif type(pinval)==str:
                                   if len(glb(pinval))>2:
                                           self.Labels[glb(pinval)]=pinval[2:]
+            
             return self.Labels
       _getlabels=GetLabels
 

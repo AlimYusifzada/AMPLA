@@ -105,7 +105,7 @@ def help():
     print('linux: $./aaxcmp.py [file1.aax] [file2.aax] <options>')
     print('mswin: >python3 aaxcmp.py [file1.aax] [file2.aax] <options>')
     print('options could be:')
-    print(' -i compare logic blocs')
+    print(' -i compare logic blocks')
     print(' -l compare line by line')
     print(' -L compare line by line with conflicts selected (linux terminal only)')
     print(' -rTAG_NAME cross reference of TAG_NAME at file1.aax and file2.aax')
