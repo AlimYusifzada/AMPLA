@@ -118,14 +118,16 @@ class block:
                                                         str(self.Pins[k]).ljust(TAB)+ \
                                                         NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
                                 else: # pin is not in other block
-                                        s+='\t'+str(k).ljust(TAB)+ \
-                                                str(self.Pins[k]).ljust(TAB)+ \
-                                                NEQ+NEX.rjust(TAB)+'\n'
+                                        if self.Pins[k]!=NONE:
+                                                s+='\t'+str(k).ljust(TAB)+ \
+                                                        str(self.Pins[k]).ljust(TAB)+ \
+                                                        NEQ+NEX.rjust(TAB)+'\n'
                         for k in olist:
                                 if k not in slist:
-                                        s+='\t'+str(k).ljust(TAB)+ \
-                                                NEX.ljust(TAB)+ \
-                                                NEQ+str(other.Pins[k]).rjust(TAB)+ '\n'
+                                        if other.Pins[k]!=NONE:
+                                                s+='\t'+str(k).ljust(TAB)+ \
+                                                        NEX.ljust(TAB)+ \
+                                                        NEQ+str(other.Pins[k]).rjust(TAB)+ '\n'
                 return s
 
 class aax:
