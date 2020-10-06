@@ -1,10 +1,11 @@
-## v0.1 Feb-24,2020 BAKU ABB ARMOR AY
-## v0.2 Mar,2020 CA offshore ABB AY - AMPL logic blocks parsing coorection
+## v0.1 Feb-24,2020 BAKU ABB ARMOR
+## v0.2 Mar,2020 CA offshore - AMPL logic blocks parsing coorection
 ## v0.3 add INAME parsing and compare
 ## v0.4 add cross refference search aax.CRef() function
-## v0.5 remove unneccessary message in output log - SR
-## v0.6 AMPL parsing debugging -AY
-
+## v0.5 remove unneccessary message in output log, comarison logic compromised
+## v0.6 AMPL parsing debugging
+## v0.7 Sep-26,2020 debug comparison logic
+## v0.8 Oct-06,2020 multiple connections compare bug fix
 ## Advant Controllers AAX files parsing and comparision
 
 import sys
@@ -12,7 +13,7 @@ if sys.version_info[0]<3:
 	print('Please use Python version 3+')
 	sys.exit()
 
-ampla_rev='0.6'
+ampla_rev='0.8'
 NEQ=' <- ! -> '
 NEok=' <- ok -> '
 NEX='pin not exist'
@@ -235,6 +236,7 @@ class aax:
                                               lpinval.append(pinval[:-1])
                                         else: # this is a last value for the pin
                                               lpinval.append(pinval)
+                                              lpinval=lpinval.sort()
                                               self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
                                               lpinval=[]
                                               status=1
