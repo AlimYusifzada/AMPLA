@@ -13,7 +13,7 @@ if sys.version_info[0]<3:
 	print('Please use Python version 3+')
 	sys.exit()
 
-ampla_rev='0.8'
+ampla_rev='0.9'
 NEQ=' <- ! -> '
 NEok=' <- ok -> '
 NEX='pin not exist'
@@ -194,6 +194,9 @@ class aax:
                                                 extra=word[2] # get extra params
                                         else:
                                                 extra=''
+                                                if '(' in BlockName: # no space between block name and extra
+                                                    extra=BlockName[BlockName.find('('):]
+                                                    BlockName=BlockName[:BlockName.find('(')]
                                         self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
                                         continue
                                 # try read block name if exist
