@@ -6,7 +6,7 @@
 ## v0.6 AMPL parsing debugging
 ## v0.7 Sep-26,2020 debug comparison logic
 ## v0.8 Oct-06,2020 multiple connections compare bug fix
-## Advant Controllers AAX files parsing and comparision
+## v0.9 Nov-15,2020 shortened the output, plan to expand with few extra configs 
 
 import sys
 if sys.version_info[0]<3:
@@ -92,6 +92,7 @@ class block:
         def cmp(self,other):
                 "Compare blocks, return difference report"
                 s=''
+                flag=False
                 if isinstance(other,block):
                         if self==other:
                                 return s
@@ -102,33 +103,44 @@ class block:
                         #       olist=list(self.Pins.keys())          
                         if self.Name!=other.Name:
                               s+='\t'+self.Name+NEQ+other.Name+'\n'
+                              flag=True
+                              
                         if self.Extra!=other.Extra:
                               s+='\t'+self.Extra+NEQ+other.Extra+'\n'
+                              flag=True
+                              
                         if self.Description!=other.Description:
                               s+='\t'+self.Description.ljust(TAB)+NEok+other.Description.rjust(TAB)+'\n'
+                              flag=True
+                              
                 # compare pins
-                        if len(slist)!=len(olist):
-                              s+='Number of PINS are different!'+ \
-                              str(' %d '%len(slist)).rjust(TAB)+ \
-                              'vs'+ \
-                              str(' %d '%len(olist)).ljust(TAB)+'\n'
+                        #if len(slist)!=len(olist):
+                         #     s+='Number of PINS are different!'+ \
+                          #    str(' %d '%len(slist)).rjust(TAB)+ \
+                           #   'vs'+ \
+                            #  str(' %d '%len(olist)).ljust(TAB)+'\n'
                         for k in slist:
                                 if k in olist: # pin defined in both logic blocks
                                         if self.Pins[k]!=other.Pins[k]: 
+                                                flag=True
                                                 s+='\t'+str(k).ljust(TAB)+ \
                                                         str(self.Pins[k]).ljust(TAB)+ \
                                                         NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
                                 else: # pin is not in other block
                                         if self.Pins[k]!=NONE:
+                                                flag=True
                                                 s+='\t'+str(k).ljust(TAB)+ \
                                                         str(self.Pins[k]).ljust(TAB)+ \
                                                         NEQ+NEX.rjust(TAB)+'\n'
                         for k in olist:
                                 if k not in slist:
                                         if other.Pins[k]!=NONE:
+                                                flag=True
                                                 s+='\t'+str(k).ljust(TAB)+ \
                                                         NEX.ljust(TAB)+ \
                                                         NEQ+str(other.Pins[k]).rjust(TAB)+ '\n'
+                        if flag:
+                            s=self.Address+'\t'+self.Name+'\n'+s
                 return s
 
 class aax:
@@ -247,7 +259,7 @@ class aax:
       def GetLabels(self):
             "Populate dictionary 'self.Labels'\n \
             with addresses and labels, then return it as result"
-
+            
             def glb(vx):
                   if vx[0:2]=='N=': # label found
                           s=str(addr)+str(pname)
@@ -315,8 +327,9 @@ class aax:
                   for key in self.Blocks.keys():
                           if key in other.Blocks.keys():
                               if self.Blocks[key]!=other.Blocks[key]:
-                                  s+='\nConflict at %s %s\n'%(key,self.Blocks[key].Name)+ \
-                                          str(self.Blocks[key].cmp(other.Blocks[key]))
+                                    s+=str(self.Blocks[key].cmp(other.Blocks[key]))
+                                #  s+='\nConflict at %s %s\n'%(key,self.Blocks[key].Name)+ \
+                                 #         str(self.Blocks[key].cmp(other.Blocks[key]))
                           else:
                                   s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
                                           (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
