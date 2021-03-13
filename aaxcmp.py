@@ -75,20 +75,20 @@ class mainGUI:
         os.startfile(self.FAfter.get())
 
     def icompare(self):
-        fA=aax(self.FBefore.get())
-        fB=aax(self.FAfter.get())
-        self.cmpOutput.insert('0.0',str(fA.cmp(fB)))
+        fA=AAX(self.FBefore.get())
+        fB=AAX(self.FAfter.get())
+        self.cmpOutput.insert('0.0',str(fA.compare(fB)))
         self.cmpOutput.insert('0.0','Discrepancies between\n%s\nand\n%s\n'%(fA.fName,fB.fName))
 
     def vpins(self):
-        fA=aax(self.FBefore.get())
-        fB=aax(self.FAfter.get())
+        fA=AAX(self.FBefore.get())
+        fB=AAX(self.FAfter.get())
         s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fA.fName))
         if len(s)>0:
-            for cradd in fA.CRef(self.TagEdit.get()):
+            for cradd in fA.cref(self.TagEdit.get()):
                 s+=str(fA.Blocks[cradd[:cradd.index(':')]])
             s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
-            for cradd in fB.CRef(self.TagEdit.get()):
+            for cradd in fB.cref(self.TagEdit.get()):
                 s+=str(fB.Blocks[cradd[:cradd.index(':')]])
             self.cmpOutput.insert('0.0',s)
 
@@ -140,7 +140,7 @@ except:
 for op in options:
     if op=='-i':
         print('\n\tBLOCKS COMPARE:\t','%s VS %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
-        print(fileOne.cmp(fileTwo))
+        print(fileOne.compare(fileTwo))
         #print('_'*wwidth)
     if op=='-s':
         print('\n\tSTAT.INFO:\t','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
@@ -177,18 +177,18 @@ for op in options:
     if op[:2]=='-r' and len(op[2:])>0:
         print('\n\tXREFERENCE %s at:\t'%op[2:],'%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print('\n\n\t%s at %s\n'%(op[2:],fileOne.fName))
-        for cradd in fileOne.CRef(op[2:]):
+        for cradd in fileOne.cref(op[2:]):
             print(fileOne.Blocks[cradd[:cradd.index(':')]])
         print('\n\n\t%s at %s\n'%(op[2:],fileTwo.fName))
-        for cradd in fileTwo.CRef(op[2:]):
+        for cradd in fileTwo.cref(op[2:]):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
         #print('_'*wwidth)
     if op=='-v':
         print('\n\tVOID PINs at: ','%s and %s'%(fileOne.fName[-10:],fileTwo.fName[-10:]))
         print('\n\n\tUnconnected pins at %s\n'%fileOne.fName)
-        for cradd in fileOne.CRef(NONE):
+        for cradd in fileOne.cref(NONE):
             print(fileOne.Blocks[cradd[:cradd.index(':')]])
         print('\n\n\tUnconnected pins at %s\n'%fileTwo.fName)
-        for cradd in fileTwo.CRef(NONE):
+        for cradd in fileTwo.cref(NONE):
             print(fileTwo.Blocks[cradd[:cradd.index(':')]])
         #print('_'*wwidth)
