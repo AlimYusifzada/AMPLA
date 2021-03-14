@@ -28,28 +28,28 @@ class mainGUI:
 
 ## LABELS & PICTURES
         root.title('ABAX GUI rev:%s ampla_rev:%s'%(rev,ampla_rev))
-        Label(text='file BEFORE:').grid(row=rowBefore,column=9,sticky='E'+'W')
-        Label(text='file AFTER:').grid(row=rowAfter,column=9,sticky='E'+'W')
+        Label(text='file BEFORE:').grid(row=rowBefore,column=3,sticky='E'+'W')
+        Label(text='file AFTER:').grid(row=rowAfter,column=3,sticky='E'+'W')
 ## OUTPUT
         self.cmpOutput=STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT,column=0,sticky='N'+'S'+'w'+'E',columnspan=11)
 ## ENTRIES
 ## AAX file entry - BEFORE
         self.FBefore=Entry(root,width=wwidth)
-        self.FBefore.grid(row=rowBefore,column=10,sticky='W'+'E')
+        self.FBefore.grid(row=rowBefore,column=5,columnspan=5,sticky='W'+'E')
 ## AAX file entry - AFTER
         self.FAfter=Entry(root,width=wwidth)
-        self.FAfter.grid(row=rowAfter,column=10,sticky='W'+'E')
+        self.FAfter.grid(row=rowAfter,column=5,columnspan=5,sticky='W'+'E')
 ## TAG NAME entry - cross reference
         self.TagEdit=Entry(root)
         self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
 ## BUTTONS
 ## button CROSS REFERENCE
-        self.voidBTN=Button(root,text='X-reference search',command=self.vpins).grid(row=rowBUTTONS,column=2)
+        self.voidBTN=Button(root,text='X-reference search',command=self.vpins).grid(row=rowBUTTONS,column=1)
 ## button view in notepad
         self.cleanBTN=Button(root,text='Edit files',command=self.opentxt).grid(row=rowBUTTONS,column=8)
 ## button COMPARE
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=9)
+        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=7)
 ## button BROWSE
         self.AAXbrowseBTN=Button(root,text='Select AAX',command=self.aaxbrowse).grid(row=rowBUTTONS,column=5)
         self.BAXbrowseBTN=Button(root,text='Select BAX',command=self.baxbrowse).grid(row=rowBUTTONS,column=6)
