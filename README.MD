@@ -5,21 +5,12 @@ Set of functions to compare AAX and BAX files
   used to configure Advant Controllers 400 series
   
   * v0.1 Feb-24,2020 first try
-  
   * v0.2 Mar,2020 logic blocks parsing coorection
-  
-  v0.3 add INAME parsing and compare
-  
-  v0.4 add cross reference search aax.cref() function and other minor changes
-  
-  v0.5 remove unneccessary message in output log, comarison logic compromised
- 
-  v0.6 AMPL parsing logic debug after test
-  
-  v0.7 Sep-26,2020 debug comparison logic
-  
-  v0.8 Oct-06,2020 pin multiple connections compare bug fix
-  
-  v0.9 Nov-15,2020 shortened the output, debug 
-  
-  V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting"
+  * v0.3 add INAME parsing and compare
+  * v0.4 add cross reference search aax.cref() function and other minor changes
+  * v0.5 remove unneccessary message in output log, comarison logic compromised
+  * v0.6 AMPL parsing logic debug after test
+  * v0.7 Sep-26,2020 debug comparison logic
+  * v0.8 Oct-06,2020 pin multiple connections compare bug fix
+  * v0.9 Nov-15,2020 shortened the output, debug 
+  * V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting"
