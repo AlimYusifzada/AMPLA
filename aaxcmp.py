@@ -117,7 +117,7 @@ class mainGUI:
             self.cmpOutput.insert('0.0',s)
 
 
-print('aaxcmp rev:%s, ampla_rev:%s, Baku ABB, Mar/2020, Alim Yusifzada, AMPL logic (aax files) compare tool'%(rev,ampla_rev))
+print('aaxcmp rev:%s, ampla_rev:%s, Baku ABB, Mar/2020, Alim Yusifzada, AMPL logic (aax/bax files) compare tool'%(rev,ampla_rev))
 print('Many thanks to Stuart Redman, for the help in debugging and fixing issues')
 mainwin=Tk()
 mainGUI(mainwin)
