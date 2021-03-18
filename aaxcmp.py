@@ -65,24 +65,24 @@ class mainGUI:
         self.FBefore.delete(0,len(self.FBefore.get()))
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                                                title = "Select AAX file BEFORE",
-                                                filetypes =[("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
+                            title = "Select AAX file BEFORE",
+                            filetypes =[("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                                                    title = "Select AAX file AFTER",
-                                                    filetypes =[("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
+                            title = "Select AAX file AFTER",
+                            filetypes =[("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
                             )
 
     def baxbrowse(self):
         self.FBefore.delete(0,len(self.FBefore.get()))
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                                                title = "Select BAX file BEFORE",
-                                                filetypes =[("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
+                            title = "Select BAX file BEFORE",
+                            filetypes =[("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                                                    title = "Select BAX file AFTER",
-                                                    filetypes =[("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
+                            title = "Select BAX file AFTER",
+                            filetypes =[("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
                             )
 
     def opentxt(self):
