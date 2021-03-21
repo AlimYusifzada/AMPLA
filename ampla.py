@@ -11,9 +11,10 @@
   v0.7 Sep-26,2020 debug comparison logic \n \
   v0.8 Oct-06,2020 pin multiple connections compare bug fix \n \
   v0.9 Nov-15,2020 shortened the output, debug \n \
-  V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting"
+  v0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting \n \
+  v0.9.2 Mar-21,2021 check code consistency function added <keysaround> "
 
-ampla_rev='0.9.1'
+ampla_rev='0.9.2'
 
 import sys
 if sys.version_info[0]<3:
@@ -121,13 +122,14 @@ class block:
         "Compare blocks, return difference report\n \
         (block_obj1.compare(block_obj2))"
 
+        flag=False # in future could be used to switch comarision logic
         s=''
-        flag=False
         if isinstance(other,block):
             if self==other:
                 return s
         slist=list(self.Pins.keys())
         olist=list(other.Pins.keys())
+        
         if self.Name!=other.Name:
             s+='\t'+self.Name+NEQ+other.Name+'\n'
             flag=True
@@ -159,7 +161,7 @@ class block:
                     NEX.ljust(TAB)+ \
                     NEQ+str(other.Pins[k]).rjust(TAB)+ '\n'
         if flag:
-            s=self.Address+'\t'+self.Name+'\n'+s
+            s='\n'+self.Address+'\t'+self.Name+'\n'+s
         return s    
     compare=__cmp
 
@@ -329,40 +331,20 @@ class AAX:
             bcnt=1
         return round(pcnt/bcnt,1)
 
-    def __cmp(self,other):
-        "Compare AAX files and return text report\n \
-        print(AAX_obj1.compare(AAX_obj2))"
-        s=''
-        if isinstance(other,AAX):
-            skeys=self.Blocks.keys()
-            okeys=other.Blocks.keys()
-            if self.Header!=other.Header:
-                s+='\nConflict at HEADER:'
-                for k in HEADER:
-                                if k in other.Header and k in self.Header:
-                                  if self.Header[k]!=other.Header[k]:
-                                          s+='\n\t'+str(k).ljust(TAB)+ \
-                                                   str(self.Header[k]).ljust(TAB)+NEok+ \
-                                                   str(other.Header[k]).rjust(TAB)
-            s+='\n'
-            if len(skeys)!=len(okeys):
-                s+='\nNumers of logic blocks are different\n \
-                    at ..%s =%d\n \
-                    at ..%s =%d\n'% \
-                    (self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
-            for key in self.Blocks.keys():
-                if key in other.Blocks.keys():
-                    if self.Blocks[key]!=other.Blocks[key]:
-                        s+=str(self.Blocks[key].compare(other.Blocks[key]))
-                else:
-                    s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-                        (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
-            for key in other.Blocks.keys():
-                if key not in self.Blocks.keys():
-                    s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
-                        (key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
-        return s
-    compare=__cmp
+    def keysaround(self,key):
+        " return tuple of the previous key and next key "
+        keys=tuple(self.Blocks.keys())
+        key_ind=keys.index(key)
+        if key_ind==0:
+            k1=0
+            k2=keys[key_ind+1]
+        elif key_ind==len(keys)-1:
+            k1=keys[key_ind-1]
+            k2=0
+        else:
+            k1=keys[key_ind-1]
+            k2=keys[key_ind+1]
+        return (k1,k2)
 
     def cref(self,tag='dummy'):
         "Cross referense search for the tag_name\n \
@@ -394,15 +376,50 @@ class AAX:
             return NONE
 
     def getrevision(self):
-
         "Return revision number"
-
         k='rev_ind'
         if k in self.Header.keys():
             return self.Header[k].strip()
         else:
             return NEX
 
+    def __cmp(self,other):
+        "Compare AAX files and return text report\n \
+        print(AAX_obj1.compare(AAX_obj2))"
+        s=''
+        if isinstance(other,AAX):
+            skeys=self.Blocks.keys()
+            okeys=other.Blocks.keys()
+            if self.Header!=other.Header:
+                s+='\nConflict at HEADER:'
+                for k in HEADER:
+                                if k in other.Header and k in self.Header:
+                                  if self.Header[k]!=other.Header[k]:
+                                          s+='\n\t'+str(k).ljust(TAB)+ \
+                                                   str(self.Header[k]).ljust(TAB)+NEok+ \
+                                                   str(other.Header[k]).rjust(TAB)
+            s+='\n'
+            if len(skeys)!=len(okeys):
+                s+='\nNumers of logic blocks are different\n \
+                    at ..%s =%d\n \
+                    at ..%s =%d\n'% \
+                    (self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
+            for key in self.Blocks.keys():
+                if key in other.Blocks.keys():
+                    if self.Blocks[key]!=other.Blocks[key]:
+                        s+=str(self.Blocks[key].compare(other.Blocks[key]))
+                    if self.keysaround(key)!=other.keysaround(key):
+                        s+=str("\nCheck consistency at %s\n"%key)
+                else:
+                    s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+                        (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
+            for key in other.Blocks.keys():
+                if key not in self.Blocks.keys():
+                    s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+                        (key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
+        return s
+    compare=__cmp
+    
 #------------------------------------------------------------------------------
 
 class BAX(AAX):
