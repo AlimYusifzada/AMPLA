@@ -393,11 +393,11 @@ class AAX:
             if self.Header!=other.Header:
                 s+='\nConflict at HEADER:'
                 for k in HEADER:
-                                if k in other.Header and k in self.Header:
-                                  if self.Header[k]!=other.Header[k]:
-                                          s+='\n\t'+str(k).ljust(TAB)+ \
-                                                   str(self.Header[k]).ljust(TAB)+NEok+ \
-                                                   str(other.Header[k]).rjust(TAB)
+                    if k in other.Header and k in self.Header:
+                        if self.Header[k]!=other.Header[k]:
+                            s+='\n\t'+str(k).ljust(TAB)+ \
+                                str(self.Header[k]).ljust(TAB)+NEok+ \
+                                str(other.Header[k]).rjust(TAB)
             s+='\n'
             if len(skeys)!=len(okeys):
                 s+='\nNumers of logic blocks are different\n \
@@ -409,7 +409,10 @@ class AAX:
                     if self.Blocks[key]!=other.Blocks[key]:
                         s+=str(self.Blocks[key].compare(other.Blocks[key]))
                     if self.keysaround(key)!=other.keysaround(key):
-                        s+=str("\nCheck consistency at %s\n"%key)
+                        ksA,ksB=self.keysaround(key)
+                        koA,koB=other.keysaround(key)
+                        if ksA!=koA and ksB!=koB:
+                            s+=str("\nMisplaced block %s\n"%key)
                 else:
                     s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
                         (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
