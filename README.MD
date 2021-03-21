@@ -9,4 +9,5 @@
   * v0.7 Sep-26,2020 debug comparison logic
   * v0.8 Oct-06,2020 pin multiple connections compare bug fix
   * v0.9 Nov-15,2020 shortened the output, debug 
-  * V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting"
+  * V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting
+  * v0.9.2 Mar-21,2021 check code consistency function added keysaround()
