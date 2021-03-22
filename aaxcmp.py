@@ -120,10 +120,20 @@ class mainGUI:
             self.cmpOutput.insert('0.0',s)
 
 
-print('GUI rev: %s, AMPLA rev: %s\n Baku ABB, Mar/2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool'%(rev,ampla_rev))
-print('Many thanks to Stuart Redman, for the help in testing, debugging and fixing issues')
-print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. You are always so helpful')
-print('...')
+print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool'%(rev,ampla_rev))
+print('\nMany thanks to Stuart Redman, \n\tfor the help in testing, debugging and fixing issues')
+print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. \n\tYou are always so helpful')
+
+Disclaimer='''
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+'''
+
+print(Disclaimer)
+print('Please feel free contact me: yusifzaj@gmail.com \nwith suggestions and troubleshooting\n...') 
+
 mainwin=Tk()
 mainGUI(mainwin)
 mainwin.grid_rowconfigure(rowOUTPUT,weight=1)
