@@ -3,6 +3,7 @@ import os
 from tkinter import Frame,Label, Button, Entry, Text, Tk
 from tkinter import filedialog
 from tkinter import scrolledtext as STX
+from tkinter import PhotoImage
 from ampla import *
 
 rev='0.9'
@@ -27,9 +28,9 @@ class mainGUI:
         self.root=root
 
 ## LABELS & PICTURES
-        root.title('ABAX GUI rev:%s ampla_rev:%s'%(rev,ampla_rev))
+        root.title('GUI rev:%s AMPLA rev:%s'%(rev,ampla_rev))
         Label(text='file BEFORE:').grid(row=rowBefore,column=3,sticky='E'+'W')
-        Label(text='file AFTER:').grid(row=rowAfter,column=3,sticky='E'+'W')
+        Label(text='file AFTER:').grid(row=rowAfter,column=3,sticky='E'+'W') 
 ## OUTPUT
         self.cmpOutput=STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT,column=0,sticky='N'+'S'+'w'+'E',columnspan=11)
@@ -44,6 +45,8 @@ class mainGUI:
         self.TagEdit=Entry(root)
         self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
 ## BUTTONS
+## button ABOUT
+        #Button(root,image=PhotoImage(file='eyes.png'),text='').grid(row=rowBUTTONS,column=0)
 ## button CROSS REFERENCE
         self.voidBTN=Button(root,text='X-reference search',command=self.vpins).grid(row=rowBUTTONS,column=1)
 ## button view in notepad
@@ -117,8 +120,10 @@ class mainGUI:
             self.cmpOutput.insert('0.0',s)
 
 
-print('aaxcmp rev:%s, ampla_rev:%s, Baku ABB, Mar/2020, Alim Yusifzada, AMPL logic (aax/bax files) compare tool'%(rev,ampla_rev))
-print('Many thanks to Stuart Redman, for the help in debugging and fixing issues')
+print('GUI rev: %s, AMPLA rev: %s\n Baku ABB, Mar/2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool'%(rev,ampla_rev))
+print('Many thanks to Stuart Redman, for the help in testing, debugging and fixing issues')
+print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. You are always so helpful')
+print('...')
 mainwin=Tk()
 mainGUI(mainwin)
 mainwin.grid_rowconfigure(rowOUTPUT,weight=1)

@@ -391,7 +391,7 @@ class AAX:
             skeys=self.Blocks.keys()
             okeys=other.Blocks.keys()
             if self.Header!=other.Header:
-                s+='\nConflict at HEADER:'
+                s+='\nConflict at the HEADER:'
                 for k in HEADER:
                     if k in other.Header and k in self.Header:
                         if self.Header[k]!=other.Header[k]:
@@ -400,7 +400,7 @@ class AAX:
                                 str(other.Header[k]).rjust(TAB)
             s+='\n'
             if len(skeys)!=len(okeys):
-                s+='\nNumers of logic blocks are different\n \
+                s+='\nNumers of logic statements are different\n \
                     at ..%s =%d\n \
                     at ..%s =%d\n'% \
                     (self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
@@ -412,13 +412,13 @@ class AAX:
                         ksA,ksB=self.keysaround(key)
                         koA,koB=other.keysaround(key)
                         if ksA!=koA and ksB!=koB:
-                            s+=str("\nMisplaced block %s\n"%key)
+                            s+=str("\nMisplaced statement %s\n"%key)
                 else:
-                    s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+                    s+='\nstatement %s not found at ..%s but exist at ..%s\n'% \
                         (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
             for key in other.Blocks.keys():
                 if key not in self.Blocks.keys():
-                    s+='\naddress %s not found at ..%s but exist at ..%s\n'% \
+                    s+='\nstatement %s not found at ..%s but exist at ..%s\n'% \
                         (key,self.fName[nSPC:],other.fName[nSPC:])+str(other.Blocks[key])
         return s
     compare=__cmp
@@ -549,7 +549,7 @@ class BAX(AAX):
             skeys=self.Blocks.keys()
             okeys=other.Blocks.keys()
             if self.Header!=other.Header:
-                s+='\nConflict at HEADER:'
+                s+='\nConflict at the HEADER:'
                 for k in HEADER:
                     if k in other.Header and k in self.Header:
                         if self.Header[k]!=other.Header[k]:
@@ -558,7 +558,7 @@ class BAX(AAX):
                             str(other.Header[k]).rjust(TAB)
             s+='\n'
             if len(skeys)!=len(okeys):
-                s+='\nNumers of DB blocks are different\n \
+                s+='\nNumers of db instances are different\n \
                 at ..%s =%d\n \
                 at ..%s =%d\n'% \
                 (self.fName[nSPC:],len(self.Blocks.keys()),other.fName[nSPC:],len(other.Blocks.keys()))
@@ -566,6 +566,11 @@ class BAX(AAX):
                 if key in other.Blocks.keys():
                     if self.Blocks[key]!=other.Blocks[key]:
                         s+=str(self.Blocks[key].compare(other.Blocks[key]))
+                    if self.keysaround(key)!=other.keysaround(key):
+                        ksA,ksB=self.keysaround(key)
+                        koA,koB=other.keysaround(key)
+                        if ksA!=koA and ksB!=koB:
+                            s+=str("\nMisplaced db instance %s\n"%key)                    
                 else:
                     s+='\ninstance %s not found at ..%s but exist at ..%s\n'% \
                     (key,other.fName[nSPC:],self.fName[nSPC:])+str(self.Blocks[key])
