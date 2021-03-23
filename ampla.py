@@ -262,26 +262,28 @@ class AAX:
                         for e in word[1:]:
                             st+=e
                         self.Blocks[address].Description=st
-                    continue
+                    continue # go to the next line
                 # read pins
                 if status==1 and word[0][:1]==':': # start of the pin definition
                     PinName=word[0]# get pin NAME
+                    if elcnt==1:
+                        pinval=NONE #empty pin
+                        continue  # go to the next line                
+                    
                     if elcnt>=2: # if there are spaces in the pin value
                         st=''
                         for e in word[1:]:
                             st+=e+'' # put all back in to one string
                         pinval=st
-                    if elcnt==1:
-                        pinval=NONE #empty pin
+
                     if pinval[-1:]==',':# another value at the next line
-                        lpinval=[]
-                        status=2 #  pin mark pin value could ocupy several lines
+                        status=2 #  pin values occupy several lines
                         lpinval.append(pinval[:-1])
-                        continue
+                        continue # go to the next line
                     else:
                         self.Blocks[address].addpin(PinName,pinval) # last value for the pin
                         status=1
-                        continue
+                        continue # go to the next line
                 # if pin has several values (output)
                 if status==2: # one of the values for the pin - add it to the list
                     if elcnt>1: # if there are spaces in the pin value
@@ -290,15 +292,16 @@ class AAX:
                             st+=e+'' # put all back in to one string
                         pinval=st
                     else:
-                        pinval=word[0]
+                        pinval=word[0]                        
                     if pinval[-1:]==',': # there are still another value at the next line
                         lpinval.append(pinval[:-1])
                     else: # this is a last value for the pin
                         lpinval.append(pinval)
-                        lpinval=lpinval.sort()
+                        lpinval.sort()
                         self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
                         lpinval=[]
                         status=1
+                      
 
     def getlabels(self):
         "Populate dictionary 'self.Labels'\n \
@@ -553,7 +556,7 @@ class BAX(AAX):
                         lpinval.append(pinval[:-1])
                     else: # this is a last value for the pin
                         lpinval.append(pinval)
-                        lpinval=lpinval.sort()
+                        lpinval.sort()
                         self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
                         lpinval=[]
                         status=1
