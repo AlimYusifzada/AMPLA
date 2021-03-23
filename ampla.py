@@ -460,7 +460,6 @@ class BAX(AAX):
         self.Header={} # aax header
         self.Labels={} # strore labels
 
-        status=0 # used for parsing
 
         # open bax file
         try:
@@ -496,36 +495,18 @@ class BAX(AAX):
                             i+=1
                     self.Header[word[0].lower()]=ss
                     continue
-
-                #start of the logic block status=1 get address, name and params
-
-                if word[0][:1]!=':' and status!=2 and \
+                #get address, name and params
+                if word[0][:1]!=':' and \
                 word[0]!='BEGIN' and word[0]!='END' and word[0]!='(':
                     address=word[0] # get address (Instance name)
-                    status=1 # block mark if status ==1 we are inside DB element
-                    if elcnt>1:
-                        BlockName=word[1] # get blok NAME (Instance Type)
-                    else:
-                        BlockName='' # address without logic block! not possible
-                    if elcnt>2:
-                        extra=word[2] # get extra params (DAT type)
-                    else:
-                        extra=''
-                        if '(' in BlockName: # no space between block name and extra
-                            extra=BlockName[BlockName.find('('):]
-                            BlockName=BlockName[:BlockName.find('(')]
-                    self.Blocks[address]=block(address,BlockName,extra) # create logic block obj
-                    continue
-                # try read block name if exist
-                if status==1 and word[0]=='INAME':
-                    if elcnt>1:
-                        st=''
-                        for e in word[1:]:
-                            st+=e
-                        self.Blocks[address].Description=st
+                    if len(word)>=2:
+                        BlockName=''
+                        for w in word[1:]:
+                            BlockName=BlockName+w
+                    self.Blocks[address]=block(address,BlockName,extra='') # create logic block obj
                     continue
                 # read pins
-                if status==1 and word[0][:1]==':': # start of the pin definition
+                if word[0][:1]==':': # start of the pin definition
                     PinName=word[0]# get pin NAME
                     if elcnt>=2: # if there are spaces in the pin value
                         st=''
@@ -534,32 +515,10 @@ class BAX(AAX):
                         pinval=st
                     if elcnt==1:
                         pinval=NONE #empty pin
-                    if pinval[-1:]==',':# another value at the next line
-                        lpinval=[]
-                        status=2 #  pin mark pin value could ocupy several lines
-                        lpinval.append(pinval[:-1])
-                        continue
-                    else:
-                        self.Blocks[address].addpin(PinName,pinval) # last value for the pin
-                        status=1
-                        continue
-                # if pin has several values
-                if status==2: # one of the values for the pin - add it to the list
-                    if elcnt>1: # if there are spaces in the pin value
-                        st=''
-                        for e in word:
-                            st+=e+'' # put all back in to one string
-                        pinval=st
-                    else:
-                        pinval=word[0]
-                    if pinval[-1:]==',': # there are still another value at the next line
-                        lpinval.append(pinval[:-1])
-                    else: # this is a last value for the pin
-                        lpinval.append(pinval)
-                        lpinval.sort()
-                        self.Blocks[address].addpin(PinName,lpinval) # add list to the pin
-                        lpinval=[]
-                        status=1
+                    self.Blocks[address].addpin(PinName,pinval) # last value for the pin
+                     
+
+                        
     def __cmp(self,other):
         "Compare BAX files and return text report"
         s=''
