@@ -11,3 +11,4 @@
   * v0.9 Nov-15,2020 shortened the output, debug 
   * V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting
   * v0.9.2 Mar-21,2021 check code consistency function added keysaround()
+  * v0.9.3 Mar-23 2021 compare numbers D=# as numbers but not like string, so D=5.0 and D=5 treated as equal
