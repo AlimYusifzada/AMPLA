@@ -12,9 +12,10 @@
   v0.8 Oct-06,2020 pin multiple connections compare bug fix \n \
   v0.9 Nov-15,2020 shortened the output, debug \n \
   v0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting \n \
-  v0.9.2 Mar-21,2021 check code consistency function added <keysaround> "
+  v0.9.2 Mar-21,2021 check code consistency function added <keysaround> \n \
+  v0.9.3 Mar-23 2021 compare numbers D=# as numbers but not like string, so D=5.0 and D=5 treated as equal"
 
-ampla_rev='0.9.2'
+ampla_rev='0.9.3'
 
 import sys
 if sys.version_info[0]<3:
@@ -37,7 +38,18 @@ HEADER=('design_ch','tech_ref','resp_dept','date',
         'l_text4','r_text4',
         'rev_ind','language')
 
+def trimd(txt):
+    if txt[:2].upper()=='D=':
+        return txt[2:]
+    return txt
 
+def isnum(txt):
+    try:
+        float(trimd(txt))
+        return True
+    except:
+        return False
+ 
 class block:
     def __init__(self,address='',name='',extra=''):
         "Constructor, create logic block instance, parent for dbinst\n \
@@ -142,7 +154,10 @@ class block:
       # compare pins
         for k in slist:
             if k in olist: # pin defined in both logic blocks
-                if self.Pins[k]!=other.Pins[k]:
+                if self.Pins[k]!=other.Pins[k]: # check if pin is a number and compare as numbers
+                    if isnum(self.Pins[k]) and isnum(other.Pins[k]):
+                        if float(trimd(self.Pins[k]))==float(trimd(other.Pins[k])):
+                            continue
                     flag=True
                     s+='\t'+str(k).ljust(TAB)+ \
                     str(self.Pins[k]).ljust(TAB)+ \
