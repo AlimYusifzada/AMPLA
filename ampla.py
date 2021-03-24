@@ -49,7 +49,33 @@ def isnum(txt):
         return True
     except:
         return False
- 
+
+def zipins(pinAval,pinBval):
+    flag=False # revert flag set if A/B values reverted
+    # use to keep output A-first B-second
+    if type(pinAval)!=list and type(pinBval)!=list:
+        return None 
+    if type(pinAval)!=list:
+        pinAval=[pinAval,]
+    if type(pinBval)!=list:
+        pinBval=[pinBval,]
+    if max(len(pinAval),len(pinBval))==len(pinAval):
+    # select longest and shortest
+        xList=pinAval
+        mList=pinBval
+    else:
+        xList=pinBval
+        mList=pinAval
+        flag=True
+    vdif=len(xList)-len(mList) # calculate difference in length
+    if vdif>0:
+        for i in range(vdif):
+            mList.append(NEX)
+    if flag:
+        return zip(mList,xList)
+    else:
+        return zip(xList,mList)
+
 class block:
     def __init__(self,address='',name='',extra=''):
         "Constructor, create logic block instance, parent for dbinst\n \
@@ -143,31 +169,41 @@ class block:
         olist=list(other.Pins.keys())
         
         if self.Name!=other.Name:
-            s+='\t'+self.Name+NEQ+other.Name+'\n'
+            s+='\t'+' '*TAB+self.Name.ljust(TAB)+NEQ+other.Name.rjust(TAB)+'\n'
             flag=True
         if self.Extra!=other.Extra:
-            s+='\t'+self.Extra+NEQ+other.Extra+'\n'
+            s+='\t'+' '*TAB+self.Extra.ljust(TAB)+NEQ+other.Extra.rjust(TAB)+'\n'
             flag=True
         if self.Description!=other.Description:
-            s+='\t'+self.Description.ljust(TAB)+NEok+other.Description.rjust(TAB)+'\n'
+            s+='\t'+' '*TAB+self.Description.ljust(TAB)+NEok+other.Description.rjust(TAB)+'\n'
             flag=True
       # compare pins
         for k in slist:
             if k in olist: # pin defined in both logic blocks
                 if self.Pins[k]!=other.Pins[k]: # check if pin is a number and compare as numbers
+                    flag=True
                     if isnum(self.Pins[k]) and isnum(other.Pins[k]):
                         if float(trimd(self.Pins[k]))==float(trimd(other.Pins[k])):
                             continue
-                    flag=True
-                    s+='\t'+str(k).ljust(TAB)+ \
-                    str(self.Pins[k]).ljust(TAB)+ \
-                    NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
+                    zipns=zipins(self.Pins[k],other.Pins[k])
+                    stmp=str(self.Pins[k]).ljust(TAB)+NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
+                    if zipns!=None:
+                        stmp=''
+                        for z in zipns:
+                            if z[0]!=z[1]:
+                                stmp+='\t'+' '*TAB+str(z[0]).ljust(TAB)+NEQ+ \
+                                    str(z[1]).rjust(TAB)+'\n'
+                            else:
+                                stmp+='\t'+' '*TAB+str(z[0]).ljust(TAB)+NEok+ \
+                                    str(z[1]).rjust(TAB)+'\n' 
+                    s+='\t'+str(k).ljust(TAB)+stmp.lstrip()
+                        
             else: # pin is not in other block
                 if self.Pins[k]!=NONE:
                     flag=True
                     s+='\t'+str(k).ljust(TAB)+ \
-                    str(self.Pins[k]).ljust(TAB)+ \
-                    NEQ+NEX.rjust(TAB)+'\n'
+                        str(self.Pins[k]).ljust(TAB)+ \
+                        NEQ+NEX.rjust(TAB)+'\n'
         for k in olist:
             if k not in slist:
                 if other.Pins[k]!=NONE:
@@ -253,7 +289,7 @@ class AAX:
                         if '(' in BlockName: # no space between block name and extra
                             extra=BlockName[BlockName.find('('):]
                             BlockName=BlockName[:BlockName.find('(')]
-                    self.Blocks[address]=block(address,BlockName) # create dbinstance block obj
+                    self.Blocks[address]=block(address,BlockName,extra) # create dbinstance block obj
                     continue
                 # try read block name if exist
                 if status==1 and word[0]=='INAME':
