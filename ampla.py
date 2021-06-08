@@ -249,6 +249,10 @@ class AAX:
             print('...error reading file: ...'+self.fName[nSPC:])
             return
 
+        self.aaxparse()
+    
+    def aaxparse(self):
+
         address='' # address of the block
         BlockName='' # NAME of the block  or  pin
         PinName=''
@@ -496,7 +500,6 @@ class BAX(AAX):
         self.Header={} # aax header
         self.Labels={} # strore labels
 
-
         # open bax file
         try:
             file=open(self.fName,'r')
@@ -505,7 +508,10 @@ class BAX(AAX):
         except:
             print('...error reading file: ...'+self.fName[nSPC:])
             return
+        self.baxparse()
 
+
+    def baxparse(self):
         address='' # database instance unique value
         BlockName='' # type of the block  or  pin name
         PinName=''
@@ -594,3 +600,13 @@ class BAX(AAX):
         return s
     compare=__cmp
 
+
+class AA(AAX):
+    '''
+    read (decode) AA file to self.Lines
+    '''
+    def __init__(self, fname):
+        self.fName=fname
+        with open(fname,'rb') as aafile:
+            pass
+    
