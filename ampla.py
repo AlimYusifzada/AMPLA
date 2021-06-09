@@ -238,8 +238,6 @@ class AAX:
         self.Header={} # aax header
         self.Labels={} # strore labels {"PC##.##.##":label}
 
-        status=0 # used for parsing
-
         # open aax file
         try:
             file=open(self.fName,'r')
@@ -252,7 +250,8 @@ class AAX:
         self.aaxparse()
     
     def aaxparse(self):
-
+        
+        status=0 # used for parsing
         address='' # address of the block
         BlockName='' # NAME of the block  or  pin
         PinName=''
@@ -605,8 +604,28 @@ class AA(AAX):
     '''
     read (decode) AA file to self.Lines
     '''
+    SPC=0x80
     def __init__(self, fname):
+        tmpline=''
         self.fName=fname
         with open(fname,'rb') as aafile:
+            b=aafile.read(1)
+            while b!=None:
+                if b-self.SPC>0:
+                    # add spaces?
+                    nofSPC=b-self.SPC # number of the spaces
+                    tmpline+=' '*nofSPC
+                    pass
+                if b>=0x20 or b<=0x7F:
+                    # ASCII symbol add as it is
+                    tmpline+=str(b)
+                    pass
+                if b==0x00:
+                    # new line add
+                    # append self.Lines
+                    tmpline+='\n'
+                    self.Lines.append(tmpline)
+                    tmpline=''
+                    pass
             pass
     
