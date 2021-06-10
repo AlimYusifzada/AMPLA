@@ -223,6 +223,7 @@ class block:
 
 class AAX:
 
+
     def __init__(self,fname):
 
         "Constructor, create AAX file instance, parse AMPL logic\n \
@@ -498,8 +499,7 @@ class BAX(AAX):
         self.Lines=None # lines collection from bax file
         self.Header={} # aax header
         self.Labels={} # strore labels
-
-        # open bax file
+        #open bax file
         try:
             file=open(self.fName,'r')
             self.Lines=file.readlines() #read bax file to Lines
@@ -606,26 +606,39 @@ class AA(AAX):
     '''
     SPC=0x80
     def __init__(self, fname):
+        
+        self.Blocks={} # logic elements (blocks)
+        self.fName=fname # aax file NAME
+        self.Lines=None # lines collection from aax file
+        self.Header={} # aax header
+        self.Labels={} # strore labels {"PC##.##.##":label}
+
         tmpline=''
+        self.Lines=[]
         self.fName=fname
         with open(fname,'rb') as aafile:
             b=aafile.read(1)
-            while b!=None:
-                if b-self.SPC>0:
+            bip=0x00 # hold previous bit int value
+            while b:
+                bi=int.from_bytes(b,'big') # convert byte to int
+                if bi>self.SPC: # check if it is compacted spaces
                     # add spaces?
-                    nofSPC=b-self.SPC # number of the spaces
-                    tmpline+=' '*nofSPC
+                    nofSPC=bi-self.SPC # calculate number of the spaces
+                    tmpline+=' '*nofSPC #add spaces to the line
                     pass
-                if b>=0x20 or b<=0x7F:
-                    # ASCII symbol add as it is
-                    tmpline+=str(b)
+                if bi>=0x20 and bi<=0x7F and bip!=0x00: # ASCII symbol add as it is
+                    tmpline+=b.decode()
                     pass
-                if b==0x00:
+                #if bi<0x20 and bip==0x00:
+                #    pass
+                if bi==0x00 and bip>0x00:
                     # new line add
                     # append self.Lines
-                    tmpline+='\n'
                     self.Lines.append(tmpline)
                     tmpline=''
                     pass
+                bip=bi
+                b=aafile.read(1)
             pass
+        self.aaxparse()
     
