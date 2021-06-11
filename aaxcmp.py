@@ -6,7 +6,7 @@ from tkinter import scrolledtext as STX
 from tkinter import PhotoImage
 from ampla import *
 
-rev='0.9'
+rev='0.A'
 
 file1=''
 file2=''
@@ -54,12 +54,19 @@ class mainGUI:
 ## button COMPARE
         self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=7)
 ## button BROWSE
-        self.AAXbrowseBTN=Button(root,text='Select AAX',command=self.aaxbrowse).grid(row=rowBUTTONS,column=5)
-        self.BAXbrowseBTN=Button(root,text='Select BAX',command=self.baxbrowse).grid(row=rowBUTTONS,column=6)
+        self.AAXbrowseBTN=Button(root,text='Select AAx',command=self.aaxbrowse).grid(row=rowBUTTONS,column=5)
+        self.BAXbrowseBTN=Button(root,text='Select BAx',command=self.baxbrowse).grid(row=rowBUTTONS,column=6)
 
     def isAAX(self):
-        ext=self.FBefore.get()[-3:]
-        if ext.upper()=='AAX':
+        ext=self.FBefore.get()[-2:]
+        if ext.upper()=='AX':
+            return True
+        else:
+            return False
+
+    def isAA(self):
+        ext=self.FBefore.get()[-2:]
+        if ext.upper()=='AA':
             return True
         else:
             return False
@@ -68,24 +75,24 @@ class mainGUI:
         self.FBefore.delete(0,len(self.FBefore.get()))
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select AAX file BEFORE",
-                            filetypes =[("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
+                            title = "Select file BEFORE",
+                            filetypes =[("AA files","*.aa"),("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select AAX file AFTER",
-                            filetypes =[("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
+                            title = "Select file AFTER",
+                            filetypes =[("AA files","*.aa"),("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
                             )
 
     def baxbrowse(self):
         self.FBefore.delete(0,len(self.FBefore.get()))
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select BAX file BEFORE",
-                            filetypes =[("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
+                            title = "Select file BEFORE",
+                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select BAX file AFTER",
-                            filetypes =[("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
+                            title = "Select file AFTER",
+                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
                             )
 
     def opentxt(self):
@@ -96,9 +103,13 @@ class mainGUI:
         if self.isAAX():
             fA=AAX(self.FBefore.get())
             fB=AAX(self.FAfter.get())
+        elif self.isAA():
+            fA=AA(self.FBefore.get())
+            fB=AA(self.FAfter.get())            
         else:
             fA=BAX(self.FBefore.get())
             fB=BAX(self.FAfter.get())
+
         self.cmpOutput.insert('0.0',str(fA.compare(fB)))
         self.cmpOutput.insert('0.0','\n\tDISCREPANCIES REPORT \n%s\nand\n%s\n'%(fA.fName,fB.fName))
 
@@ -106,6 +117,9 @@ class mainGUI:
         if self.isAAX():
             fA=AAX(self.FBefore.get())
             fB=AAX(self.FAfter.get())
+        elif self.isAA():
+            fA=AA(self.FBefore.get())
+            fB=AA(self.FAfter.get())            
         else:
             fA=BAX(self.FBefore.get())
             fB=BAX(self.FAfter.get())
