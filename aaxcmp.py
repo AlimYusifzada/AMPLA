@@ -30,7 +30,7 @@ class mainGUI:
 ## LABELS & PICTURES
         root.title('GUI rev:%s AMPLA rev:%s'%(rev,ampla_rev))
         Label(text='file BEFORE:').grid(row=rowBefore,column=3,sticky='E'+'W')
-        Label(text='file AFTER:').grid(row=rowAfter,column=3,sticky='E'+'W') 
+        Label(text='file AFTER:').grid(row=rowAfter,column=3,sticky='E'+'W')
 ## OUTPUT
         self.cmpOutput=STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT,column=0,sticky='N'+'S'+'w'+'E',columnspan=11)
@@ -50,49 +50,22 @@ class mainGUI:
 ## button CROSS REFERENCE
         self.voidBTN=Button(root,text='X-reference search',command=self.vpins).grid(row=rowBUTTONS,column=1)
 ## button view in notepad
-        self.cleanBTN=Button(root,text='Edit files',command=self.opentxt).grid(row=rowBUTTONS,column=8)
+        self.cleanBTN=Button(root,text='Edit',command=self.opentxt).grid(row=rowBUTTONS,column=8)
 ## button COMPARE
-        self.cmpBTN=Button(root,text='COMPARE',command=self.icompare).grid(row=rowBUTTONS,column=7)
+        self.cmpBTN=Button(root,text='Compare',command=self.icompare).grid(row=rowBUTTONS,column=7)
 ## button BROWSE
-        self.AAXbrowseBTN=Button(root,text='Select AAx',command=self.aaxbrowse).grid(row=rowBUTTONS,column=5)
-        self.BAXbrowseBTN=Button(root,text='Select BAx',command=self.baxbrowse).grid(row=rowBUTTONS,column=6)
-
-    def isAAX(self):
-        ext=self.FBefore.get()[-2:]
-        if ext.upper()=='AX':
-            return True
-        else:
-            return False
-
-    def isAA(self):
-        ext=self.FBefore.get()[-2:]
-        if ext.upper()=='AA':
-            return True
-        else:
-            return False
+        self.AAXbrowseBTN=Button(root,text='Select',command=self.aaxbrowse).grid(row=rowBUTTONS,column=6)
 
     def aaxbrowse(self):
         self.FBefore.delete(0,len(self.FBefore.get()))
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
                             title = "Select file BEFORE",
-                            filetypes =[("AA files","*.aa"),("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
+                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("AA files","*.aa"),("AAX files","*.aax"),("all files","*.*")] )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
                             title = "Select file AFTER",
-                            filetypes =[("AA files","*.aa"),("AAX files","*.aax"),("AAX files","*.AAX"),("all files","*.*")] )
-                            )
-
-    def baxbrowse(self):
-        self.FBefore.delete(0,len(self.FBefore.get()))
-        self.FAfter.delete(0,len(self.FAfter.get()))
-        self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select file BEFORE",
-                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
-                            )
-        self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select file AFTER",
-                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("BAX files","*.BAX"),("all files","*.*")] )
+                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("AA files","*.aa"),("AAX files","*.aax"),("all files","*.*")] )
                             )
 
     def opentxt(self):
@@ -100,15 +73,27 @@ class mainGUI:
         os.startfile(self.FAfter.get())
 
     def icompare(self):
-        if self.isAAX():
-            fA=AAX(self.FBefore.get())
-            fB=AAX(self.FAfter.get())
-        elif self.isAA():
+
+        extB=self.FBefore.get()[-3:].upper()
+        extA=self.FAfter.get()[-3:].upper()
+
+        if extB=='.AA':
             fA=AA(self.FBefore.get())
-            fB=AA(self.FAfter.get())            
-        else:
+        elif extB=='AAX':
+            fA=AAX(self.FBefore.get())
+        elif extB=='BAX':
             fA=BAX(self.FBefore.get())
+        elif extB=='.BA':
+            fA=BA(self.FBefore.get())
+
+        if extA=='.AA':
+            fB=AA(self.FAfter.get())
+        elif extA=='AAX':
+            fB=AAX(self.FAfter.get())
+        elif extA=='BAX':
             fB=BAX(self.FAfter.get())
+        elif extA=='.BA':
+            fB=BA(self.FAfter.get())
 
         self.cmpOutput.insert('0.0',str(fA.compare(fB)))
         self.cmpOutput.insert('0.0','\n\tDISCREPANCIES REPORT \n%s\nand\n%s\n'%(fA.fName,fB.fName))
@@ -119,7 +104,7 @@ class mainGUI:
             fB=AAX(self.FAfter.get())
         elif self.isAA():
             fA=AA(self.FBefore.get())
-            fB=AA(self.FAfter.get())            
+            fB=AA(self.FAfter.get())
         else:
             fA=BAX(self.FBefore.get())
             fB=BAX(self.FAfter.get())
@@ -146,7 +131,7 @@ Disclaimer='''
 '''
 
 print(Disclaimer)
-print('Please feel free contact me: yusifzaj@gmail.com \nwith suggestions and troubleshooting\n...') 
+print('Please feel free contact me: yusifzaj@gmail.com \nwith suggestions and troubleshooting\n...')
 
 mainwin=Tk()
 mainGUI(mainwin)
