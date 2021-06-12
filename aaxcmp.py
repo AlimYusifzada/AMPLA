@@ -99,15 +99,26 @@ class mainGUI:
         self.cmpOutput.insert('0.0','\n\tDISCREPANCIES REPORT \n%s\nand\n%s\n'%(fA.fName,fB.fName))
 
     def vpins(self):
-        if self.isAAX():
-            fA=AAX(self.FBefore.get())
-            fB=AAX(self.FAfter.get())
-        elif self.isAA():
+        extB=self.FBefore.get()[-3:].upper()
+        extA=self.FAfter.get()[-3:].upper()
+
+        if extB=='.AA':
             fA=AA(self.FBefore.get())
-            fB=AA(self.FAfter.get())
-        else:
+        elif extB=='AAX':
+            fA=AAX(self.FBefore.get())
+        elif extB=='BAX':
             fA=BAX(self.FBefore.get())
+        elif extB=='.BA':
+            fA=BA(self.FBefore.get())
+
+        if extA=='.AA':
+            fB=AA(self.FAfter.get())
+        elif extA=='AAX':
+            fB=AAX(self.FAfter.get())
+        elif extA=='BAX':
             fB=BAX(self.FAfter.get())
+        elif extA=='.BA':
+            fB=BA(self.FAfter.get())
 
         s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fA.fName))
         if len(s)>0:

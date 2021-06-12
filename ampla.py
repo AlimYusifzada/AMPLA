@@ -623,7 +623,7 @@ class BAX(AAX):
 
 class AA(AAX):
     '''
-    read (decode) AA/BA file to self.Lines
+    read (decode) AA file to self.Lines
     '''
     def __init__(self, fname):
         super().__init__(fname)
@@ -657,6 +657,38 @@ class AA(AAX):
             pass
         self.parse()
 
-class BA(AA):
+class BA(BAX):
+    '''
+    read BA files and parse using BAX class
+    '''
     def __init__(self, fname):
         super().__init__(fname)
+
+    def read(self):
+        tmpline=''
+        SPC=0x80
+        with open(self.fName,'rb') as aafile:
+            b=aafile.read(1)
+            bip=0x00 # hold previous bit int value
+            while b:
+                bi=int.from_bytes(b,'big') # convert byte to int
+                if bi>SPC: # check if it is compacted spaces
+                    # add spaces?
+                    nofSPC=bi-SPC # calculate number of the spaces
+                    tmpline+=' '*nofSPC #add spaces to the line
+                    pass
+                if bi>=0x20 and bi<=0x7F and bip!=0x00: # ASCII symbol add as it is
+                    tmpline+=b.decode()
+                    pass
+                #if bi<0x20 and bip==0x00:
+                #    pass
+                if bi==0x00 and bip>0x00:
+                    # new line add
+                    # append self.Lines
+                    self.Lines.append(tmpline)
+                    tmpline=''
+                    pass
+                bip=bi
+                b=aafile.read(1)
+            pass
+        self.parse()
