@@ -6,7 +6,7 @@ from tkinter import scrolledtext as STX
 from tkinter import PhotoImage
 from ampla import *
 
-rev='0.A'
+rev='CA' # revision stayle change. GUI revision indicate site/place of development
 
 file1=''
 file2=''
@@ -25,8 +25,6 @@ rowBUTTONS=1
 rowBefore=2
 rowAfter=3
 rowOUTPUT=4
-
-
 
 class mainGUI:
 
