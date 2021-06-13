@@ -16,8 +16,10 @@
   v0.9.2 Mar-21,2021 check code consistency function added <keysaround>
   v0.9.3 Mar-23 2021 compare numbers D=# as numbers but not like string, so D=5.0 and D=5 treated as equal
   v0.9.4 Jun-10 2021 add AA class
+  change revision numbering now it's main_version.year.month.day
+  v0.21.06.13
 '''
-ampla_rev='0.9.4'
+ampla_rev='0.21.06.13'
 
 import sys
 if sys.version_info[0]<3:
@@ -89,6 +91,35 @@ def zipins(pinAval,pinBval):
         return zip(mList,xList)
     else:
         return zip(xList,mList)
+
+def readA(fName):
+    Lines=[]
+    tmpline=''
+    SPC=0x80
+    with open(fName,'rb') as aafile:
+        b=aafile.read(1)
+        bip=0x00 # hold previous bit int value
+        while b:
+            bi=int.from_bytes(b,'big') # convert byte to int
+            if bi>SPC: # check if it is compacted spaces
+                # add spaces?
+                nofSPC=bi-SPC # calculate number of the spaces
+                tmpline+=' '*nofSPC #add spaces to the line
+                pass
+            if bi>=0x20 and bi<=0x7F and bip!=0x00: # ASCII symbol add as it is
+                tmpline+=b.decode()
+                pass
+            #if bi<0x20 and bip==0x00:
+            #    pass
+            if bi==0x00 and bip>0x00:
+                # new line add
+                # append self.Lines
+                Lines.append(tmpline)
+                tmpline=''
+                pass
+            bip=bi
+            b=aafile.read(1)
+    return Lines
 
 class block:
     def __init__(self,address='',name='',extra=''):
@@ -577,8 +608,6 @@ class BAX(AAX):
                         pinval=NONE #empty pin
                     self.Blocks[address].addpin(PinName,pinval) # last value for the pin
 
-
-
     def __cmp(self,other):
         '''
         Compare BAX files and return text report
@@ -620,41 +649,13 @@ class BAX(AAX):
         return s
     compare=__cmp
 
-
 class AA(AAX):
     '''
     read (decode) AA file to self.Lines
     '''
     def __init__(self, fname):
         super().__init__(fname)
-
-    def read(self):
-        tmpline=''
-        SPC=0x80
-        with open(self.fName,'rb') as aafile:
-            b=aafile.read(1)
-            bip=0x00 # hold previous bit int value
-            while b:
-                bi=int.from_bytes(b,'big') # convert byte to int
-                if bi>SPC: # check if it is compacted spaces
-                    # add spaces?
-                    nofSPC=bi-SPC # calculate number of the spaces
-                    tmpline+=' '*nofSPC #add spaces to the line
-                    pass
-                if bi>=0x20 and bi<=0x7F and bip!=0x00: # ASCII symbol add as it is
-                    tmpline+=b.decode()
-                    pass
-                #if bi<0x20 and bip==0x00:
-                #    pass
-                if bi==0x00 and bip>0x00:
-                    # new line add
-                    # append self.Lines
-                    self.Lines.append(tmpline)
-                    tmpline=''
-                    pass
-                bip=bi
-                b=aafile.read(1)
-            pass
+        self.Lines=readA(self.fName)
         self.parse()
 
 class BA(BAX):
@@ -663,32 +664,5 @@ class BA(BAX):
     '''
     def __init__(self, fname):
         super().__init__(fname)
-
-    def read(self):
-        tmpline=''
-        SPC=0x80
-        with open(self.fName,'rb') as aafile:
-            b=aafile.read(1)
-            bip=0x00 # hold previous bit int value
-            while b:
-                bi=int.from_bytes(b,'big') # convert byte to int
-                if bi>SPC: # check if it is compacted spaces
-                    # add spaces?
-                    nofSPC=bi-SPC # calculate number of the spaces
-                    tmpline+=' '*nofSPC #add spaces to the line
-                    pass
-                if bi>=0x20 and bi<=0x7F and bip!=0x00: # ASCII symbol add as it is
-                    tmpline+=b.decode()
-                    pass
-                #if bi<0x20 and bip==0x00:
-                #    pass
-                if bi==0x00 and bip>0x00:
-                    # new line add
-                    # append self.Lines
-                    self.Lines.append(tmpline)
-                    tmpline=''
-                    pass
-                bip=bi
-                b=aafile.read(1)
-            pass
+        self.Lines=readA(self.fName)
         self.parse()

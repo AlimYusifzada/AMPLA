@@ -13,6 +13,12 @@ file2=''
 wwidth=50
 options=()
 files=()
+ftypes=[("AA files","*.aa"),("AAX files","*.aax"),\
+        ("AA files","*.AA"),("AAX files","*.AAX"),\
+        ("BA files","*.ba"),("BAX files","*.bax"),\
+        ("BA files","*.BA"),("BAX files","*.BAX"),\
+        ("all files","*.*")]
+
 
 rowINFO=0
 rowBUTTONS=1
@@ -61,11 +67,11 @@ class mainGUI:
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
                             title = "Select file BEFORE",
-                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("AA files","*.aa"),("AAX files","*.aax"),("all files","*.*")] )
+                            filetypes =ftypes )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
                             title = "Select file AFTER",
-                            filetypes =[("BA files","*.ba"),("BAX files","*.bax"),("AA files","*.aa"),("AAX files","*.aax"),("all files","*.*")] )
+                            filetypes =ftypes )
                             )
 
     def opentxt(self):
