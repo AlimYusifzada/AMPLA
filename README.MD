@@ -9,7 +9,7 @@ from ampla import *
 
 aa_before = AA('source_code_before.aa')
 
-aa_after = AA('source_code_after.aax')
+aa_after = AAX('source_code_after.aax')
 
 print(aa.before.compare(aa_after))
 
