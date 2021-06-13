@@ -1,17 +1,14 @@
 **AMPLA** is **Python3** for **AMPL** code compare/analysis
 
-  * v0.1 Feb-24,2020 first try
-  * v0.2 Mar,2020 logic blocks parsing coorection
-  * v0.3 add INAME parsing and compare
-  * v0.4 add cross reference search aax.cref() function and other minor changes
-  * v0.5 remove unneccessary message in output log, comarison logic compromised
-  * v0.6 AMPL parsing logic debug after test
-  * v0.7 Sep-26,2020 debug comparison logic
-  * v0.8 Oct-06,2020 pin multiple connections compare bug fix
-  * v0.9 Nov-15,2020 shortened the output, debug 
-  * V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting
-  * v0.9.2 Mar-21,2021 check code consistency function added keysaround()
-  * v0.9.3 Mar-23 2021 compare numbers D=# as numbers but not like string, so D=5.0 and D=5 treated as equal
-  * v0.9.4 Jun-10 2021 add AA class
-  * change revision numbering now it's main_version.year.month.day
-  * v0.21.06.13
+* ampla.py - set of the classes and functions to read and compare AA,AAX, BA, BAX code
+* aaxcmp.py - gui module. run it to have simple interface
+
+* simple example below:
+
+from ampla import *
+
+aa_before=AA('source_code_before.aa')  
+aa_after=AA('source_code_after.aa')
+
+print(aa.before.compare(aa_after))
+
