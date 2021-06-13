@@ -3,12 +3,12 @@
 * ampla.py - set of the classes and functions to read and compare AA,AAX, BA, BAX code
 * aaxcmp.py - gui module. run it to have simple interface
 
-* simple example below:
+* python code below as example to compare aa and aax files
 
 from ampla import *
 
 aa_before=AA('source_code_before.aa')  
-aa_after=AA('source_code_after.aa')
+aa_after=AA('source_code_after.aax')
 
 print(aa.before.compare(aa_after))
 
