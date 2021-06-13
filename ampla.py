@@ -655,6 +655,8 @@ class AA(AAX):
     '''
     def __init__(self, fname):
         super().__init__(fname)
+
+    def read(self):
         self.Lines=readA(self.fName)
         self.parse()
 
@@ -664,5 +666,7 @@ class BA(BAX):
     '''
     def __init__(self, fname):
         super().__init__(fname)
+    
+    def read(self):
         self.Lines=readA(self.fName)
         self.parse()

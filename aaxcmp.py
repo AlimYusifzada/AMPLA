@@ -82,55 +82,55 @@ class mainGUI:
         extA=self.FAfter.get()[-3:].upper()
 
         if extB=='.AA':
-            fA=AA(self.FBefore.get())
+            fB=AA(self.FBefore.get())
         elif extB=='AAX':
-            fA=AAX(self.FBefore.get())
+            fB=AAX(self.FBefore.get())
         elif extB=='BAX':
-            fA=BAX(self.FBefore.get())
+            fB=BAX(self.FBefore.get())
         elif extB=='.BA':
-            fA=BA(self.FBefore.get())
+            fB=BA(self.FBefore.get())
 
         if extA=='.AA':
-            fB=AA(self.FAfter.get())
+            fA=AA(self.FAfter.get())
         elif extA=='AAX':
-            fB=AAX(self.FAfter.get())
+            fA=AAX(self.FAfter.get())
         elif extA=='BAX':
-            fB=BAX(self.FAfter.get())
+            fA=BAX(self.FAfter.get())
         elif extA=='.BA':
-            fB=BA(self.FAfter.get())
+            fA=BA(self.FAfter.get())
 
-        self.cmpOutput.insert('0.0',str(fA.compare(fB)))
-        self.cmpOutput.insert('0.0','\n\tDISCREPANCIES REPORT \n%s\nand\n%s\n'%(fA.fName,fB.fName))
+        self.cmpOutput.insert('0.0',str(fB.compare(fA)))
+        self.cmpOutput.insert('0.0','\n\tDISCREPANCIES REPORT \n%s\nand\n%s\n'%(fB.fName,fA.fName))
 
     def vpins(self):
         extB=self.FBefore.get()[-3:].upper()
         extA=self.FAfter.get()[-3:].upper()
 
         if extB=='.AA':
-            fA=AA(self.FBefore.get())
+            fB=AA(self.FBefore.get())
         elif extB=='AAX':
-            fA=AAX(self.FBefore.get())
+            fB=AAX(self.FBefore.get())
         elif extB=='BAX':
-            fA=BAX(self.FBefore.get())
+            fB=BAX(self.FBefore.get())
         elif extB=='.BA':
-            fA=BA(self.FBefore.get())
+            fB=BA(self.FBefore.get())
 
         if extA=='.AA':
-            fB=AA(self.FAfter.get())
+            fA=AA(self.FAfter.get())
         elif extA=='AAX':
-            fB=AAX(self.FAfter.get())
+            fA=AAX(self.FAfter.get())
         elif extA=='BAX':
-            fB=BAX(self.FAfter.get())
+            fA=BAX(self.FAfter.get())
         elif extA=='.BA':
-            fB=BA(self.FAfter.get())
+            fA=BA(self.FAfter.get())
 
-        s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fA.fName))
+        s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
         if len(s)>0:
-            for cradd in fA.cref(self.TagEdit.get()):
-                s+=str(fA.Blocks[cradd[:cradd.index(':')]])
-            s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
             for cradd in fB.cref(self.TagEdit.get()):
                 s+=str(fB.Blocks[cradd[:cradd.index(':')]])
+            s+=str('\n\t%s at %s\n'%(self.TagEdit.get(),fA.fName))
+            for cradd in fA.cref(self.TagEdit.get()):
+                s+=str(fA.Blocks[cradd[:cradd.index(':')]])
             self.cmpOutput.insert('0.0',s)
 
 
