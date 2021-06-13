@@ -12,3 +12,6 @@
   * V0.9.1 Mar-12,2021 add dbinst and bax classes, deprecate statout function, logic polishing and commenting
   * v0.9.2 Mar-21,2021 check code consistency function added keysaround()
   * v0.9.3 Mar-23 2021 compare numbers D=# as numbers but not like string, so D=5.0 and D=5 treated as equal
+  * v0.9.4 Jun-10 2021 add AA class
+  * change revision numbering now it's main_version.year.month.day
+  * v0.21.06.13
