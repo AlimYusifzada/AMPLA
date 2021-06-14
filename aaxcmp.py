@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import os
 from tkinter import Frame,Label, Button, Entry, Text, Tk
-from tkinter import filedialog
+from tkinter import filedialog,Menu
 from tkinter import scrolledtext as STX
 from tkinter import PhotoImage
 from ampla import *
 
-rev='CA' # revision stayle change. GUI revision indicate site/place of development
+rev='CA' # revision style change. GUI revision indicate site/place of development
 
 file1=''
 file2=''
@@ -31,44 +31,46 @@ class mainGUI:
     def __init__(self,root):
         self.root=root
 
+## Menu
+        self.MMenu=Menu(root)
+        self.FMenu=Menu(root)
+        self.FMenu.add_command(label="SELECT...",command=self.aaxbrowse)
+        self.FMenu.add_command(label="COMPARE",command=self.icompare)
+        self.FMenu.add_command(label="EDIT",command=self.opentxt)
+        self.FMenu.add_command(label="X-REFERENCE",command=self.vpins)
+
+        self.MMenu.add_cascade(label="FILE",menu=self.FMenu)
+        #self.root.configure(menu=self.MMenu)
+
 ## LABELS & PICTURES
         root.title('GUI rev:%s AMPLA rev:%s'%(rev,ampla_rev))
-        Label(text='file BEFORE:').grid(row=rowBefore,column=3,sticky='E'+'W')
-        Label(text='file AFTER:').grid(row=rowAfter,column=3,sticky='E'+'W')
+        root.config(menu=self.MMenu)
+        Label(text='X-Ref value:').grid(row=rowBefore,column=0,sticky='E')
+        Label(text=' BEFORE:').grid(row=rowBefore,column=3,sticky='W')
+        Label(text=' AFTER:').grid(row=rowAfter,column=3,sticky='W')
 ## OUTPUT
         self.cmpOutput=STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT,column=0,sticky='N'+'S'+'w'+'E',columnspan=11)
 ## ENTRIES
 ## AAX file entry - BEFORE
         self.FBefore=Entry(root,width=wwidth)
-        self.FBefore.grid(row=rowBefore,column=5,columnspan=5,sticky='W'+'E')
+        self.FBefore.grid(row=rowBefore,column=4,sticky='W')
 ## AAX file entry - AFTER
         self.FAfter=Entry(root,width=wwidth)
-        self.FAfter.grid(row=rowAfter,column=5,columnspan=5,sticky='W'+'E')
+        self.FAfter.grid(row=rowAfter,column=4,sticky='W')
 ## TAG NAME entry - cross reference
         self.TagEdit=Entry(root)
-        self.TagEdit.grid(row=rowBefore,column=1,columnspan=2,sticky='W'+'E')
-## BUTTONS
-## button ABOUT
-        #Button(root,image=PhotoImage(file='eyes.png'),text='').grid(row=rowBUTTONS,column=0)
-## button CROSS REFERENCE
-        self.voidBTN=Button(root,text='X-reference search',command=self.vpins).grid(row=rowBUTTONS,column=1)
-## button view in notepad
-        self.cleanBTN=Button(root,text='Edit',command=self.opentxt).grid(row=rowBUTTONS,column=8)
-## button COMPARE
-        self.cmpBTN=Button(root,text='Compare',command=self.icompare).grid(row=rowBUTTONS,column=7)
-## button BROWSE
-        self.AAXbrowseBTN=Button(root,text='Select',command=self.aaxbrowse).grid(row=rowBUTTONS,column=6)
+        self.TagEdit.grid(row=rowBefore,column=1,sticky='W')
 
     def aaxbrowse(self):
         self.FBefore.delete(0,len(self.FBefore.get()))
         self.FAfter.delete(0,len(self.FAfter.get()))
         self.FBefore.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select file BEFORE",
+                            title ="Select original file",
                             filetypes =ftypes )
                             )
         self.FAfter.insert(0, filedialog.askopenfilename(initialdir =  "~",
-                            title = "Select file AFTER",
+                            title = "Select modified file",
                             filetypes =ftypes )
                             )
 
@@ -77,9 +79,10 @@ class mainGUI:
         os.startfile(self.FAfter.get())
 
     def icompare(self):
-
         extB=self.FBefore.get()[-3:].upper()
         extA=self.FAfter.get()[-3:].upper()
+        if extA=='' or extB=='':
+            return
 
         if extB=='.AA':
             fB=AA(self.FBefore.get())
@@ -105,6 +108,8 @@ class mainGUI:
     def vpins(self):
         extB=self.FBefore.get()[-3:].upper()
         extA=self.FAfter.get()[-3:].upper()
+        if extA=='' or extB=='':
+            return
 
         if extB=='.AA':
             fB=AA(self.FBefore.get())
