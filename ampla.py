@@ -298,6 +298,14 @@ class AAX:
             print('...error reading file: ...'+self.fName[nSPC:])
             return
 
+    def write(self):
+        try:
+            with open(self.fName+'.txt','w') as file:
+                for l in self.Lines:
+                    file.write(l+'\n')
+        except:
+            print("...error while writing to:%s.txt"%self.Lines)
+
     def parse(self):
         status=0 # used for parsing
         address='' # address of the block

@@ -33,13 +33,21 @@ class mainGUI:
 
 ## Menu
         self.MMenu=Menu(root)
+        
         self.FMenu=Menu(root)
-        self.FMenu.add_command(label="SELECT...",command=self.aaxbrowse)
+        self.FMenu.add_command(label="SELECT FILES",command=self.aaxbrowse)
         self.FMenu.add_command(label="COMPARE",command=self.icompare)
         self.FMenu.add_command(label="EDIT",command=self.opentxt)
         self.FMenu.add_command(label="X-REFERENCE",command=self.vpins)
 
+        self.TMenu=Menu(root)
+        self.TMenu.add_command(label="CONVERT to TXT",command=self.convert)
+        self.TMenu.add_command(label="SCAN FOLDER")
+
+
         self.MMenu.add_cascade(label="FILE",menu=self.FMenu)
+        self.MMenu.add_cascade(label="TOOLS",menu=self.TMenu)
+
         #self.root.configure(menu=self.MMenu)
 
 ## LABELS & PICTURES
@@ -73,6 +81,7 @@ class mainGUI:
                             title = "Select modified file",
                             filetypes =ftypes )
                             )
+        self.icompare()
 
     def opentxt(self):
         os.startfile(self.FBefore.get())
@@ -81,8 +90,6 @@ class mainGUI:
     def icompare(self):
         extB=self.FBefore.get()[-3:].upper()
         extA=self.FAfter.get()[-3:].upper()
-        if extA=='' or extB=='':
-            return
 
         if extB=='.AA':
             fB=AA(self.FBefore.get())
@@ -92,6 +99,8 @@ class mainGUI:
             fB=BAX(self.FBefore.get())
         elif extB=='.BA':
             fB=BA(self.FBefore.get())
+        else:
+            return
 
         if extA=='.AA':
             fA=AA(self.FAfter.get())
@@ -101,15 +110,16 @@ class mainGUI:
             fA=BAX(self.FAfter.get())
         elif extA=='.BA':
             fA=BA(self.FAfter.get())
+        else:
+            return
 
+        self.cmpOutput.insert('0.0','\n\tEND OF REPORT')
         self.cmpOutput.insert('0.0',str(fB.compare(fA)))
-        self.cmpOutput.insert('0.0','\n\tDISCREPANCIES REPORT \n%s\nand\n%s\n'%(fB.fName,fA.fName))
+        self.cmpOutput.insert('0.0','\n\n\t>>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n'%(fB.fName,fA.fName))
 
     def vpins(self):
         extB=self.FBefore.get()[-3:].upper()
         extA=self.FAfter.get()[-3:].upper()
-        if extA=='' or extB=='':
-            return
 
         if extB=='.AA':
             fB=AA(self.FBefore.get())
@@ -119,6 +129,8 @@ class mainGUI:
             fB=BAX(self.FBefore.get())
         elif extB=='.BA':
             fB=BA(self.FBefore.get())
+        else:
+            return
 
         if extA=='.AA':
             fA=AA(self.FAfter.get())
@@ -128,7 +140,10 @@ class mainGUI:
             fA=BAX(self.FAfter.get())
         elif extA=='.BA':
             fA=BA(self.FAfter.get())
-
+        else:
+            return
+        
+        self.cmpOutput.insert('0.0',"\n\tEND OF REPORT")
         s=str('\n\t%s at %s\n'%(self.TagEdit.get(),fB.fName))
         if len(s)>0:
             for cradd in fB.cref(self.TagEdit.get()):
@@ -137,6 +152,24 @@ class mainGUI:
             for cradd in fA.cref(self.TagEdit.get()):
                 s+=str(fA.Blocks[cradd[:cradd.index(':')]])
             self.cmpOutput.insert('0.0',s)
+        self.cmpOutput.insert('0.0','\n\n\t>>> X_REFERENCE REPORT <<<')
+
+    def convert(self):
+        afile=filedialog.askopenfilename(initialdir =  "~",
+                            title ="Select AA or BA file",
+                            filetypes =ftypes )
+        ext=afile[-3:].upper()
+        if ext=='.AA':
+            f=AA(afile)
+        elif ext=='.BA':
+            f=BA(afile)
+        else:
+            #self.cmpOutput.insert('0.0',"\n\t Error occure while converting %s"%afile)
+            return
+        f.write()
+        self.cmpOutput.insert('0.0',"\n\n\tSuccesfully converted to %s.txt "%afile)
+
+            
 
 
 print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool'%(rev,ampla_rev))
