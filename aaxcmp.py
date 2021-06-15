@@ -35,15 +35,14 @@ class mainGUI:
         self.MMenu=Menu(root)
         
         self.FMenu=Menu(root)
-        self.FMenu.add_command(label="SELECT FILES",command=self.aaxbrowse)
+        self.FMenu.add_command(label="SELECT",command=self.aaxbrowse)
         self.FMenu.add_command(label="COMPARE",command=self.icompare)
         self.FMenu.add_command(label="EDIT",command=self.opentxt)
-        self.FMenu.add_command(label="X-REFERENCE",command=self.vpins)
 
         self.TMenu=Menu(root)
         self.TMenu.add_command(label="CONVERT to TXT",command=self.convert)
         self.TMenu.add_command(label="SCAN FOLDER")
-
+        self.TMenu.add_command(label="X-REFERENCE",command=self.vpins)
 
         self.MMenu.add_cascade(label="FILE",menu=self.FMenu)
         self.MMenu.add_cascade(label="TOOLS",menu=self.TMenu)
@@ -53,7 +52,7 @@ class mainGUI:
 ## LABELS & PICTURES
         root.title('GUI rev:%s AMPLA rev:%s'%(rev,ampla_rev))
         root.config(menu=self.MMenu)
-        Label(text='X-Ref value:').grid(row=rowBefore,column=0,sticky='E')
+        Label(text='X-REF VALUE:').grid(row=rowBefore,column=0,sticky='E')
         Label(text=' BEFORE:').grid(row=rowBefore,column=3,sticky='W')
         Label(text=' AFTER:').grid(row=rowAfter,column=3,sticky='W')
 ## OUTPUT
