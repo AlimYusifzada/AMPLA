@@ -176,6 +176,7 @@ class mainGUI:
 print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool' % (rev, ampla_rev))
 print('\nMany thanks to Stuart Redman, \n\tfor the help in testing, debugging and fixing issues')
 print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. \n\tYou are always so helpful')
+print('\nhttps://github.com/AlimYusifzada/AMPLA.git')
 
 Disclaimer = '''
     This program is distributed in the hope that it will be useful,
@@ -186,7 +187,6 @@ Disclaimer = '''
 
 print(Disclaimer)
 print('Please feel free contact me: yusifzaj@gmail.com \nwith suggestions and troubleshooting\n...')
-
 mainwin = Tk()
 mainGUI(mainwin)
 mainwin.grid_rowconfigure(rowOUTPUT, weight=1)
