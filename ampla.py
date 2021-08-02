@@ -18,9 +18,10 @@
   v0.9.4 Jun-10 2021 add AA class
   change revision numbering now it's main_version.year.month.day
   v0.21.06.13
+  0.21.08.02 fix minor issue with multiple values connections at output pin
 '''
 import sys
-ampla_rev = '0.21.06.13'
+ampla_rev = '0.21.08.02'
 
 if sys.version_info[0] < 3:
     print('Please use Python version 3.*')
@@ -78,22 +79,28 @@ def zipins(pinAval, pinBval):
         pinBval = [pinBval, ]
     if max(len(pinAval), len(pinBval)) == len(pinAval):
         # select longest and shortest
-        xList = pinAval
-        mList = pinBval
+        xList = pinAval #longest
+        mList = pinBval #shortest
     else:
-        xList = pinBval
-        mList = pinAval
+        xList = pinBval #longest
+        mList = pinAval #shortest
         flag = True
-    vdif = len(xList)-len(mList)  # calculate difference in length
-    if vdif > 0:
-        for i in range(vdif):
-            mList.append(NEX)
-    xList.sort()
-    mList.sort()
+    # vdif = len(xList)-len(mList)  # calculate difference in length
+    # if vdif > 0:
+    #     for i in range(vdif):
+    #         mList.append(NEX)
+    yList=[]
+    for rec in xList:
+        if rec in mList:
+            yList.append(rec)
+        else:
+            yList.append(NEX)
+    #xList.sort()
+    #mList.sort()
     if flag:
-        return zip(mList, xList)
+        return zip(yList, xList)
     else:
-        return zip(xList, mList)
+        return zip(xList, yList)
 
 
 def readA(fName):
