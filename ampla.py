@@ -18,10 +18,10 @@
   v0.9.4 Jun-10 2021 add AA class
   change revision numbering now it's main_version.year.month.day
   v0.21.06.13
-  0.21.08.02 fix minor issue with multiple values connections at output pin
+  0.21.08.03 fix issue with multiple values connections at output pin
 '''
 import sys
-ampla_rev = '0.21.08.02'
+ampla_rev = '0.21.08.03'
 
 if sys.version_info[0] < 3:
     print('Please use Python version 3.*')
@@ -95,6 +95,12 @@ def zipins(pinAval, pinBval):
             yList.append(rec)
         else:
             yList.append(NEX)
+    for rec in mList:
+        if rec in xList:
+            pass
+        else:
+            xList.append(NEX)
+            yList.append(rec)
     #xList.sort()
     #mList.sort()
     if flag:
