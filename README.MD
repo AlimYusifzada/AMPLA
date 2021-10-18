@@ -11,6 +11,6 @@ aa_before = AA('source_code_before.aa')
 
 aa_after = AAX('source_code_after.aax')
 
-print(aa.before.compare(aa_after))
+print(aa_before.compare(aa_after))
 
 
