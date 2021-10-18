@@ -6,7 +6,9 @@ from tkinter import scrolledtext as STX
 from tkinter import PhotoImage
 from ampla import *
 
-rev = 'CA'  # revision style change. GUI revision indicate site/place of development
+import xlwt
+
+rev = 'EA-XLS'  # revision style change. GUI revision indicate site/place of development
 
 file1 = ''
 file2 = ''
@@ -31,22 +33,22 @@ class mainGUI:
 
     def __init__(self, root):
         self.root = root
-
+        self.dir_before="~"
+        self.dir_after="~"
 # Menu
         self.MMenu = Menu(root)
-
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="SELECT", command=self.aaxbrowse)
-        self.FMenu.add_command(label="COMPARE", command=self.icompare)
-        self.FMenu.add_command(label="EDIT", command=self.opentxt)
+        self.FMenu.add_command(label="Select", command=self.aaxbrowse)
+        self.FMenu.add_command(label="Compare", command=self.icompare)
+        self.FMenu.add_command(label="Edit", command=self.opentxt)
 
         self.TMenu = Menu(root)
-        self.TMenu.add_command(label="CONVERT to TXT", command=self.convert)
-        #self.TMenu.add_command(label="SCAN FOLDER")
-        self.TMenu.add_command(label="X-REFERENCE", command=self.vpins)
+        self.TMenu.add_command(label="Convert to TXT", command=self.convert)
+        self.TMenu.add_command(label="Generate XLS report",command=self.genXLSreport)
+        self.TMenu.add_command(label="X-Reference", command=self.vpins)
 
-        self.MMenu.add_cascade(label="FILE", menu=self.FMenu)
-        self.MMenu.add_cascade(label="TOOLS", menu=self.TMenu)
+        self.MMenu.add_cascade(label="File", menu=self.FMenu)
+        self.MMenu.add_cascade(label="Tools", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
 
@@ -72,16 +74,22 @@ class mainGUI:
         self.TagEdit.grid(row=rowBefore, column=1, sticky='W')
 
     def aaxbrowse(self):
+
         self.FBefore.delete(0, len(self.FBefore.get()))
         self.FAfter.delete(0, len(self.FAfter.get()))
-        self.FBefore.insert(0, filedialog.askopenfilename(initialdir="~",
+
+        self.FBefore.insert(0, filedialog.askopenfilename(initialdir=self.dir_before,
                             title="Select original file",
                             filetypes=ftypes)
                             )
-        self.FAfter.insert(0, filedialog.askopenfilename(initialdir="~",
+        self.FAfter.insert(0, filedialog.askopenfilename(initialdir=self.dir_after,
                                                          title="Select modified file",
                                                          filetypes=ftypes)
                            )
+
+        self.dir_before=self.FBefore.get()
+        self.dir_after=self.FAfter.get()
+
         self.icompare()
 
     def opentxt(self):
@@ -172,6 +180,63 @@ class mainGUI:
         self.cmpOutput.insert(
             '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
 
+    def genXLSreport(self):
+        extB = self.FBefore.get()[-3:].upper()
+        extA = self.FAfter.get()[-3:].upper()
+
+        if extB == '.AA':
+            fB = AA(self.FBefore.get())
+        elif extB == 'AAX':
+            fB = AAX(self.FBefore.get())
+        elif extB == 'BAX':
+            fB = BAX(self.FBefore.get())
+        elif extB == '.BA':
+            fB = BA(self.FBefore.get())
+        else:
+            return
+
+        if extA == '.AA':
+            fA = AA(self.FAfter.get())
+        elif extA == 'AAX':
+            fA = AAX(self.FAfter.get())
+        elif extA == 'BAX':
+            fA = BAX(self.FAfter.get())
+        elif extA == '.BA':
+            fA = BA(self.FAfter.get())
+        else:
+            return
+
+        xlsreport=xlwt.Workbook()
+
+        cmppage=xlsreport.add_sheet('Discrepancy Report',cell_overwrite_ok=False)
+        codepage=xlsreport.add_sheet('Before <-> After',cell_overwrite_ok=False)
+
+
+        lcnt=0
+        for l in fB.Lines:
+            codepage.write(lcnt,0,l)
+            lcnt+=1
+
+        lcnt=0
+        for l in fA.Lines:
+            codepage.write(lcnt,1,l)
+            lcnt+=1
+
+        report=fB.compare(fA)
+        lcnt=0
+        s=''
+        for l in report:
+            if l!='\n':
+                s+=l
+            else:
+                cmppage.write(lcnt,0,s)
+                lcnt+=1
+                s=''
+
+        xlsreport.save(self.FAfter.get()+'.xls')
+
+
+#------------------------------------------------------------------------------
 
 print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool' % (rev, ampla_rev))
 print('\nMany thanks to Stuart Redman, \n\tfor the help in testing, debugging and fixing issues')
