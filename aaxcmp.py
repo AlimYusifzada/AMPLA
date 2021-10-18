@@ -233,7 +233,7 @@ class mainGUI:
                 lcnt+=1
                 s=''
 
-        xlsreport.save(self.FAfter.get()+'.xls')
+        xlsreport.save(self.FAfter.get()+'-DIF.xls')
 
 
 #------------------------------------------------------------------------------
