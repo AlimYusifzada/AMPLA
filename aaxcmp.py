@@ -122,10 +122,10 @@ class mainGUI:
         else:
             return
 
-        self.cmpOutput.insert('0.0', '\n\tEND OF REPORT')
+        self.cmpOutput.insert('0.0', '\n\t >>> END OF REPORT <<<')
         self.cmpOutput.insert('0.0', str(fB.compare(fA)))
         self.cmpOutput.insert(
-            '0.0', '\n\n\t>>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n' % (fB.fName, fA.fName))
+            '0.0', '\n\n\t >>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n' % (fB.fName, fA.fName))
 
     def vpins(self):
         extB = self.FBefore.get()[-3:].upper()
@@ -153,7 +153,7 @@ class mainGUI:
         else:
             return
 
-        self.cmpOutput.insert('0.0', "\n\tEND OF REPORT")
+        self.cmpOutput.insert('0.0', "\n\t >>> END OF REPORT <<<")
         s = str('\n\t%s at %s\n' % (self.TagEdit.get(), fB.fName))
         if len(s) > 0:
             for cradd in fB.cref(self.TagEdit.get()):
@@ -162,7 +162,7 @@ class mainGUI:
             for cradd in fA.cref(self.TagEdit.get()):
                 s += str(fA.Blocks[cradd[:cradd.index(':')]])
             self.cmpOutput.insert('0.0', s)
-        self.cmpOutput.insert('0.0', '\n\n\t>>> X_REFERENCE REPORT <<<')
+        self.cmpOutput.insert('0.0', '\n\n\t >>> X_REFERENCE REPORT <<<')
 
     def convert(self):
         afile = filedialog.askopenfilename(initialdir="~",
@@ -209,31 +209,115 @@ class mainGUI:
         xlsreport=xlwt.Workbook()
 
         cmppage=xlsreport.add_sheet('Discrepancy Report',cell_overwrite_ok=False)
-        codepage=xlsreport.add_sheet('Before <-> After',cell_overwrite_ok=False)
+        codepage_before=xlsreport.add_sheet('Before',cell_overwrite_ok=False)
+        codepage_after=xlsreport.add_sheet('After',cell_overwrite_ok=False)
+        codepage_compare=xlsreport.add_sheet('Compare',cell_overwrite_ok=False)
 
+        col_offs=5
+        addr_col=0
+        pins_col=1
+        name_col=1
+        pinv_col=2
+        extr_col=2
+        desc_col=0
+#----------------------------BEFORE SHEET
+        lcnt=0
+        for blk in fB.Blocks:
+            codepage_before.write(lcnt,addr_col,fB.Blocks[blk].Address)
+            codepage_before.write(lcnt,name_col,fB.Blocks[blk].Name)
+            codepage_before.write(lcnt,extr_col,fB.Blocks[blk].Extra)
+            lcnt+=1
+            codepage_before.write(lcnt,desc_col,fB.Blocks[blk].Description)
+            lcnt+=1
+            for pin in fB.Blocks[blk].Pins.keys():
+                codepage_before.write(lcnt,pins_col,pin)
+                codepage_before.write(lcnt,pinv_col,fB.Blocks[blk].Pins[pin])
+                lcnt+=1
+            lcnt+=2
+#--------------------------AFTER SHEET
+        lcnt=0
+        for blk in fA.Blocks:
+            codepage_after.write(lcnt,addr_col,fA.Blocks[blk].Address)
+            codepage_after.write(lcnt,name_col,fA.Blocks[blk].Name)
+            codepage_after.write(lcnt,extr_col,fA.Blocks[blk].Extra)
+            lcnt+=1
+            codepage_after.write(lcnt,desc_col,fA.Blocks[blk].Description)
+            lcnt+=1
+            for pin in fA.Blocks[blk].Pins.keys():
+                codepage_after.write(lcnt,pins_col,pin)
+                codepage_after.write(lcnt,pinv_col,fA.Blocks[blk].Pins[pin])
+                lcnt+=1
+            lcnt+=2
+#--------------------------COMPARE SHEET
+        lcnt=0
+        for blk in fB.Blocks: #check blocks in Before against After
+            codepage_compare.write(lcnt,addr_col,fB.Blocks[blk].Address)
+            codepage_compare.write(lcnt,name_col,fB.Blocks[blk].Name)
+            codepage_compare.write(lcnt,extr_col,fB.Blocks[blk].Extra)
+            if blk in fA.Blocks:
+                codepage_compare.write(lcnt,addr_col+col_offs,fA.Blocks[blk].Address)
+                codepage_compare.write(lcnt,name_col+col_offs,fA.Blocks[blk].Name)
+                codepage_compare.write(lcnt,extr_col+col_offs,fA.Blocks[blk].Extra)
+            else:
+                codepage_compare.write(lcnt,addr_col+col_offs,fB.Blocks[blk].Address)
+                codepage_compare.write(lcnt,name_col+col_offs,fB.Blocks[blk].Name)
+                codepage_compare.write(lcnt,extr_col+col_offs,'NOT FOUND')
+            lcnt+=1
+            codepage_compare.write(lcnt,desc_col,fB.Blocks[blk].Description)
+            if blk in fA.Blocks:
+                codepage_compare.write(lcnt,desc_col+col_offs,fA.Blocks[blk].Description)
+            lcnt+=1
+            for pin in fB.Blocks[blk].Pins.keys():
+                codepage_compare.write(lcnt,pins_col,pin)
+                codepage_compare.write(lcnt,pinv_col,fB.Blocks[blk].Pins[pin])
+                if blk in fA.Blocks and pin in fA.Blocks[blk].Pins.keys():
+                    codepage_compare.write(lcnt,pins_col+col_offs,pin)
+                    codepage_compare.write(lcnt,pinv_col+col_offs,fA.Blocks[blk].Pins[pin])
+                if blk in fA.Blocks and pin not in fA.Blocks[blk].Pins.keys():
+                    codepage_compare.write(lcnt,pins_col+col_offs,pin)
+                    codepage_compare.write(lcnt,pinv_col+col_offs,'REMOVED')
+                lcnt+=1
+            lcnt+=2
 
         lcnt=0
-        for l in fB.Lines:
-            codepage.write(lcnt,0,l)
-            lcnt+=1
-
-        lcnt=0
-        for l in fA.Lines:
-            codepage.write(lcnt,1,l)
-            lcnt+=1
+        for blk in fA.Blocks: #check blocks in After against Before
+            if blk not in fB.Blocks: #new block
+                codepage_compare.write(lcnt,addr_col+col_offs*2-1,'NEW BLOCK')
+                codepage_compare.write(lcnt,addr_col+col_offs*2,fA.Blocks[blk].Address)
+                codepage_compare.write(lcnt,name_col+col_offs*2,fA.Blocks[blk].Name)
+                codepage_compare.write(lcnt,extr_col+col_offs*2,fA.Blocks[blk].Extra)
+                lcnt+=1
+                codepage_compare.write(lcnt,desc_col+col_offs*2,fA.Blocks[blk].Description)
+                lcnt+=1
+                for pin in fA.Blocks[blk].Pins.keys():
+                    codepage_compare.write(lcnt,pins_col+col_offs*2,pin)
+                    codepage_compare.write(lcnt,pinv_col+col_offs*2,fA.Blocks[blk].Pins[pin])
+                    lcnt+=1
+            else: #alignment with existing code
+                for pin in fA.Blocks[blk].Pins.keys():
+                    lcnt+=1
+                lcnt+=4
 
         report=fB.compare(fA)
         lcnt=0
+        wcnt=0
         s=''
         for l in report:
-            if l!='\n':
-                s+=l
-            else:
-                cmppage.write(lcnt,0,s)
+            if l=='\n':
+                cmppage.write(lcnt,wcnt,s)
                 lcnt+=1
+                wcnt=0
                 s=''
+            elif l=='\t':
+                cmppage.write(lcnt,wcnt,s)
+                wcnt+=1
+                s=''
+            s+=l
+
 
         xlsreport.save(self.FAfter.get()+'-DIF.xls')
+        self.cmpOutput.insert(
+            '0.0', "\n\tdifference report created\n\tcheck 'after' folder")
 
 
 #------------------------------------------------------------------------------
