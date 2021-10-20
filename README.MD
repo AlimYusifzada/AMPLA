@@ -1,4 +1,4 @@
-**AMPLA** is **Python3** for **AMPL** code compare/analysis
+**AMPLA** is functions set for **AMPL** code compare/analysis implemented in **Python**
 
 * ampla.py - set of the classes and functions to read and compare AA,AAX, BA, BAX code
 * aaxcmp.py - gui module. run it to have simple interface
