@@ -43,34 +43,44 @@ def getfiles(dir):
 
 def xlsreport(dir,nodeslist):
 
-    date_col=0
-    nodeA_col=1
-    nodeB_col=2
-    startA_col=5
-    stopA_col=6
-    startB_col=10
-    stopB_col=11
+
+    nodeA_col=0
+    nodeB_col=1
+    startA_col=2
+    stopA_col=3
+    startB_col=4
+    stopB_col=5
+
     prevNodeNum=0
-    rec_cnt=0
-    
+    rec_cnt=1 # start from this row
+
+    new_pair=False
+
     xlsreport=xlwt.Workbook()
     duaptsheet=xlsreport.add_sheet("Duap timimng") #add date to the sheet name
-    
+    duaptsheet.write(0,nodeA_col,'Side-A node')
+    duaptsheet.write(0,nodeB_col,'Side-B node')
+    duaptsheet.write(0,startA_col,'Start time A')
+    duaptsheet.write(0,startB_col,'Start time B')
+    duaptsheet.write(0,stopA_col,'Stop time A')
+    duaptsheet.write(0,stopB_col,'Stop time B')
     for rec in nodeslist:
-        if (prevNodeNum+1)==rec[0]:
+        if (prevNodeNum+1)==int(rec[0]) and new_pair:
             duaptsheet.write(rec_cnt,nodeB_col,rec[0])
             duaptsheet.write(rec_cnt,startB_col,rec[1])
             duaptsheet.write(rec_cnt,stopB_col,rec[2])
+            rec_cnt+=1
+            new_pair=False
         else:
             duaptsheet.write(rec_cnt,nodeA_col,rec[0])
             duaptsheet.write(rec_cnt,startA_col,rec[1])
             duaptsheet.write(rec_cnt,stopA_col,rec[2])
-        rec_cnt+=1
-        prevNodeNum=rec[0]
-    
-    xlsreport.save(dir+'duap_timing.xls')
+            new_pair=True
+        prevNodeNum=int(rec[0])
+
+    xlsreport.save(dir+'\duap_timing.xls')
     pass
-  
+
 
 
 print('='*60)
@@ -85,14 +95,14 @@ for duaplog in getfiles(dir):
     # nodenum=duaplog[4:6]
     dumptime = gettime(dir+'/'+duaplog)
     num = dumptime[0]  # node number
-    stt = dumptime[1]  # duap start time
-    stp = dumptime[2]  # duap stop time
+    stt = str(dumptime[1])[-8:]  # duap start time
+    stp = str(dumptime[2])[-8:]  # duap stop time
     dur = dumptime[3]  # duap duration
-    
+
     print('Node '+num+'\tstart: '+str(stt)
           [-8:]+'\tstop: '+str(stp)[-8:]+'\tduration: '+str(dur)[-8:])
     # save data -reserved for future calculations
     nodeslist.append((num, stt, stp, dur))
-    
+
 xlsreport(dir,nodeslist)
 input('\n\tpress ENTER to exit')
