@@ -6,7 +6,8 @@ all scripts need xlwt module
 
 * ampla.py - set of the classes and functions to read and compare AA,AAX, BA, BAX code
 * aaxcmp.py - gui module. run it to have simple interface
-* python code below as example to compare aa and aax files
+
+python code below as example to compare aa and aax files
 
 from ampla import *
 
