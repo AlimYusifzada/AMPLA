@@ -1,6 +1,6 @@
 all scripts need xlwt module
 
-**AMPLA** is functions set for **AMPL** code compare/analysis implemented in **Python**
+**ampla.py** is functions set for **AMPL** code compare/analysis implemented in **Python**
 
 * ampla.py - set of the classes and functions to read and compare AA,AAX, BA, BAX code
 * aaxcmp.py - gui module. run it to have simple interface
@@ -14,7 +14,7 @@ aa_after = AAX('source_code_after.aax')
 
 print(aa_before.compare(aa_after))
 
-**netband.py** create spreadsheet base on lst results
+**netband.py** to create spreadsheet from lst results
 
 dir ...\*.mrimg /s /tc >created.lst
 
