@@ -14,8 +14,13 @@ aa_after = AAX('source_code_after.aax')
 
 print(aa_before.compare(aa_after))
 
-**netband.py** to create spreadsheet from lst results
+
+
+**netband.py** to create spreadsheet from lst files
 
 dir ...\*.mrimg /s /tc >created.lst
 
 dir ...\*.mrimg /s /tw >accessed.lst
+
+
+**duapt.py** to create spreadsheet report from LG files
