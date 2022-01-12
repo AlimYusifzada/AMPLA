@@ -18,6 +18,7 @@
 
 import re
 import xlwt
+from datetime import datetime as dt
 
 def getdata(clines):
     date_p='\d+-\D+-\d+' #00-mnt-00
@@ -30,11 +31,11 @@ def getdata(clines):
         res=[]
         r_date=re.findall(date_p,l)
         r_time=re.findall(time_p,l)
-        r_size=re.findall(size_p,l)
+        tmp_size=re.findall(size_p,l)
         r_name=re.findall(name_p,l)
         if r_date and r_time:
-            #print(r_name[0][:-12],r_time[0],r_size[0])
-            arec.append((r_name[0][:-12],r_date[0],r_time[0],r_size[0]))
+            r_size=re.sub('[,]','',tmp_size[0])
+            arec.append((r_name[0][:-12],r_date[0],r_time[0],r_size))
     return arec
 
 def main():
@@ -55,7 +56,10 @@ def main():
             netwb_sheet.write(rown,1,c[1]) #date
             netwb_sheet.write(rown,2,c[2]) #ctime
             netwb_sheet.write(rown,3,a[2]) #atime
-            netwb_sheet.write(rown,4,c[3]) #size
+            startime = dt.strptime(c[2], '%H:%M')
+            stoptime = dt.strptime(a[2], '%H:%M')
+            netwb_sheet.write(rown,4,str(stoptime-startime))
+            netwb_sheet.write(rown,5,c[3]) #size
             rown+=1
         xlsreport.save('NetworkBandwidthCheck.xls')
 
