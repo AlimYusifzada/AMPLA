@@ -19,7 +19,7 @@ import re
 import xlwt
 from datetime import datetime as dt
 
-netband_rev='0.02.08.22'
+netband_rev='0.22.02.08'
 netbandhelp='''
 Start cmd and change working directory to the convinient folder (Desktop or Documents)
 .lst files will be created at the place.

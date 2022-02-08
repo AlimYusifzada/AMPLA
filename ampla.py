@@ -5,6 +5,7 @@ amplahelp='''
   !!!The ampla.py does not have any interface!!!
  '''
 import sys
+
 ampla_rev = '0.21.08.03'
 
 if sys.version_info[0] < 3:

@@ -40,15 +40,15 @@ class mainGUI:
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
         self.FMenu.add_command(label="Select", command=self.aaxbrowse)
-        self.FMenu.add_command(label="Compare", command=self.icompare)
+        self.FMenu.add_command(label="Compare ", command=self.icompare)
         self.FMenu.add_command(label="Edit", command=self.opentxt)
 
         self.TMenu = Menu(root)
         self.TMenu.add_command(label="Convert to TXT", command=self.convert)
         self.TMenu.add_command(label="Generate XLS report",command=self.genXLSreport)
         self.TMenu.add_command(label="X-Reference", command=self.vpins)
-        self.TMenu.add_command(label="DUAP timing "+duapt.duapt_rev, command=self.duaptiming)
-        self.TMenu.add_command(label="Network bandwidth "+netband.netband_rev, command=self.netbandwidth)
+        self.TMenu.add_command(label="DUAP timing ", command=self.duaptiming)
+        self.TMenu.add_command(label="Network bandwidth ", command=self.netbandwidth)
 
         self.MMenu.add_cascade(label="File", menu=self.FMenu)
         self.MMenu.add_cascade(label="Tools", menu=self.TMenu)
@@ -56,7 +56,7 @@ class mainGUI:
         # self.root.configure(menu=self.MMenu)
 
 ## LABELS & PICTURES
-        root.title('GUI rev:%s AMPLA rev:%s' % (rev, ampla_rev))
+        root.title('GUI:%s  AMPLA:%s  DUAPT:%s  NETBAND:%s' % (rev,ampla_rev,duapt.duapt_rev,netband.netband_rev))
         root.config(menu=self.MMenu)
         Label(text='X-REF VALUE:').grid(row=rowBefore, column=0, sticky='E')
         Label(text=' BEFORE:').grid(row=rowBefore, column=3, sticky='W')
