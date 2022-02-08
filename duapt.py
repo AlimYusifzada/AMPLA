@@ -88,7 +88,7 @@ def xlsreport(dir,nodeslist):
             new_pair=True
         prevNodeNum=int(rec[0])
 
-    xlsreport.save(dir+'\duap_timing.xls')
+    xlsreport.save(dir+'\Duap_Timing.xls')
     pass
 
 def duaptreport(dir):

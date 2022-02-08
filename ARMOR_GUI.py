@@ -39,18 +39,18 @@ class mainGUI:
 # Menu
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="Select", command=self.aaxbrowse)
-        self.FMenu.add_command(label="Compare ", command=self.icompare)
+        self.FMenu.add_command(label="Select...", command=self.aaxbrowse)
+        self.FMenu.add_command(label="Compare", command=self.icompare)
+        self.FMenu.add_command(label="XLS report",command=self.genXLSreport)
+        self.FMenu.add_command(label="X-Reference", command=self.vpins)
         self.FMenu.add_command(label="Edit", command=self.opentxt)
 
         self.TMenu = Menu(root)
         self.TMenu.add_command(label="Convert to TXT", command=self.convert)
-        self.TMenu.add_command(label="Generate XLS report",command=self.genXLSreport)
-        self.TMenu.add_command(label="X-Reference", command=self.vpins)
         self.TMenu.add_command(label="DUAP timing ", command=self.duaptiming)
         self.TMenu.add_command(label="Network bandwidth ", command=self.netbandwidth)
 
-        self.MMenu.add_cascade(label="File", menu=self.FMenu)
+        self.MMenu.add_cascade(label="Before/After", menu=self.FMenu)
         self.MMenu.add_cascade(label="Tools", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
@@ -233,7 +233,6 @@ class mainGUI:
         codepage_compare.write(lcnt,addr_col+col_offs,'Address') # 0
         codepage_compare.write(lcnt,pins_col+col_offs,'Pin') # 1
         codepage_compare.write(lcnt,pinv_col+col_offs,'Value') # 2
-        #codepage_compare.write(lcnt,stat_col+col_offs,'Status') # 3
 
 #--------------------------COMPARE SHEET-----------------------------------
         lcnt=stat_line
@@ -314,13 +313,23 @@ class mainGUI:
 
     def duaptiming(self):
         filesdir=filedialog.askdirectory()
-        duapt.duaptreport(filesdir)
+        duapt.duaptreport(str(filesdir))
+        self.cmpOutput.insert('0.0',
+        '''
+        DUAP Timing spreadsheet generated
+        Look for Duap_Timing.xls file at the selected directory
+        ''')
         pass
 
     def netbandwidth(self):
         self.cmpOutput.insert('0.0',netband.netbandhelp)
         filesdir=filedialog.askdirectory()
-        netband.netbandcalc(filesdir)
+        netband.netbandcalc(str(filesdir))
+        self.cmpOutput.insert('0.0',
+        '''
+        Network bandwidth spreadsheet generated
+        Look for Network_Bandwidth.xls file at the selected directory
+        ''')
         pass
 #------------------------------------------------------------------------------
 

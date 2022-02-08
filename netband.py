@@ -72,7 +72,7 @@ def netbandcalc(dir):
             netwb_sheet.write(rown,4,str(stoptime-startime))
             netwb_sheet.write(rown,5,c[3]) #size
             rown+=1
-        xlsreport.save(dir+'/'+'NetworkBandwidthCheck.xls')
+        xlsreport.save(dir+'/'+'Network_Bandwidth.xls')
 
 def main():
     netbandcalc(input(netbandhelp))
