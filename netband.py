@@ -19,6 +19,20 @@ import re
 import xlwt
 from datetime import datetime as dt
 
+netband_rev='0.02.08.22'
+netbandhelp='''
+Start cmd and change working directory to the convinient folder (Desktop or Documents)
+.lst files will be created at the place.
+
+Run commands below:
+dir (path to Macrium backups)*.mrimg /s /tc >created.lst
+dir (path to Macrium backups)*.mrimg /s /tw >accessed.lst
+
+Transfer .lst files to the convenient folder
+Upon completion look for NetworkBandwidthCheck.xls.
+
+Enter folder with lst files:'''
+
 def getnetdata(clines):
     date_p='\d+-\D+-\d+' #00-mnt-00
     time_p='\d\d:\d\d' #00:00
@@ -62,19 +76,6 @@ def netbandcalc(dir):
 
 def main():
     netbandcalc(input(netbandhelp))
-
-netbandhelp='''
-Start cmd and change working directory to the convinient folder (Desktop or Documents)
-.lst files will be created at the place.
-
-Run commands below:
-dir (path to Macrium backups)*.mrimg /s /tc >created.lst
-dir (path to Macrium backups)*.mrimg /s /tw >accessed.lst
-
-Transfer .lst files to the convenient folder
-Upon completion look for NetworkBandwidthCheck.xls.
-
-Enter folder with lst files:'''
 
 if __name__ == '__main__':
     main()

@@ -2,12 +2,15 @@ import os
 from datetime import datetime as dt
 import xlwt
 
+duapt_rev='0.02.08.22'
+
 duapthelp='''
 Search for *.LG files at the project directory.
 Transfer all of them to the convenient folder.
 Upon completion look for duap_timing.xls.
 
 Enter the path to the LG files:'''
+
 nodeslist = []
 
 def gettime(logfile):

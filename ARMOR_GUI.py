@@ -47,8 +47,8 @@ class mainGUI:
         self.TMenu.add_command(label="Convert to TXT", command=self.convert)
         self.TMenu.add_command(label="Generate XLS report",command=self.genXLSreport)
         self.TMenu.add_command(label="X-Reference", command=self.vpins)
-        self.TMenu.add_command(label="DUAP timing", command=self.duaptiming)
-        self.TMenu.add_command(label="Network bandwidth", command=self.netbandwidth)
+        self.TMenu.add_command(label="DUAP timing "+duapt.duapt_rev, command=self.duaptiming)
+        self.TMenu.add_command(label="Network bandwidth "+netband.netband_rev, command=self.netbandwidth)
 
         self.MMenu.add_cascade(label="File", menu=self.FMenu)
         self.MMenu.add_cascade(label="Tools", menu=self.TMenu)
