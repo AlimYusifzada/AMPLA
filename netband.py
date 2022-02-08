@@ -61,16 +61,29 @@ def netbandcalc(dir):
         netwb_sheet=xlsreport.add_sheet('Network Bandwidth')
 
         cazip=zip(clist,alist)
-        rown=0
+        netwb_sheet.write(0,0,'Host Name') #host name
+        netwb_sheet.write(0,1,'Date') #date
+        netwb_sheet.write(0,2,'Start') #ctime
+        netwb_sheet.write(0,3,'Stop') #atime
+        netwb_sheet.write(0,4,'Duration')
+        netwb_sheet.write(0,5,'Size (MB)') #size
+        netwb_sheet.write(0,6,'Speed (MB/s)')
+
+        rown=1
         for c,a in cazip:
             netwb_sheet.write(rown,0,c[0]) #host name
             netwb_sheet.write(rown,1,c[1]) #date
             netwb_sheet.write(rown,2,c[2]) #ctime
             netwb_sheet.write(rown,3,a[2]) #atime
-            startime = dt.strptime(c[2], '%H:%M')
-            stoptime = dt.strptime(a[2], '%H:%M')
-            netwb_sheet.write(rown,4,str(stoptime-startime))
-            netwb_sheet.write(rown,5,c[3]) #size
+
+            duration=dt.strptime(a[2], '%H:%M')-dt.strptime(c[2], '%H:%M')
+            duration_sec=abs(duration.total_seconds())
+            MB_size=int(c[3])/100000
+            MBpS=MB_size/duration_sec
+
+            netwb_sheet.write(rown,4,str(duration))
+            netwb_sheet.write(rown,5,str("%.2f" % MB_size)) #size
+            netwb_sheet.write(rown,6,str("%.2f" % MBpS))
             rown+=1
         xlsreport.save(dir+'/'+'Network_Bandwidth.xls')
 
