@@ -11,7 +11,6 @@
 # run next cmd commands in Macrium backup folder at NAS drive
 # dir *.mrimg /s /tc >created.lst
 # dir *.mrimg /s /tw >accessed.lst
-#
 # run this script in the same directory with .lst files
 # enjoy
 #-------------------------------------------------------------------------------
@@ -20,7 +19,7 @@ import re
 import xlwt
 from datetime import datetime as dt
 
-def getdata(clines):
+def getnetdata(clines):
     date_p='\d+-\D+-\d+' #00-mnt-00
     time_p='\d\d:\d\d' #00:00
     size_p='\d+,\d+,\d+,\d+' #00,000,000,000
@@ -38,11 +37,11 @@ def getdata(clines):
             arec.append((r_name[0][:-12],r_date[0],r_time[0],r_size))
     return arec
 
-def main():
-    with open('created.lst') as created:
-        clist=getdata(created.readlines())
-    with open('accessed.lst') as accessed:
-        alist=getdata(accessed.readlines())
+def netbandcalc(dir):
+    with open(dir+'/'+'created.lst') as created:
+        clist=getnetdata(created.readlines())
+    with open(dir+'/'+'accessed.lst') as accessed:
+        alist=getnetdata(accessed.readlines())
     if len(clist)==len(alist):
         xlsreport=xlwt.Workbook()
         netwb_sheet=xlsreport.add_sheet('Network Bandwidth')
@@ -50,8 +49,6 @@ def main():
         cazip=zip(clist,alist)
         rown=0
         for c,a in cazip:
-            #print(c,'\t',a)
-            #print(c[0],'\t',c[1],'\t',a[1],'\t',c[2])
             netwb_sheet.write(rown,0,c[0]) #host name
             netwb_sheet.write(rown,1,c[1]) #date
             netwb_sheet.write(rown,2,c[2]) #ctime
@@ -61,11 +58,23 @@ def main():
             netwb_sheet.write(rown,4,str(stoptime-startime))
             netwb_sheet.write(rown,5,c[3]) #size
             rown+=1
-        xlsreport.save('NetworkBandwidthCheck.xls')
+        xlsreport.save(dir+'/'+'NetworkBandwidthCheck.xls')
 
-    #calculate network bandwidth
-    #report
+def main():
+    netbandcalc(input(netbandhelp))
 
+netbandhelp='''
+Start cmd and change working directory to the convinient folder (Desktop or Documents)
+.lst files will be created at the place.
+
+Run commands below:
+dir (path to Macrium backups)*.mrimg /s /tc >created.lst
+dir (path to Macrium backups)*.mrimg /s /tw >accessed.lst
+
+Transfer .lst files to the convenient folder
+Upon completion look for NetworkBandwidthCheck.xls.
+
+Enter folder with lst files:'''
 
 if __name__ == '__main__':
     main()

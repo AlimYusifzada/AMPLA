@@ -2,6 +2,13 @@ import os
 from datetime import datetime as dt
 import xlwt
 
+duapthelp='''
+Search for *.LG files at the project directory.
+Transfer all of them to the convenient folder.
+Upon completion look for duap_timing.xls.
+
+Enter the path to the LG files:'''
+nodeslist = []
 
 def gettime(logfile):
 
@@ -81,28 +88,28 @@ def xlsreport(dir,nodeslist):
     xlsreport.save(dir+'\duap_timing.xls')
     pass
 
+def duaptreport(dir):
+    rowcnt=0
+    for duaplog in getfiles(dir):
+        # nodenum=duaplog[4:6]
+        dumptime = gettime(dir+'/'+duaplog)
+        num = dumptime[0]  # node number
+        stt = str(dumptime[1])[-8:]  # duap start time
+        stp = str(dumptime[2])[-8:]  # duap stop time
+        dur = dumptime[3]  # duap duration
+        #print('Node '+num+'\tstart: '+str(stt)
+        #      [-8:]+'\tstop: '+str(stp)[-8:]+'\tduration: '+str(dur)[-8:])
+        # save data -reserved for future calculations
+        nodeslist.append((num, stt, stp, dur))
+    xlsreport(dir,nodeslist)
+    ##input('\n\tpress ENTER to exit')
 
+def main():
+    print('='*60)
+    print('DUAP time collector')
+    dir = input(duapthelp)
+    print('-'*60)
+    duaptreport(dir)
 
-print('='*60)
-print('DUAP time collector')
-dir = input('enter directory with LG files (DUAPT results):')
-print('-'*60)
-nodeslist = []
-rowcnt=0
-
-
-for duaplog in getfiles(dir):
-    # nodenum=duaplog[4:6]
-    dumptime = gettime(dir+'/'+duaplog)
-    num = dumptime[0]  # node number
-    stt = str(dumptime[1])[-8:]  # duap start time
-    stp = str(dumptime[2])[-8:]  # duap stop time
-    dur = dumptime[3]  # duap duration
-
-    print('Node '+num+'\tstart: '+str(stt)
-          [-8:]+'\tstop: '+str(stp)[-8:]+'\tduration: '+str(dur)[-8:])
-    # save data -reserved for future calculations
-    nodeslist.append((num, stt, stp, dur))
-
-xlsreport(dir,nodeslist)
-input('\n\tpress ENTER to exit')
+if __name__=='__main__':
+    main()
