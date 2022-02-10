@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+'''
+old GUI not updated anymore!
+'''
+
 import os
 from tkinter import Frame, Label, Button, Entry, Text, Tk
 from tkinter import filedialog, Menu
