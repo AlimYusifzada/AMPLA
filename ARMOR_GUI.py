@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import os
-from tkinter import Frame, Label, Button, Entry, Text, Tk
+from tkinter import Label,  Entry,  Tk
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
-from tkinter import PhotoImage
 from ampla import *
 import netband
 import duapt
