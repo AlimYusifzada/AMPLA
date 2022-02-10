@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        duapt
-# Purpose:     collect data to calculate network bandwidth
+# Purpose:     calculate DUAP timimg and reporting 
 #
 # Author:      yusifzaj
 #
