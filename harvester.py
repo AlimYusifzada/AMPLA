@@ -6,8 +6,9 @@
 #
 # Created:     05/05/2020
 # Copyright:   (c) Alim 2020
-# Licence:
+# Licence:     N/A
 # -------------------------------------------------------------------------------
+
 from tkinter import Tk, Button, Frame, Label, Listbox, filedialog
 from shutil import copy
 

@@ -2,11 +2,11 @@
 # Name:        duapt
 # Purpose:     calculate DUAP timimg and reporting 
 #
-# Author:      yusifzaj
+# Author:      Alim Yusif-zada
 #
 # Created:     12/01/2022
-# Copyright:   (c) yusifzaj 2022
-# Licence:     N/A free of use (ARMOR only)
+# Copyright:   (c) Alim Yusif-zada 2022
+# Licence:     GPL
 #
 #-------------------------------------------------------------------------------
 
