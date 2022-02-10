@@ -1,3 +1,15 @@
+#-------------------------------------------------------------------------------
+# Name:        duapt
+# Purpose:     collect data to calculate network bandwidth
+#
+# Author:      yusifzaj
+#
+# Created:     12/01/2022
+# Copyright:   (c) yusifzaj 2022
+# Licence:     N/A free of use (ARMOR only)
+#
+#-------------------------------------------------------------------------------
+
 import os
 from datetime import datetime as dt
 import xlwt
