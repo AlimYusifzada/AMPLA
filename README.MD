@@ -1,6 +1,8 @@
 Requirements to run:
 Python3
+
 os,tkinter, xlwt, datetime
+
 ampla.py, netband.py, duapt.py
 
 ---------------------------------
