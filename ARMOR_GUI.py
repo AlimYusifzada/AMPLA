@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import os
-from tkinter import Label,  Entry,  Tk
+from tkinter import Frame, Label, Button, Entry, Text, Tk
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
+from tkinter import PhotoImage
 from ampla import *
 import netband
 import duapt
 import xlwt
+import datetime as dt
 
 rev = 'ARMOR'  # revision style change. GUI revision indicate site/place of development
 
@@ -176,11 +178,11 @@ class mainGUI:
         elif ext == '.BA':
             f = BA(afile)
         else:
-            #self.cmpOutput.insert('0.0',"\n\t Error occure while converting %s"%afile)
             return
         f.write()
         self.cmpOutput.insert(
             '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
 
     def genXLSreport(self):
         extB = self.FBefore.get()[-3:].upper()
@@ -232,7 +234,6 @@ class mainGUI:
         codepage_compare.write(lcnt,addr_col+col_offs,'Address') # 0
         codepage_compare.write(lcnt,pins_col+col_offs,'Pin') # 1
         codepage_compare.write(lcnt,pinv_col+col_offs,'Value') # 2
-
 #--------------------------COMPARE SHEET-----------------------------------
         lcnt=stat_line
         for blk in fB.Blocks: #check blocks in Before against After
@@ -309,8 +310,10 @@ class mainGUI:
         xlsreport.save(self.FAfter.get()+'-DIF.xls')
         self.cmpOutput.insert(
             '0.0', "\n\tdifference report created")
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
 
     def duaptiming(self):
+        self.cmpOutput.insert('0.0',duapt.duapthelp)
         filesdir=filedialog.askdirectory()
         duapt.duaptreport(str(filesdir))
         self.cmpOutput.insert('0.0',
@@ -318,6 +321,7 @@ class mainGUI:
         DUAP Timing spreadsheet generated
         Look for Duap_Timing.xls file at the selected directory
         ''')
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
         pass
 
     def netbandwidth(self):
@@ -329,6 +333,7 @@ class mainGUI:
         Network bandwidth spreadsheet generated
         Look for Network_Bandwidth.xls file at the selected directory
         ''')
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
         pass
 #------------------------------------------------------------------------------
 
