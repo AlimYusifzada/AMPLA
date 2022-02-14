@@ -1,4 +1,5 @@
-Requirements to run:
+Requirements to run ARMOR_GUI:
+
 Python3
 
 external lib to instal: os,tkinter, xlwt, datetime
