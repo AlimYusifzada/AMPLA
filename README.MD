@@ -1,9 +1,9 @@
 Requirements to run:
 Python3
 
-os,tkinter, xlwt, datetime
+external lib to instal: os,tkinter, xlwt, datetime
 
-ampla.py, netband.py, duapt.py
+other files: ampla.py, netband.py, duapt.py
 
 ---------------------------------
 
