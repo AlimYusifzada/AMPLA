@@ -2,9 +2,9 @@ Requirements to run ARMOR_GUI:
 
 Python3
 
-external lib to instal: os,tkinter, xlwt, datetime
+External lib to instal: os,tkinter, xlwt, datetime
 
-other files: ampla.py, netband.py, duapt.py
+Other files: ampla.py, netband.py, duapt.py
 
 ---------------------------------
 
