@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 '''
 old GUI not updated anymore!
+not supported
+dont use!!!
 '''
 
 import os
