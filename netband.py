@@ -22,7 +22,7 @@ from datetime import datetime as dt
 created_filename='created.lst'
 accessed_filename='accessed.lst'
 
-netband_rev='0.22.02.14'
+netband_rev='0.22.07.07'
 netbandhelp='''
 Start cmd and change working directory to the convinient folder (Desktop or Documents)
 .lst files will be created at the place.
@@ -39,7 +39,7 @@ Enter folder with lst files:'''
 def getnetdata(clines):
     date_p='\d+-\D+-\d+' #00-mnt-00
     time_p='\d\d:\d\d' #00:00
-    size_p='\d+,\d+,\d+,\d+' #00,000,000,000
+    size_p='\d+,\d+,\d+,\d+' #00,000,000,000 must be at least 1Gb size
     name_p='\S+\.mrimg' #
     arec=[]
     for l in clines:
@@ -49,7 +49,7 @@ def getnetdata(clines):
         r_time=re.findall(time_p,l)
         tmp_size=re.findall(size_p,l)
         r_name=re.findall(name_p,l)
-        if r_date and r_time:
+        if r_date and r_time and tmp_size:
             r_size=re.sub('[,]','',tmp_size[0])
             arec.append((r_name[0][:-12],r_date[0],r_time[0],r_size))
     return arec
@@ -84,7 +84,7 @@ def netbandcalc(dir):
 
                 duration=dt.strptime(a[2], '%H:%M')-dt.strptime(c[2], '%H:%M')
                 duration_sec=abs(duration.total_seconds())
-                MB_size=int(c[3])/100000
+                MB_size=int(c[3])/1000000
                 MBpS=MB_size/duration_sec
 
                 netwb_sheet.write(rown,4,str(duration))
@@ -92,9 +92,8 @@ def netbandcalc(dir):
                 netwb_sheet.write(rown,6,str("%.2f" % MBpS))
                 rown+=1
             xlsreport.save(dir+'/'+'Network_Bandwidth.xls')
-    except:
-        print('\nERROR:\tCant find required files.\n'+
-            created_filename+' and/or '+accessed_filename)
+    except Exception as e:
+        print('\nERROR:\t'+e.args)
         pass
 def main():
     netbandcalc(input(netbandhelp))
