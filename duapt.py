@@ -1,32 +1,18 @@
-#-------------------------------------------------------------------------------
-# Name:        duapt
-# Purpose:     calculate DUAP timimg and reporting 
-#
-# Author:      Alim Yusif-zada
-#
-# Created:     12/01/2022
-# Copyright:   (c) Alim Yusif-zada 2022
-# Licence:     GPL
-#
-#-------------------------------------------------------------------------------
-
 import os
 from datetime import datetime as dt
 import xlwt
 
-duapt_rev='0.22.02.08'
+duapt_rev='0.22.02.14'
 
 duapthelp='''
 Search for *.LG files at the project directory.
 Transfer all of them to the convenient folder.
-Upon completion look for duap_timing.xls.
 
 Enter the path to the LG files:'''
 
 nodeslist = []
 
 def getDUAPtime(logfile):
-
     try:
         with open(logfile, 'rb') as lf:  # open and read LG file
             rawdata = lf.read()
@@ -82,6 +68,7 @@ def xlsreport(dir,nodeslist):
     stopB_col=7
     speedB_col=8
 
+
     prevNodeNum=0
     rec_cnt=1 # start from this row
 
@@ -120,6 +107,8 @@ def xlsreport(dir,nodeslist):
     pass
 
 def duaptreport(dir):
+    if(len(dir)==0):
+        return
     rowcnt=0
     for duaplog in getfiles(dir):
         if('LG' not in duaplog[-2:]):
