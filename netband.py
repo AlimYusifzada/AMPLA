@@ -77,19 +77,20 @@ def netbandcalc(dir):
 
             rown=1
             for c,a in cazip:
-                netwb_sheet.write(rown,0,c[0]) #host name
-                netwb_sheet.write(rown,1,c[1]) #date
-                netwb_sheet.write(rown,2,c[2]) #ctime
-                netwb_sheet.write(rown,3,a[2]) #atime
 
                 duration=dt.strptime(a[2], '%H:%M')-dt.strptime(c[2], '%H:%M')
                 duration_sec=abs(duration.total_seconds())
                 MB_size=int(c[3])/1000000
                 MBpS=MB_size/duration_sec
 
-                netwb_sheet.write(rown,4,str(duration))
-                netwb_sheet.write(rown,5,str("%.2f" % MB_size)) #size
+                netwb_sheet.write(rown,0,c[1]) #date 
+                netwb_sheet.write(rown,1,c[0]) #host name 
+                netwb_sheet.write(rown,2,str("%.2f" % MB_size)) #size
+                netwb_sheet.write(rown,3,c[2]) #ctime 
+                netwb_sheet.write(rown,4,a[2]) #atime 
+                netwb_sheet.write(rown,5,str(duration))
                 netwb_sheet.write(rown,6,str("%.2f" % MBpS))
+                
                 rown+=1
             xlsreport.save(dir+'/'+'Network_Bandwidth.xls')
     except Exception as e:
