@@ -110,6 +110,7 @@ def duaptreport(dir):
     if(len(dir)==0):
         return
     rowcnt=0
+    nodeslist.clear()
     for duaplog in getfiles(dir):
         if('LG' not in duaplog[-2:]):
             continue
