@@ -210,7 +210,7 @@ class mainGUI:
         else:
             return
 
-        xlsreport=xlwt.Workbook()
+        xlsreport=xlwt.Workbook(encoding='ascii')
 
         cmppage=xlsreport.add_sheet('Discrepancy Report',cell_overwrite_ok=False)
         codepage_compare=xlsreport.add_sheet('Compare',cell_overwrite_ok=False)
@@ -245,12 +245,12 @@ class mainGUI:
                 codepage_compare.write(lcnt,name_col+col_offs,fA.Blocks[blk].Name)
                 codepage_compare.write(lcnt,extr_col+col_offs,fA.Blocks[blk].Extra)
                 if fB.Blocks[blk]!=fA.Blocks[blk]:
-                    codepage_compare.write(lcnt,stat_col,'<!>')
+                    codepage_compare.write(lcnt,stat_col,NEQ)
             else:
                 codepage_compare.write(lcnt,addr_col+col_offs,fB.Blocks[blk].Address)
                 codepage_compare.write(lcnt,name_col+col_offs,fB.Blocks[blk].Name)
                 codepage_compare.write(lcnt,extr_col+col_offs,'NOT FOUND - STATEMENT REMOVED')
-                codepage_compare.write(lcnt,stat_col,'<!>')
+                codepage_compare.write(lcnt,stat_col,NEQ)
             lcnt+=1
             codepage_compare.write(lcnt,desc_col,fB.Blocks[blk].Description)
             if blk in fA.Blocks:
@@ -263,11 +263,11 @@ class mainGUI:
                     codepage_compare.write(lcnt,pins_col+col_offs,pin)
                     codepage_compare.write(lcnt,pinv_col+col_offs,fA.Blocks[blk].Pins[pin])
                     if fA.Blocks[blk].Pins[pin]!=fB.Blocks[blk].Pins[pin]:
-                        codepage_compare.write(lcnt,stat_col,'<!>')
+                        codepage_compare.write(lcnt,stat_col,NEQ)
                 if blk in fA.Blocks and pin not in fA.Blocks[blk].Pins.keys():
                     codepage_compare.write(lcnt,pins_col+col_offs,pin)
                     codepage_compare.write(lcnt,pinv_col+col_offs,'NOT FOUND - PIN DISCONNECTED')
-                    codepage_compare.write(lcnt,stat_col,'<!>')
+                    codepage_compare.write(lcnt,stat_col,NEQ)
                 lcnt+=1
             lcnt+=2
 

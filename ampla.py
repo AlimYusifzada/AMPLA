@@ -556,7 +556,7 @@ class AAX:
                                 str(other.Header[k]).rjust(TAB)
             s += '\n'
             if len(skeys) != len(okeys):
-                s += '\nNumers of logic statements are different\n \
+                s += '\nlists of logic statements are different\n \
                     at ..%s =%d\n \
                     at ..%s =%d\n' % \
                     (self.fName[nSPC:], len(self.Blocks.keys()),
