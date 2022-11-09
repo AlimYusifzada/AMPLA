@@ -99,6 +99,9 @@ def zipins(pinAval, pinBval):
 
 
 def readA(fName):
+    '''
+    read AA or BA file to Lines
+    '''
     Lines = []
     tmpline = ''
     SPC = 0x80
@@ -216,7 +219,7 @@ class block:
         Compare blocks, return difference report
         (block_obj1.compare(block_obj2))
         '''
-        flag = False  # in future could be used to switch comarision logic
+        flag = False  # used to switch comparision logic - if set difference found
         s = ''
         if isinstance(other, block):
             if self == other:
@@ -225,23 +228,27 @@ class block:
         olist = list(other.Pins.keys())
 
         if self.Name != other.Name:
+        # Logic block names are different (replaced?)
             s += '\t'+' '*TAB + \
                 self.Name.ljust(TAB)+NEQ+other.Name.rjust(TAB)+'\n'
             flag = True
         if self.Extra != other.Extra:
+        # Configuartion parameters of the blocks are ifferent
             s += '\t'+' '*TAB + \
                 self.Extra.ljust(TAB)+NEQ+other.Extra.rjust(TAB)+'\n'
             flag = True
         if self.Description != other.Description:
+        # Non critical difference in description found
             s += '\t'+' '*TAB + \
                 self.Description.ljust(TAB)+NEok + \
                 other.Description.rjust(TAB)+'\n'
             flag = True
-      # compare pins
+      # compare pins of the blocks
         for k in slist:
-            if k in olist:  # pin defined in both logic blocks
-                # check if pin is a number and compare as numbers
+            if k in olist:  
+            # pin defined in both logic blocks
                 if self.Pins[k] != other.Pins[k]:
+                # pin 'k' are not equal
                     flag = True
                     if isnum(self.Pins[k]) and isnum(other.Pins[k]):
                         if float(trimd(self.Pins[k])) == float(trimd(other.Pins[k])):
@@ -259,7 +266,6 @@ class block:
                                 stmp += '\t'+' '*TAB+str(z[0]).ljust(TAB)+NEok + \
                                     str(z[1]).rjust(TAB)+'\n'
                     s += '\t'+str(k).ljust(TAB)+stmp.lstrip()
-
             else:  # pin is not in other block
                 if self.Pins[k] != NONE:
                     flag = True
@@ -305,9 +311,10 @@ class AAX:
 
     def read(self):
         try:
-            file = open(self.fName, 'r')
-            self.Lines = file.readlines()  # read aax file to Lines
-            file.close()
+            with open(self.fName, 'r') as file:
+                #file = open(self.fName, 'r')
+                self.Lines = file.readlines()  # read aax file to Lines
+            #file.close()
         except:
             print('...error reading file: ...'+self.fName[nSPC:])
             return
@@ -532,6 +539,8 @@ class AAX:
         '''
         Compare AAX files and return text report
         print(AAX_obj1.compare(AAX_obj2))
+
+        future version will have option to generate CF file
         '''
         s = ''
         if isinstance(other, AAX):
@@ -562,12 +571,14 @@ class AAX:
                         if ksA != koA and ksB != koB:
                             s += str("\nMisplaced statement %s\n" % key)
                 else:
-                    s += '\nstatement %s not found at ..%s but exist at ..%s\n' % \
+                    # generate DS (Delete Statement ONB command)
+                    s += '\nstatement %s not found at (AFTER)..%s but exist at (BEFORE)..%s\n' % \
                         (key, other.fName[nSPC:],
                          self.fName[nSPC:])+str(self.Blocks[key])
             for key in other.Blocks.keys():
                 if key not in self.Blocks.keys():
-                    s += '\nstatement %s not found at ..%s but exist at ..%s\n' % \
+                    # generate IS (Insert Statement ONB command)
+                    s += '\nstatement %s not found at (BEFORE)..%s but Exist at (AFTER)..%s\n' % \
                         (key, self.fName[nSPC:],
                          other.fName[nSPC:])+str(other.Blocks[key])
         return s
@@ -672,12 +683,15 @@ class BAX(AAX):
                         if ksA != koA and ksB != koB:
                             s += str("\nMisplaced db instance %s\n" % key)
                 else:
-                    s += '\ninstance %s not found at ..%s but exist at ..%s\n' % \
+                    # generate MDB command to spare the instance (do not delete)
+                    # topup.bax
+                    s += '\ninstance %s not found at (AFTER)..%s but exist at (BEFORE)..%s\n' % \
                         (key, other.fName[nSPC:],
                          self.fName[nSPC:])+str(self.Blocks[key])
             for key in other.Blocks.keys():
                 if key not in self.Blocks.keys():
-                    s += '\ninstance %s not found at ..%s but exist at ..%s\n' % \
+                    # generate command to create new DB instance
+                    s += '\ninstance %s not found at (BEFOER)..%s but Exist at (AFETR)..%s\n' % \
                         (key, self.fName[nSPC:],
                          other.fName[nSPC:])+str(other.Blocks[key])
         return s
