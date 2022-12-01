@@ -40,26 +40,26 @@ class mainGUI:
 # Menu
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="Select...", command=self.aaxbrowse)
-        self.FMenu.add_command(label="Compare", command=self.icompare)
-        self.FMenu.add_command(label="XLS report",command=self.genXLSreport)
+        self.FMenu.add_command(label="select BEFOR/AFTER files", command=self.aaxbrowse)
+        self.FMenu.add_command(label="compare again", command=self.icompare)
+        self.FMenu.add_command(label="generate XLS report",command=self.genXLSreport)
         self.FMenu.add_command(label="X-Reference", command=self.vpins)
-        self.FMenu.add_command(label="Edit", command=self.opentxt)
+        self.FMenu.add_command(label="open in editor", command=self.opentxt)
 
         self.TMenu = Menu(root)
-        self.TMenu.add_command(label="Convert to TXT", command=self.convert)
-        self.TMenu.add_command(label="DUAP timing ", command=self.duaptiming)
-        self.TMenu.add_command(label="Network bandwidth ", command=self.netbandwidth)
+        self.TMenu.add_command(label="convert AA or BA to TXT", command=self.convert)
+        self.TMenu.add_command(label="calculate DUAP timing from LG", command=self.duaptiming)
+        self.TMenu.add_command(label="network bandwidth calculation", command=self.netbandwidth)
 
         self.MMenu.add_cascade(label="Before/After", menu=self.FMenu)
-        self.MMenu.add_cascade(label="Tools", menu=self.TMenu)
+        self.MMenu.add_cascade(label="ARMOR Tools", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
 
 ## LABELS & PICTURES
         root.title('GUI:%s  AMPLA:%s  DUAPT:%s  NETBAND:%s' % (rev,ampla_rev,duapt.duapt_rev,netband.netband_rev))
         root.config(menu=self.MMenu)
-        Label(text='X-REF VALUE:').grid(row=rowBefore, column=0, sticky='E')
+        Label(text='X-REF:').grid(row=rowBefore, column=0, sticky='E')
         Label(text=' BEFORE:').grid(row=rowBefore, column=3, sticky='W')
         Label(text=' AFTER:').grid(row=rowAfter, column=3, sticky='W')
 # OUTPUT
