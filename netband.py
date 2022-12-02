@@ -67,12 +67,12 @@ def netbandcalc(dir):
             netwb_sheet=xlsreport.add_sheet('Network Bandwidth')
 
             cazip=zip(clist,alist)
-            netwb_sheet.write(0,0,'Host Name') #host name
-            netwb_sheet.write(0,1,'Date') #date
-            netwb_sheet.write(0,2,'Start') #ctime
-            netwb_sheet.write(0,3,'Stop') #atime
-            netwb_sheet.write(0,4,'Duration')
-            netwb_sheet.write(0,5,'Size (MB)') #size
+            netwb_sheet.write(0,0,'Date') #date
+            netwb_sheet.write(0,1,'Host Name') #host name
+            netwb_sheet.write(0,2,'Size (MB)') #size
+            netwb_sheet.write(0,3,'Start') #ctime
+            netwb_sheet.write(0,4,'Stop') #atime
+            netwb_sheet.write(0,5,'Duration')
             netwb_sheet.write(0,6,'Speed (MB/s)')
 
             rown=1
