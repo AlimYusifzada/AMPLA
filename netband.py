@@ -15,12 +15,14 @@
 # enjoy
 #-------------------------------------------------------------------------------
 
+from os import getcwd
 import re
 import xlwt
+
 from datetime import datetime as dt
 
-created_filename='created.lst'
-accessed_filename='accessed.lst'
+created_filename='1.lst'
+accessed_filename='2.lst'
 
 netband_rev='0.22.07.07'
 netbandhelp='''
@@ -37,14 +39,12 @@ Upon completion look for NetworkBandwidthCheck.xls.
 Enter folder with lst files:'''
 
 def getnetdata(clines):
-    date_p='\d+-\D+-\d+' #00-mnt-00
+    date_p='\d\d\d\d-\d\d-\d\d' #yyyy-mm-dd
     time_p='\d\d:\d\d' #00:00
     size_p='\d+,\d+,\d+,\d+' #00,000,000,000 must be at least 1Gb size
     name_p='\S+\.mrimg' #
     arec=[]
     for l in clines:
-        #print(l)
-        res=[]
         r_date=re.findall(date_p,l)
         r_time=re.findall(time_p,l)
         tmp_size=re.findall(size_p,l)
@@ -55,8 +55,8 @@ def getnetdata(clines):
     return arec
 
 def netbandcalc(dir):
-    if(len(dir)==0):
-        return
+    if dir=='':
+        dir=getcwd()
     try:
         with open(dir+'/'+created_filename) as created:
             clist=getnetdata(created.readlines())
@@ -65,7 +65,6 @@ def netbandcalc(dir):
         if len(clist)==len(alist):
             xlsreport=xlwt.Workbook()
             netwb_sheet=xlsreport.add_sheet('Network Bandwidth')
-
             cazip=zip(clist,alist)
             netwb_sheet.write(0,0,'Date') #date
             netwb_sheet.write(0,1,'Host Name') #host name
@@ -74,10 +73,8 @@ def netbandcalc(dir):
             netwb_sheet.write(0,4,'Stop') #atime
             netwb_sheet.write(0,5,'Duration')
             netwb_sheet.write(0,6,'Speed (MB/s)')
-
             rown=1
             for c,a in cazip:
-
                 duration=dt.strptime(a[2], '%H:%M')-dt.strptime(c[2], '%H:%M')
                 duration_sec=abs(duration.total_seconds())
                 MB_size=int(c[3])/1000000
@@ -94,7 +91,7 @@ def netbandcalc(dir):
                 rown+=1
             xlsreport.save(dir+'/'+'Network_Bandwidth.xls')
     except Exception as e:
-        print('\nERROR:\t'+e.args)
+        print('error:'+e.args[1])
         pass
 def main():
     netbandcalc(input(netbandhelp))
