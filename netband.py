@@ -26,12 +26,9 @@ accessed_filename='2.lst'
 
 netband_rev='0.22.07.07'
 netbandhelp='''
-Start cmd and change working directory to the convinient folder (Desktop or Documents)
-.lst files will be created at the place.
-
 Run commands below:
-dir (path to Macrium backups)*.mrimg /s /tc >created.lst
-dir (path to Macrium backups)*.mrimg /s /tw >accessed.lst
+dir (path to Macrium backups)*.mrimg /s /tc >1.lst
+dir (path to Macrium backups)*.mrimg /s /tw >2.lst
 
 Transfer .lst files to the convenient folder
 Upon completion look for NetworkBandwidthCheck.xls.
@@ -90,11 +87,13 @@ def netbandcalc(dir):
                 
                 rown+=1
             xlsreport.save(dir+'/'+'Network_Bandwidth.xls')
+            return "Network_Bandwidth.xls generated"
     except Exception as e:
-        print('error:'+e.args[1])
+        return str('error:'+e.args[1])
         pass
+
 def main():
-    netbandcalc(input(netbandhelp))
+    print(netbandcalc(input(netbandhelp)))
 
 if __name__ == '__main__':
     main()

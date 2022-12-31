@@ -101,6 +101,7 @@ class mainGUI:
         os.startfile(self.FAfter.get())
 
     def icompare(self):
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -132,6 +133,7 @@ class mainGUI:
             '0.0', '\n\n\t >>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n' % (fB.fName, fA.fName))
 
     def vpins(self):
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -169,6 +171,7 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\n\t >>> X_REFERENCE REPORT <<<')
 
     def convert(self):
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
         afile = filedialog.askopenfilename(initialdir="~",
                                            title="Select AA or BA file",
                                            filetypes=ftypes)
@@ -182,9 +185,9 @@ class mainGUI:
         f.write()
         self.cmpOutput.insert(
             '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
 
     def genXLSreport(self):
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -310,9 +313,9 @@ class mainGUI:
         xlsreport.save(self.FAfter.get()+'-DIF.xls')
         self.cmpOutput.insert(
             '0.0', "\n\tdifference report created")
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
 
     def duaptiming(self):
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
         self.cmpOutput.insert('0.0',duapt.duapthelp)
         filesdir=filedialog.askdirectory()
         duapt.duaptreport(str(filesdir))
@@ -321,19 +324,13 @@ class mainGUI:
         DUAP Timing spreadsheet generated
         Look for Duap_Timing.xls file at the selected directory
         ''')
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
         pass
 
     def netbandwidth(self):
         self.cmpOutput.insert('0.0',netband.netbandhelp)
         filesdir=filedialog.askdirectory()
-        netband.netbandcalc(str(filesdir))
-        self.cmpOutput.insert('0.0',
-        '''
-        Network bandwidth spreadsheet generated
-        Look for Network_Bandwidth.xls file at the selected directory
-        ''')
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n')
+        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        self.cmpOutput.insert('0.0',netband.netbandcalc(str(filesdir)))
         pass
 #------------------------------------------------------------------------------
 
