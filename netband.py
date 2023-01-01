@@ -36,16 +36,13 @@ Upon completion look for NetworkBandwidthCheck.xls.
 Enter folder with lst files:'''
 
 def getnetdata(clines):
-    date_p='\W\d{2,4}-\d{2}-\d{2,4}\W' #yyyy-mm-dd or yy-mm-dd or dd-mm-yyyy all numbers
-    date_p1='\d{2}-\D{3}-\d{2}' #dd-mmm-yy mmm=literals
+    date_p="(\d{2,}-\d{2,}-\d{2,})|(\d{2,}-\D{3}-\d{2,})" 
     time_p='\d+:\d+' #00:00
     size_p='\d+,\d+,\d+,\d+' #00,000,000,000 must be at least 1Gb size
     name_p='\S+\.mrimg' #
     arec=[]
     for l in clines:
         r_date=re.findall(date_p,l)
-        if r_date==[]:
-            r_date=re.findall(date_p1,l)
         r_time=re.findall(time_p,l)
         tmp_size=re.findall(size_p,l)
         r_name=re.findall(name_p,l)
