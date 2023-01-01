@@ -24,7 +24,7 @@ from datetime import datetime as dt
 created_filename='1.lst'
 accessed_filename='2.lst'
 
-netband_rev='0.22.07.07'
+netband_rev='0.23.01.01'
 netbandhelp='''
 Run commands below:
 dir (path to Macrium backups)*.mrimg /s /tc >1.lst
@@ -36,13 +36,16 @@ Upon completion look for NetworkBandwidthCheck.xls.
 Enter folder with lst files:'''
 
 def getnetdata(clines):
-    date_p='\d\d\d\d-\d\d-\d\d' #yyyy-mm-dd
-    time_p='\d\d:\d\d' #00:00
+    date_p='\W\d{2,4}-\d{2}-\d{2,4}\W' #yyyy-mm-dd or yy-mm-dd or dd-mm-yyyy all numbers
+    date_p1='\d{2}-\D{3}-\d{2}' #dd-mmm-yy mmm=literals
+    time_p='\d+:\d+' #00:00
     size_p='\d+,\d+,\d+,\d+' #00,000,000,000 must be at least 1Gb size
     name_p='\S+\.mrimg' #
     arec=[]
     for l in clines:
         r_date=re.findall(date_p,l)
+        if r_date==[]:
+            r_date=re.findall(date_p1,l)
         r_time=re.findall(time_p,l)
         tmp_size=re.findall(size_p,l)
         r_name=re.findall(name_p,l)
@@ -55,9 +58,9 @@ def netbandcalc(dir):
     if dir=='':
         dir=getcwd()
     try:
-        with open(dir+'/'+created_filename) as created:
+        with open(dir+'\\'+created_filename) as created:
             clist=getnetdata(created.readlines())
-        with open(dir+'/'+accessed_filename) as accessed:
+        with open(dir+'\\'+accessed_filename) as accessed:
             alist=getnetdata(accessed.readlines())
         if len(clist)==len(alist):
             xlsreport=xlwt.Workbook()

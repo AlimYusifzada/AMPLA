@@ -10,7 +10,7 @@ import duapt
 import xlwt
 import datetime as dt
 
-rev = 'ARMOR'  # revision style change. GUI revision indicate site/place of development
+rev = 'Jan23' 
 
 file1 = ''
 file2 = ''
@@ -101,7 +101,8 @@ class mainGUI:
         os.startfile(self.FAfter.get())
 
     def icompare(self):
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        datetimenow=str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -133,7 +134,8 @@ class mainGUI:
             '0.0', '\n\n\t >>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n' % (fB.fName, fA.fName))
 
     def vpins(self):
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        datetimenow=str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -171,7 +173,8 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\n\t >>> X_REFERENCE REPORT <<<')
 
     def convert(self):
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        datetimenow=str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         afile = filedialog.askopenfilename(initialdir="~",
                                            title="Select AA or BA file",
                                            filetypes=ftypes)
@@ -187,7 +190,8 @@ class mainGUI:
             '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
 
     def genXLSreport(self):
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        datetimenow=str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -308,14 +312,14 @@ class mainGUI:
                 wcnt+=1
                 s=''
             s+=l
-
-
-        xlsreport.save(self.FAfter.get()+'-DIF.xls')
+        xlsrepname=self.FAfter.get()+datetimenow[-9:].replace(':','')+'.xls'
+        xlsreport.save(xlsrepname)
         self.cmpOutput.insert(
-            '0.0', "\n\tdifference report created")
+            '0.0', "\n\t%s report created"%xlsrepname)
 
     def duaptiming(self):
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        datetimenow=str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         self.cmpOutput.insert('0.0',duapt.duapthelp)
         filesdir=filedialog.askdirectory()
         duapt.duaptreport(str(filesdir))
@@ -327,9 +331,10 @@ class mainGUI:
         pass
 
     def netbandwidth(self):
+        datetimenow=str(dt.datetime.now())[:-7]
         self.cmpOutput.insert('0.0',netband.netbandhelp)
         filesdir=filedialog.askdirectory()
-        self.cmpOutput.insert('0.0','\n\t'+str(dt.datetime.now())+'\n'*3)
+        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         self.cmpOutput.insert('0.0',netband.netbandcalc(str(filesdir)))
         pass
 #------------------------------------------------------------------------------
