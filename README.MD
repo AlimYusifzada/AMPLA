@@ -5,7 +5,7 @@ Other files: ampla.py, netband.py, duapt.py
 except ampla, netband and duapt and be run independantly
 
 ---------------------------------
-**ampla.py** is **Python** functions set for **AMPL** code compare/analysis 
+**ampla.py** are **Python** functions set for **AMPL** code compare/analysis 
 
 see code below as example to compare **AA** and **AAX** files
 
