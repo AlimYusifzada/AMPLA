@@ -5,9 +5,9 @@ Other files: ampla.py, netband.py, duapt.py
 except ampla, netband and duapt and be run independantly
 
 ---------------------------------
-**ampla.py** is functions set for **AMPL** code compare/analysis implemented in **Python**
+**ampla.py** is **Python** functions set for **AMPL** code compare/analysis 
 
-python code below as example to compare aa and aax files
+see code below as example to compare **AA** and **AAX** files
 
 from ampla import *
 aa_before = AA('source_code_before.aa')
@@ -15,9 +15,9 @@ aa_after = AAX('source_code_after.aax')
 print(aa_before.compare(aa_after))
 
 --------------------------------------------------
-**netband.py** to create spreadsheet from lst files
+**netband.py** to calculate network bandwidth
 
- to run from the terminal
+command below run from the terminal to collect data
 
 dir ...\*.mrimg /s /tc >1.lst
 dir ...\*.mrimg /s /tw >2.lst
