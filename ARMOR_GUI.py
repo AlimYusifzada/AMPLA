@@ -10,7 +10,7 @@ import duapt
 import xlwt
 import datetime as dt
 
-rev = 'Jan23' 
+rev = '0.18I23' 
 
 file1 = ''
 file2 = ''
@@ -342,6 +342,8 @@ class mainGUI:
 print('AMPLA rev: %s\nCopyright (c) 2020, Alim Yusifzada' %ampla_rev)
 
 Disclaimer = '''
+    Many thanks to Stuart Redman and Baku ABB Team.
+
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -350,8 +352,6 @@ Disclaimer = '''
     Please feel free contact me: yusifzaj@gmail.com
     Source codes are available at github by request
     https://github.com/AlimYusifzada/AMPLA.git
-    
-    Many thanks to Stuart Redman and Baku ABB Team.
 '''
 
 print(Disclaimer)
