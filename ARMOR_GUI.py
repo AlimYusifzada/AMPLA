@@ -40,19 +40,19 @@ class mainGUI:
 # Menu
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="select BEFOR/AFTER files", command=self.aaxbrowse)
-        self.FMenu.add_command(label="compare again", command=self.icompare)
+        self.FMenu.add_command(label="compare BEFOR/AFTER", command=self.aaxbrowse)
+        self.FMenu.add_command(label="...compare again", command=self.icompare)
+        self.FMenu.add_command(label="convert AA or BA to TXT", command=self.convert)
         self.FMenu.add_command(label="generate XLS report",command=self.genXLSreport)
         self.FMenu.add_command(label="X-Reference", command=self.vpins)
         self.FMenu.add_command(label="open in editor", command=self.opentxt)
 
         self.TMenu = Menu(root)
-        self.TMenu.add_command(label="convert AA or BA to TXT", command=self.convert)
         self.TMenu.add_command(label="calculate DUAP timing from LG", command=self.duaptiming)
         self.TMenu.add_command(label="network bandwidth calculation", command=self.netbandwidth)
 
-        self.MMenu.add_cascade(label="Before/After", menu=self.FMenu)
-        self.MMenu.add_cascade(label="ARMOR Tools", menu=self.TMenu)
+        self.MMenu.add_cascade(label="AMPL", menu=self.FMenu)
+        self.MMenu.add_cascade(label="ARMOR", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
 
@@ -339,20 +339,23 @@ class mainGUI:
         pass
 #------------------------------------------------------------------------------
 
-print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool' % (rev, ampla_rev))
-print('\nMany thanks to Stuart Redman, \n\tfor the help in testing, debugging and fixing issues')
-print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. \n\tYou are always so helpful')
-print('\nhttps://github.com/AlimYusifzada/AMPLA.git')
+print('AMPLA rev: %s\nCopyright (c) 2020, Alim Yusifzada' %ampla_rev)
 
 Disclaimer = '''
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+    
+    Please feel free contact me: yusifzaj@gmail.com
+    Source codes are available at github by request
+    https://github.com/AlimYusifzada/AMPLA.git
+    
+    Many thanks to Stuart Redman and Baku ABB Team.
 '''
 
 print(Disclaimer)
-print('Please feel free contact me: yusifzaj@gmail.com \nwith suggestions and troubleshooting\n...')
+
 mainwin = Tk()
 mainGUI(mainwin)
 mainwin.grid_rowconfigure(rowOUTPUT, weight=1)
