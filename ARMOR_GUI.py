@@ -5,12 +5,13 @@ from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
 from tkinter import PhotoImage
 from ampla import *
+import logins 
 import netband
 import duapt
 import xlwt
 import datetime as dt
 
-rev = 'Jan23' 
+rev = 'Stormy CA' 
 
 file1 = ''
 file2 = ''
@@ -21,7 +22,7 @@ ftypes = [("AA files", "*.aa"), ("AAX files", "*.aax"),
           ("AA files", "*.AA"), ("AAX files", "*.AAX"),
           ("BA files", "*.ba"), ("BAX files", "*.bax"),
           ("BA files", "*.BA"), ("BAX files", "*.BAX"),
-          ("all files", "*.*")]
+          ("TXT files","*.txt"),("all files", "*.*")]
 
 
 rowINFO = 0
@@ -40,28 +41,29 @@ class mainGUI:
 # Menu
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="select BEFOR/AFTER files", command=self.aaxbrowse)
-        self.FMenu.add_command(label="compare again", command=self.icompare)
-        self.FMenu.add_command(label="generate XLS report",command=self.genXLSreport)
-        self.FMenu.add_command(label="X-Reference", command=self.vpins)
+        self.FMenu.add_command(label="select...", command=self.aaxbrowse)
+        self.FMenu.add_command(label="compare", command=self.icompare)
+        self.FMenu.add_command(label="generate report",command=self.genXLSreport)
+        self.FMenu.add_command(label="x-reference", command=self.vpins)
         self.FMenu.add_command(label="open in editor", command=self.opentxt)
 
         self.TMenu = Menu(root)
-        self.TMenu.add_command(label="convert AA or BA to TXT", command=self.convert)
-        self.TMenu.add_command(label="calculate DUAP timing from LG", command=self.duaptiming)
-        self.TMenu.add_command(label="network bandwidth calculation", command=self.netbandwidth)
+        self.TMenu.add_command(label="convert to TXT...", command=self.convert)
+        self.TMenu.add_command(label="calculate DUAP timing from LG...", command=self.duaptiming)
+        self.TMenu.add_command(label="network bandwidth calculation...", command=self.netbandwidth)
+        self.TMenu.add_command(label="get explicit logins...", command=self.get_explicit_logins)
 
-        self.MMenu.add_cascade(label="Before/After", menu=self.FMenu)
-        self.MMenu.add_cascade(label="ARMOR Tools", menu=self.TMenu)
+        self.MMenu.add_cascade(label="BEFORE/AFTER", menu=self.FMenu)
+        self.MMenu.add_cascade(label="TOOLSET", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
 
 ## LABELS & PICTURES
-        root.title('GUI:%s  AMPLA:%s  DUAPT:%s  NETBAND:%s' % (rev,ampla_rev,duapt.duapt_rev,netband.netband_rev))
+        root.title('GUI:%s AMPLA:%s'%(rev,ampla_rev))
         root.config(menu=self.MMenu)
         Label(text='X-REF:').grid(row=rowBefore, column=0, sticky='E')
-        Label(text=' BEFORE:').grid(row=rowBefore, column=3, sticky='W')
-        Label(text=' AFTER:').grid(row=rowAfter, column=3, sticky='W')
+        Label(text='BEFORE:').grid(row=rowBefore, column=3, sticky='W')
+        Label(text='AFTER:').grid(row=rowAfter, column=3, sticky='W')
 # OUTPUT
         self.cmpOutput = STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT, column=0,
@@ -164,10 +166,10 @@ class mainGUI:
         self.cmpOutput.insert('0.0', "\n\t >>> END OF REPORT <<<")
         s = str('\n\t%s at %s\n' % (self.TagEdit.get(), fB.fName))
         if len(s) > 0:
-            for cradd in fB.cref(self.TagEdit.get()):
+            for cradd in fB.xRef(self.TagEdit.get()):
                 s += str(fB.Blocks[cradd[:cradd.index(':')]])
             s += str('\n\t%s at %s\n' % (self.TagEdit.get(), fA.fName))
-            for cradd in fA.cref(self.TagEdit.get()):
+            for cradd in fA.xRef(self.TagEdit.get()):
                 s += str(fA.Blocks[cradd[:cradd.index(':')]])
             self.cmpOutput.insert('0.0', s)
         self.cmpOutput.insert('0.0', '\n\n\t >>> X_REFERENCE REPORT <<<')
@@ -185,7 +187,7 @@ class mainGUI:
             f = BA(afile)
         else:
             return
-        f.write()
+        f.Write()
         self.cmpOutput.insert(
             '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
 
@@ -337,6 +339,18 @@ class mainGUI:
         self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
         self.cmpOutput.insert('0.0',netband.netbandcalc(str(filesdir)))
         pass
+
+    def get_explicit_logins(self):
+        self.cmpOutput.insert('0.0',
+            '''
+            run @ domain controller
+            wevtutil qe Security | find /i "4648</EventID" >logins.txt
+            ''')
+        logsf= filedialog.askopenfilename(initialdir=self.dir_before,
+                title="Select log file",
+                filetypes=ftypes)
+        if len(logsf)>0:
+            self.cmpOutput.insert('0.0',logins.get_logins(logsf))
 #------------------------------------------------------------------------------
 
 print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool' % (rev, ampla_rev))
