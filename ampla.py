@@ -149,6 +149,7 @@ class block:
         self.Address = address  # PC##.##.##... or Instance name if DB element
         self.Extra = extra  # everything in the brackets no in use if DB element
         self.Description = ''
+        self.LineNumber=0
         return
 
     def GetPin(self, pin):
@@ -177,7 +178,7 @@ class block:
         Text representation of the Block
         print(block_obj) or str(block_obj)
         '''
-        s = self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+'\n'
+        s = self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+" line#"+str(self.LineNumber)+'\n'
         for k in self.GetPins():
             s += '\t'+str(k).ljust(TAB)+self.GetPin(k)+'\n'
         return s
@@ -309,7 +310,7 @@ class block:
                     call function to generate CF code
                     '''
         if flag:
-            s = '\n'+self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+'\n'+s
+            s = '\n'+self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+"line#"+str(self.LineNumber)+'\n'+s
         return s
     compare = __cmp
 
@@ -358,6 +359,7 @@ class AAX:
 
     def Parse(self):
         par_pos = 0  # used for parsing
+        linecounter=0
         '''
         =0 ouside logic block
         =1 inside logic block
@@ -373,6 +375,7 @@ class AAX:
 
         # AMPLE parsing logic from here
         for currentLine in self.Lines:
+            linecounter+=1
             LineElements = currentLine.split()  # read line and split by spaces
             ElementsCounter = len(LineElements)  # count the elements in the line
             if ElementsCounter > 0:
@@ -407,6 +410,7 @@ class AAX:
                             BlockName = BlockName[:BlockName.find('(')]
                     # create dbinstance block obj
                     self.Blocks[Address] = block(Address, BlockName, Extra)
+                    self.Blocks[Address].LineNumber=linecounter
                     continue #next line
 
                 # inside block and try read block name if exist 

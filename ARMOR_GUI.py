@@ -220,12 +220,19 @@ class mainGUI:
             return
 
         xlsreport=xlwt.Workbook(encoding='ascii')
+        
+        addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
+                              'font: colour blue, bold True;')        
+        diffstyle = xlwt.easyxf('pattern: pattern solid, fore_colour red;'
+                              'font: colour black, bold True;')
+        headstyle = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;'
+                              'font: colour black, bold True;')
 
         cmppage=xlsreport.add_sheet('Discrepancy Report',cell_overwrite_ok=False)
         codepage_compare=xlsreport.add_sheet('Compare',cell_overwrite_ok=False)
 
         stat_line=1
-        col_offs=5
+        col_offs=4
         addr_col=0
         pins_col=1
         name_col=1
@@ -235,31 +242,37 @@ class mainGUI:
         desc_col=0
         lcnt=0
 
-        codepage_compare.write(lcnt,addr_col,'Address') # 0
-        codepage_compare.write(lcnt,pins_col,'Pin') # 1
-        codepage_compare.write(lcnt,pinv_col,'Value') # 2
-        codepage_compare.write(lcnt,stat_col,'Status') # 3
+        codepage_compare.col(addr_col).width=5000
+        codepage_compare.col(pinv_col).width=5000
+        codepage_compare.col(addr_col+col_offs).width=5000
+        codepage_compare.col(pinv_col+col_offs).width=5000
+        codepage_compare.col(stat_col).width=10000
 
-        codepage_compare.write(lcnt,addr_col+col_offs,'Address') # 0
-        codepage_compare.write(lcnt,pins_col+col_offs,'Pin') # 1
-        codepage_compare.write(lcnt,pinv_col+col_offs,'Value') # 2
+        codepage_compare.write(lcnt,addr_col,'Address',headstyle) # 0
+        codepage_compare.write(lcnt,pins_col,'Pin',headstyle) # 1
+        codepage_compare.write(lcnt,pinv_col,'Value',headstyle) # 2
+        codepage_compare.write(lcnt,stat_col,'Status',headstyle) # 3
+
+        codepage_compare.write(lcnt,addr_col+col_offs,'Address',headstyle) # 0
+        codepage_compare.write(lcnt,pins_col+col_offs,'Pin',headstyle) # 1
+        codepage_compare.write(lcnt,pinv_col+col_offs,'Value',headstyle) # 2
 #--------------------------COMPARE SHEET-----------------------------------
         lcnt=stat_line
         for blk in fB.Blocks: #check blocks in Before against After
-            codepage_compare.write(lcnt,addr_col,fB.Blocks[blk].Address)
-            codepage_compare.write(lcnt,name_col,fB.Blocks[blk].Name)
-            codepage_compare.write(lcnt,extr_col,fB.Blocks[blk].Extra)
+            codepage_compare.write(lcnt,addr_col,fB.Blocks[blk].Address,addrstyle)
+            codepage_compare.write(lcnt,name_col,fB.Blocks[blk].Name,addrstyle)
+            codepage_compare.write(lcnt,extr_col,fB.Blocks[blk].Extra,addrstyle)
             if blk in fA.Blocks:
-                codepage_compare.write(lcnt,addr_col+col_offs,fA.Blocks[blk].Address)
-                codepage_compare.write(lcnt,name_col+col_offs,fA.Blocks[blk].Name)
-                codepage_compare.write(lcnt,extr_col+col_offs,fA.Blocks[blk].Extra)
+                codepage_compare.write(lcnt,addr_col+col_offs,fA.Blocks[blk].Address,addrstyle)
+                codepage_compare.write(lcnt,name_col+col_offs,fA.Blocks[blk].Name,addrstyle)
+                codepage_compare.write(lcnt,extr_col+col_offs,fA.Blocks[blk].Extra,addrstyle)
                 if fB.Blocks[blk]!=fA.Blocks[blk]:
-                    codepage_compare.write(lcnt,stat_col,NEQ)
+                    codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
             else:
-                codepage_compare.write(lcnt,addr_col+col_offs,fB.Blocks[blk].Address)
-                codepage_compare.write(lcnt,name_col+col_offs,fB.Blocks[blk].Name)
+                codepage_compare.write(lcnt,addr_col+col_offs,fB.Blocks[blk].Address,addrstyle)
+                codepage_compare.write(lcnt,name_col+col_offs,fB.Blocks[blk].Name,addrstyle)
                 codepage_compare.write(lcnt,extr_col+col_offs,'NOT FOUND - STATEMENT REMOVED')
-                codepage_compare.write(lcnt,stat_col,NEQ)
+                codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
             lcnt+=1
             codepage_compare.write(lcnt,desc_col,fB.Blocks[blk].Description)
             if blk in fA.Blocks:
@@ -272,11 +285,11 @@ class mainGUI:
                     codepage_compare.write(lcnt,pins_col+col_offs,pin)
                     codepage_compare.write(lcnt,pinv_col+col_offs,fA.Blocks[blk].Pins[pin])
                     if fA.Blocks[blk].Pins[pin]!=fB.Blocks[blk].Pins[pin]:
-                        codepage_compare.write(lcnt,stat_col,NEQ)
+                        codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
                 if blk in fA.Blocks and pin not in fA.Blocks[blk].Pins.keys():
                     codepage_compare.write(lcnt,pins_col+col_offs,pin)
                     codepage_compare.write(lcnt,pinv_col+col_offs,'NOT FOUND - PIN DISCONNECTED')
-                    codepage_compare.write(lcnt,stat_col,NEQ)
+                    codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
                 lcnt+=1
             lcnt+=2
 
@@ -303,6 +316,8 @@ class mainGUI:
         lcnt=stat_line
         wcnt=0
         s=''
+        cmppage.col(0).width=10000
+        cmppage.col(1).width=20000
         for l in report:
             if l=='\n':
                 cmppage.write(lcnt,wcnt,s)
