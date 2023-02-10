@@ -149,7 +149,7 @@ class block:
         self.Address = address  # PC##.##.##... or Instance name if DB element
         self.Extra = extra  # everything in the brackets no in use if DB element
         self.Description = ''
-        self.LineNumber=0
+        self.LineNumber=0 # line number at aax file.
         return
 
     def GetPin(self, pin):
@@ -168,7 +168,7 @@ class block:
         block_obj.AddPin('pin',pin_value)
         '''
         if pin in self.GetPins():
-            print('...pin %s already exist' % pin)
+            print('pin %s already exist' % pin)
             return False
         self.Pins[pin] = value
         return True
@@ -178,7 +178,7 @@ class block:
         Text representation of the Block
         print(block_obj) or str(block_obj)
         '''
-        s = self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+" line#"+str(self.LineNumber)+'\n'
+        s = self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+" aax.line#"+str(self.LineNumber)+'\n'
         for k in self.GetPins():
             s += '\t'+str(k).ljust(TAB)+self.GetPin(k)+'\n'
         return s
@@ -212,7 +212,7 @@ class block:
             if len(values) == 2:
                 self.AddPin(values[0], values[1])
         else:
-            print('...second operand must be a list or tuple')
+            print('function operand must be a list or a tuple')
         return self
 
     def __cmp(self, other):
@@ -279,6 +279,9 @@ class block:
                             if z[0] != z[1]:
                                 stmp += '\t'+' '*TAB+str(z[0]).ljust(TAB)+NEQ + \
                                     str(z[1]).rjust(TAB)+'\n'
+                                '''
+                                pin values dont match
+                                '''
                             else:
                                 stmp += '\t'+' '*TAB+str(z[0]).ljust(TAB)+NEok + \
                                     str(z[1]).rjust(TAB)+'\n'
@@ -310,7 +313,7 @@ class block:
                     call function to generate CF code
                     '''
         if flag:
-            s = '\n'+self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+"line#"+str(self.LineNumber)+'\n'+s
+            s = '\n'+self.Address+'\t'+self.Name+self.Extra+'\t'+self.Description+"aax.line#"+str(self.LineNumber)+'\n'+s
         return s
     compare = __cmp
 
@@ -621,7 +624,7 @@ class AAX:
                             s += str("\nMisplaced statement %s\n" % statement)
                 else:
                     # generate DS (Delete Statement ONB command)
-                    s += '\nstatement %s not found at (AFTER)..%s but exist at (BEFORE)..%s\n' % \
+                    s += '\nstatement %s not found in (AFTER)..%s but exist in (BEFORE)..%s\n' % \
                         (statement, other.fName[nSPC:],
                          self.fName[nSPC:])+str(self.Blocks[statement])
                     '''
