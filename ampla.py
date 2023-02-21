@@ -345,9 +345,7 @@ class AAX:
     def Read(self):
         try:
             with open(self.fName, 'r') as file:
-                #file = open(self.fName, 'r')
                 self.Lines = file.readlines()  # read aax file to Lines
-            #file.close()
         except:
             print('...error reading file: ...'+self.fName[nSPC:])
             return
@@ -387,11 +385,8 @@ class AAX:
                     ss = ''
                     i = 0
                     for s in LineElements:
-                        if i == 0:
-                            i += 1
-                        else:
-                            ss = ss+s+' '
-                            i += 1
+                        if i != 0:ss = ss+s+' '
+                        i += 1
                     self.Header[LineElements[0].lower()] = ss
                     continue
 
@@ -399,15 +394,11 @@ class AAX:
                 if LineElements[0][:2] == 'PC' and LineElements[0][2:3].isdigit() and par_pos != 2:
                     Address = LineElements[0]  # get address
                     par_pos = 1  # block mark if position ==1 we are inside logic block
-                    if ElementsCounter > 1:
-                        BlockName = LineElements[1]  # get blok NAME
+                    BlockName = ''
+                    Extra = ''
+                    if ElementsCounter > 1:BlockName = LineElements[1]  # get blok NAME
+                    if ElementsCounter > 2:Extra = LineElements[2]  # get extra params
                     else:
-                        BlockName = ''  # address without logic block! not possible
-                                        # generate warning!
-                    if ElementsCounter > 2:
-                        Extra = LineElements[2]  # get extra params
-                    else:
-                        Extra = ''
                         if '(' in BlockName:  # no space between block name and extra
                             Extra = BlockName[BlockName.find('('):]
                             BlockName = BlockName[:BlockName.find('(')]
@@ -420,42 +411,35 @@ class AAX:
                 if par_pos == 1 and LineElements[0] == 'INAME':
                     if ElementsCounter > 1:
                         st = ''
-                        for e in LineElements[1:]:
-                            st += e
+                        for e in LineElements[1:]:st += e
                         self.Blocks[Address].Description = st
                     continue  # go to the next line
 
                 # inside block and read pins
                 if par_pos == 1 and LineElements[0][:1] == ':': #pin found
                     PinName = LineElements[0]  # get pin NAME
-
                     if ElementsCounter == 1:  # empty pin
                         PinValue = NONE  
                         continue  # go to the next line
-
                     if ElementsCounter >= 2:  # if there are spaces in the pin value
                         st = ''
-                        for e in LineElements[1:]:
-                            st += e+''  # put all back in to one string
+                        for e in LineElements[1:]:st += e+''  # put all back in to one string
                         PinValue = st
-
                     if PinValue[-1:] == ',':  # another value at the next line
                         par_pos = 2  # pin values occupy several lines
                         PinMulValues.append(PinValue[:-1])
                         continue  # go to the next line
                     else:
-                        self.Blocks[Address].AddPin(
-                            PinName, PinValue)  # last value for the pin
+                        self.Blocks[Address].AddPin(PinName, PinValue)  # last value for the pin
                         par_pos = 1
                         continue  # go to the next line
 
                 # if pin has several values (output)
                 if par_pos == 2:  # one of the values for the pin - add it to the list
-                    
+
                     if ElementsCounter > 1:  # if there are spaces in the pin value
                         st = ''
-                        for e in LineElements:
-                            st += e+''  # put all back in to one string
+                        for e in LineElements:st += e+''  # put all back in to one string
                         PinValue = st
                     else:
                         PinValue = LineElements[0]
@@ -465,8 +449,7 @@ class AAX:
                     else:  # this is a last value for the pin
                         PinMulValues.append(PinValue)
                         PinMulValues.sort()
-                        self.Blocks[Address].AddPin(
-                            PinName, PinMulValues)  # add list to the pin
+                        self.Blocks[Address].AddPin(PinName, PinMulValues)  # add list to the pin
                         PinMulValues = [] 
                         par_pos = 1 #finish of multiple values reading
 
@@ -475,12 +458,11 @@ class AAX:
         Populate dictionary 'self.Labels'
         with addresses and labels, then return it as result
         '''
-        def glb(vx):
+        def getlabel(vx):
             if vx[0:2] == 'N=':  # label found
-                s = str(addr)+str(pinname)
+                return str(addr)+str(pinname)
             else:
-                s = ''
-            return s
+                return ''
 
         for addr in self.Blocks:  # start for each logic block
             for pinname in self.Blocks[addr].Pins:  # for all PINS
@@ -488,11 +470,11 @@ class AAX:
                 if type(pinval) == list or type(pinval) == tuple:  # several connections
                     for val in pinval:
                         if type(val) == str:
-                            if len(glb(val)) > 2:
-                                self.Labels[glb(val)] = val[2:]
+                            if len(getlabel(val)) > 2:
+                                self.Labels[getlabel(val)] = val[2:]
                 elif type(pinval) == str:
-                    if len(glb(pinval)) > 2:
-                        self.Labels[glb(pinval)] = pinval[2:]
+                    if len(getlabel(pinval)) > 2:
+                        self.Labels[getlabel(pinval)] = pinval[2:]
         return self.Labels
 
     # def countblocks(self, BlockName='dummy'):
@@ -679,11 +661,8 @@ class BAX(AAX):
                     ss = ''
                     i = 0
                     for s in lineWords:
-                        if i == 0:
-                            i += 1
-                        else:
-                            ss = ss+s+' '
-                            i += 1
+                        if i != 0:ss = ss+s+' '
+                        i += 1
                     self.Header[lineWords[0].lower()] = ss
                     continue
                 # get address, name and params
@@ -692,23 +671,18 @@ class BAX(AAX):
                     Address = lineWords[0]  # get address (Instance name)
                     if len(lineWords) >= 2:
                         BlockName = ''
-                        for w in lineWords[1:]:
-                            BlockName = BlockName+w
-                    self.Blocks[Address] = block(
-                        Address, BlockName, extra='')  # create logic block obj
+                        for w in lineWords[1:]:BlockName = BlockName+w
+                    self.Blocks[Address] = block(Address, BlockName, extra='')  # create logic block obj
                     continue
                 # read pins
                 if lineWords[0][:1] == ':':  # start of the pin definition
                     PinName = lineWords[0]  # get pin NAME
                     if ElementsCounter >= 2:  # if there are spaces in the pin value
                         st = ''
-                        for e in lineWords[1:]:
-                            st += e+''  # put all back in to one string
+                        for e in lineWords[1:]:st += e+''  # put all back in to one string
                         PinValue = st
-                    if ElementsCounter == 1:
-                        PinValue = NONE  # empty pin
-                    self.Blocks[Address].AddPin(
-                        PinName, PinValue)  # last value for the pin
+                    if ElementsCounter == 1:PinValue = NONE  # empty pin
+                    self.Blocks[Address].AddPin(PinName, PinValue)  # last value for the pin
 
     def __cmp(self, other):
         '''
