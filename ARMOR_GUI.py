@@ -48,10 +48,10 @@ class mainGUI:
         self.FMenu.add_command(label="open in editor", command=self.opentxt)
 
         self.TMenu = Menu(root)
-        self.TMenu.add_command(label="convert to TXT...", command=self.convert)
+        self.TMenu.add_command(label="convert AA/BA to TXT format...", command=self.convert)
         self.TMenu.add_command(label="calculate DUAP timing from LG...", command=self.duaptiming)
         self.TMenu.add_command(label="network bandwidth calculation...", command=self.netbandwidth)
-        self.TMenu.add_command(label="get explicit logins...", command=self.get_explicit_logins)
+        self.TMenu.add_command(label="get failed logins...", command=self.get_explicit_logins)
 
         self.MMenu.add_cascade(label="BEFORE/AFTER", menu=self.FMenu)
         self.MMenu.add_cascade(label="TOOLSET", menu=self.TMenu)
@@ -359,7 +359,9 @@ class mainGUI:
         self.cmpOutput.insert('0.0',
             '''
             run @ domain controller
-            wevtutil qe Security | find /i "4648</EventID" >logins.txt
+            wevtutil qe Security | find /i "4648</EventID" >explicit_logins.txt
+            or
+            wevtutil qe Security | find /i "4625</EventID" >failed_logins.txt
             ''')
         logsf= filedialog.askopenfilename(initialdir=self.dir_before,
                 title="Select log file",
