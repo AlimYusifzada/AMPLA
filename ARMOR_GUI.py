@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 import os
-from tkinter import Label,Entry,Tk #,Frame,Button,Text
+from tkinter import Label, Entry, Tk  # ,Frame,Button,Text
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
 # from tkinter import PhotoImage
 from ampla import *
-import logins 
+import logins
 import netband
 import duapt
 import xlwt
 import datetime as dt
 
-rev = 'Stormy CA' 
+rev = 'Stormy CA'
 
 file1 = ''
 file2 = ''
@@ -22,7 +22,7 @@ ftypes = [("AA files", "*.aa"), ("AAX files", "*.aax"),
           ("AA files", "*.AA"), ("AAX files", "*.AAX"),
           ("BA files", "*.ba"), ("BAX files", "*.bax"),
           ("BA files", "*.BA"), ("BAX files", "*.BAX"),
-          ("TXT files","*.txt"),("all files", "*.*")]
+          ("TXT files", "*.txt"), ("all files", "*.*")]
 
 
 rowINFO = 0
@@ -36,30 +36,36 @@ class mainGUI:
 
     def __init__(self, root):
         self.root = root
-        self.dir_before="~"
-        self.dir_after="~"
+        self.dir_before = "~"
+        self.dir_after = "~"
 # Menu
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="select...", command=self.aaxbrowse)
-        self.FMenu.add_command(label="compare", command=self.icompare)
-        self.FMenu.add_command(label="generate report",command=self.genXLSreport)
+        self.FMenu.add_command(label="files", command=self.aaxbrowse)
+        self.FMenu.add_command(label="directories",command=self.aaxbrowse)
+        self.FMenu.add_command(label="compare selected", command=self.icompare)
+        self.FMenu.add_command(label="generate report(s)",
+                               command=self.genXLSreport)
         self.FMenu.add_command(label="x-reference", command=self.vpins)
         self.FMenu.add_command(label="open in editor", command=self.opentxt)
 
         self.TMenu = Menu(root)
-        self.TMenu.add_command(label="convert AA/BA to TXT format...", command=self.convert)
-        self.TMenu.add_command(label="calculate DUAP timing from LG...", command=self.duaptiming)
-        self.TMenu.add_command(label="network bandwidth calculation...", command=self.netbandwidth)
-        self.TMenu.add_command(label="get failed logins...", command=self.get_explicit_logins)
+        self.TMenu.add_command(
+            label="convert AA/BA to TXT format...", command=self.convert)
+        self.TMenu.add_command(
+            label="calculate DUAP timing from LG...", command=self.duaptiming)
+        self.TMenu.add_command(
+            label="network bandwidth calculation...", command=self.netbandwidth)
+        self.TMenu.add_command(label="get failed logins...",
+                               command=self.get_explicit_logins)
 
         self.MMenu.add_cascade(label="BEFORE/AFTER", menu=self.FMenu)
         self.MMenu.add_cascade(label="TOOLSET", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
 
-## LABELS & PICTURES
-        root.title('GUI:%s AMPLA:%s'%(rev,ampla_rev))
+# LABELS & PICTURES
+        root.title('GUI:%s AMPLA:%s' % (rev, ampla_rev))
         root.config(menu=self.MMenu)
         Label(text='X-REF:').grid(row=rowBefore, column=0, sticky='E')
         Label(text='BEFORE:').grid(row=rowBefore, column=3, sticky='W')
@@ -93,8 +99,8 @@ class mainGUI:
                                                          filetypes=ftypes)
                            )
 
-        self.dir_before=self.FBefore.get()
-        self.dir_after=self.FAfter.get()
+        self.dir_before = self.FBefore.get()
+        self.dir_after = self.FAfter.get()
 
         self.icompare()
 
@@ -103,8 +109,8 @@ class mainGUI:
         os.startfile(self.FAfter.get())
 
     def icompare(self):
-        datetimenow=str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
+        datetimenow = str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -136,8 +142,8 @@ class mainGUI:
             '0.0', '\n\n\t >>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n' % (fB.fName, fA.fName))
 
     def vpins(self):
-        datetimenow=str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
+        datetimenow = str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -175,8 +181,8 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\n\t >>> X_REFERENCE REPORT <<<')
 
     def convert(self):
-        datetimenow=str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
+        datetimenow = str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
         afile = filedialog.askopenfilename(initialdir="~",
                                            title="Select AA or BA file",
                                            filetypes=ftypes)
@@ -192,8 +198,8 @@ class mainGUI:
             '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
 
     def genXLSreport(self):
-        datetimenow=str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
+        datetimenow = str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
         extB = self.FBefore.get()[-3:].upper()
         extA = self.FAfter.get()[-3:].upper()
 
@@ -219,156 +225,180 @@ class mainGUI:
         else:
             return
 
-        xlsreport=xlwt.Workbook(encoding='ascii')
-        
+        xlsreport = xlwt.Workbook(encoding='ascii')
+
         addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
-                              'font: colour blue, bold True;')        
+                                'font: colour blue, bold True;')
         diffstyle = xlwt.easyxf('pattern: pattern solid, fore_colour red;'
-                              'font: colour black, bold True;')
+                                'font: colour black, bold True;')
         headstyle = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;'
-                              'font: colour black, bold True;')
+                                'font: colour black, bold True;')
 
-        cmppage=xlsreport.add_sheet('Discrepancy Report',cell_overwrite_ok=False)
-        codepage_compare=xlsreport.add_sheet('Compare',cell_overwrite_ok=False)
+        cmppage = xlsreport.add_sheet(
+            'Discrepancy Report', cell_overwrite_ok=False)
+        codepage_compare = xlsreport.add_sheet(
+            'Compare', cell_overwrite_ok=False)
 
-        stat_line=1
-        col_offs=4
-        addr_col=0
-        pins_col=1
-        name_col=1
-        pinv_col=2
-        extr_col=2
-        stat_col=3
-        desc_col=0
-        lcnt=0
+        stat_line = 1
+        col_offs = 4
+        addr_col = 0
+        pins_col = 1
+        name_col = 1
+        pinv_col = 2
+        extr_col = 2
+        stat_col = 3
+        desc_col = 0
+        lcnt = 0
 
-        codepage_compare.col(addr_col).width=5000
-        codepage_compare.col(pinv_col).width=5000
-        codepage_compare.col(addr_col+col_offs).width=5000
-        codepage_compare.col(pinv_col+col_offs).width=5000
-        codepage_compare.col(stat_col).width=10000
+        codepage_compare.col(addr_col).width = 5000
+        codepage_compare.col(pinv_col).width = 5000
+        codepage_compare.col(addr_col+col_offs).width = 5000
+        codepage_compare.col(pinv_col+col_offs).width = 5000
+        codepage_compare.col(stat_col).width = 10000
 
-        codepage_compare.write(lcnt,addr_col,'Address',headstyle) # 0
-        codepage_compare.write(lcnt,pins_col,'Pin',headstyle) # 1
-        codepage_compare.write(lcnt,pinv_col,'Value',headstyle) # 2
-        codepage_compare.write(lcnt,stat_col,'Status',headstyle) # 3
+        codepage_compare.write(lcnt, addr_col, 'Address', headstyle)  # 0
+        codepage_compare.write(lcnt, pins_col, 'Pin', headstyle)  # 1
+        codepage_compare.write(lcnt, pinv_col, 'Value', headstyle)  # 2
+        codepage_compare.write(lcnt, stat_col, 'Status', headstyle)  # 3
 
-        codepage_compare.write(lcnt,addr_col+col_offs,'Address',headstyle) # 0
-        codepage_compare.write(lcnt,pins_col+col_offs,'Pin',headstyle) # 1
-        codepage_compare.write(lcnt,pinv_col+col_offs,'Value',headstyle) # 2
-#--------------------------COMPARE SHEET-----------------------------------
-        lcnt=stat_line
-        for blk in fB.Blocks: #check blocks in Before against After
-            codepage_compare.write(lcnt,addr_col,fB.Blocks[blk].Address,addrstyle)
-            codepage_compare.write(lcnt,name_col,fB.Blocks[blk].Name,addrstyle)
-            codepage_compare.write(lcnt,extr_col,fB.Blocks[blk].Extra,addrstyle)
+        codepage_compare.write(lcnt, addr_col+col_offs,
+                               'Address', headstyle)  # 0
+        codepage_compare.write(lcnt, pins_col+col_offs, 'Pin', headstyle)  # 1
+        codepage_compare.write(lcnt, pinv_col+col_offs,
+                               'Value', headstyle)  # 2
+# --------------------------COMPARE SHEET-----------------------------------
+        lcnt = stat_line
+        for blk in fB.Blocks:  # check blocks in Before against After
+            codepage_compare.write(
+                lcnt, addr_col, fB.Blocks[blk].Address, addrstyle)
+            codepage_compare.write(
+                lcnt, name_col, fB.Blocks[blk].Name, addrstyle)
+            codepage_compare.write(
+                lcnt, extr_col, fB.Blocks[blk].Extra, addrstyle)
             if blk in fA.Blocks:
-                codepage_compare.write(lcnt,addr_col+col_offs,fA.Blocks[blk].Address,addrstyle)
-                codepage_compare.write(lcnt,name_col+col_offs,fA.Blocks[blk].Name,addrstyle)
-                codepage_compare.write(lcnt,extr_col+col_offs,fA.Blocks[blk].Extra,addrstyle)
-                if fB.Blocks[blk]!=fA.Blocks[blk]:
-                    codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
+                codepage_compare.write(
+                    lcnt, addr_col+col_offs, fA.Blocks[blk].Address, addrstyle)
+                codepage_compare.write(
+                    lcnt, name_col+col_offs, fA.Blocks[blk].Name, addrstyle)
+                codepage_compare.write(
+                    lcnt, extr_col+col_offs, fA.Blocks[blk].Extra, addrstyle)
+                if fB.Blocks[blk] != fA.Blocks[blk]:
+                    codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
             else:
-                codepage_compare.write(lcnt,addr_col+col_offs,fB.Blocks[blk].Address,addrstyle)
-                codepage_compare.write(lcnt,name_col+col_offs,fB.Blocks[blk].Name,addrstyle)
-                codepage_compare.write(lcnt,extr_col+col_offs,'NOT FOUND - STATEMENT REMOVED')
-                codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
-            lcnt+=1
-            codepage_compare.write(lcnt,desc_col,fB.Blocks[blk].Description)
+                codepage_compare.write(
+                    lcnt, addr_col+col_offs, fB.Blocks[blk].Address, addrstyle)
+                codepage_compare.write(
+                    lcnt, name_col+col_offs, fB.Blocks[blk].Name, addrstyle)
+                codepage_compare.write(
+                    lcnt, extr_col+col_offs, 'NOT FOUND - STATEMENT REMOVED')
+                codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
+            lcnt += 1
+            codepage_compare.write(lcnt, desc_col, fB.Blocks[blk].Description)
             if blk in fA.Blocks:
-                codepage_compare.write(lcnt,desc_col+col_offs,fA.Blocks[blk].Description)
-            lcnt+=1
+                codepage_compare.write(
+                    lcnt, desc_col+col_offs, fA.Blocks[blk].Description)
+            lcnt += 1
             for pin in fB.Blocks[blk].Pins.keys():
-                codepage_compare.write(lcnt,pins_col,pin)
-                codepage_compare.write(lcnt,pinv_col,fB.Blocks[blk].Pins[pin])
+                codepage_compare.write(lcnt, pins_col, pin)
+                codepage_compare.write(
+                    lcnt, pinv_col, fB.Blocks[blk].Pins[pin])
                 if blk in fA.Blocks and pin in fA.Blocks[blk].Pins.keys():
-                    codepage_compare.write(lcnt,pins_col+col_offs,pin)
-                    codepage_compare.write(lcnt,pinv_col+col_offs,fA.Blocks[blk].Pins[pin])
-                    if fA.Blocks[blk].Pins[pin]!=fB.Blocks[blk].Pins[pin]:
-                        codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
+                    codepage_compare.write(lcnt, pins_col+col_offs, pin)
+                    codepage_compare.write(
+                        lcnt, pinv_col+col_offs, fA.Blocks[blk].Pins[pin])
+                    if fA.Blocks[blk].Pins[pin] != fB.Blocks[blk].Pins[pin]:
+                        codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
                 if blk in fA.Blocks and pin not in fA.Blocks[blk].Pins.keys():
-                    codepage_compare.write(lcnt,pins_col+col_offs,pin)
-                    codepage_compare.write(lcnt,pinv_col+col_offs,'NOT FOUND - PIN DISCONNECTED')
-                    codepage_compare.write(lcnt,stat_col,NEQ,diffstyle)
-                lcnt+=1
-            lcnt+=2
+                    codepage_compare.write(lcnt, pins_col+col_offs, pin)
+                    codepage_compare.write(
+                        lcnt, pinv_col+col_offs, 'NOT FOUND - PIN DISCONNECTED')
+                    codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
+                lcnt += 1
+            lcnt += 2
 
-        lcnt=stat_line
-        for blk in fA.Blocks: #check blocks in After against Before
-            if blk not in fB.Blocks: #new block
-                codepage_compare.write(lcnt,addr_col+col_offs*2-1,'NEW STATEMENT')
-                codepage_compare.write(lcnt,addr_col+col_offs*2,fA.Blocks[blk].Address)
-                codepage_compare.write(lcnt,name_col+col_offs*2,fA.Blocks[blk].Name)
-                codepage_compare.write(lcnt,extr_col+col_offs*2,fA.Blocks[blk].Extra)
-                lcnt+=1
-                codepage_compare.write(lcnt,desc_col+col_offs*2,fA.Blocks[blk].Description)
-                lcnt+=1
+        lcnt = stat_line
+        for blk in fA.Blocks:  # check blocks in After against Before
+            if blk not in fB.Blocks:  # new block
+                codepage_compare.write(
+                    lcnt, addr_col+col_offs*2-1, 'NEW STATEMENT')
+                codepage_compare.write(
+                    lcnt, addr_col+col_offs*2, fA.Blocks[blk].Address)
+                codepage_compare.write(
+                    lcnt, name_col+col_offs*2, fA.Blocks[blk].Name)
+                codepage_compare.write(
+                    lcnt, extr_col+col_offs*2, fA.Blocks[blk].Extra)
+                lcnt += 1
+                codepage_compare.write(
+                    lcnt, desc_col+col_offs*2, fA.Blocks[blk].Description)
+                lcnt += 1
                 for pin in fA.Blocks[blk].Pins.keys():
-                    codepage_compare.write(lcnt,pins_col+col_offs*2,pin)
-                    codepage_compare.write(lcnt,pinv_col+col_offs*2,fA.Blocks[blk].Pins[pin])
-                    lcnt+=1
-            else: #alignment with existing code
+                    codepage_compare.write(lcnt, pins_col+col_offs*2, pin)
+                    codepage_compare.write(
+                        lcnt, pinv_col+col_offs*2, fA.Blocks[blk].Pins[pin])
+                    lcnt += 1
+            else:  # alignment with existing code
                 for pin in fA.Blocks[blk].Pins.keys():
-                    lcnt+=1
-                lcnt+=4
+                    lcnt += 1
+                lcnt += 4
 
-        report=fB.compare(fA)
-        lcnt=stat_line
-        wcnt=0
-        s=''
-        cmppage.col(0).width=10000
-        cmppage.col(1).width=20000
+        report = fB.compare(fA)
+        lcnt = stat_line
+        wcnt = 0
+        s = ''
+        cmppage.col(0).width = 10000
+        cmppage.col(1).width = 20000
         for l in report:
-            if l=='\n':
-                cmppage.write(lcnt,wcnt,s)
-                lcnt+=1
-                wcnt=0
-                s=''
-            elif l=='\t':
-                cmppage.write(lcnt,wcnt,s)
-                wcnt+=1
-                s=''
-            s+=l
-        xlsrepname=self.FAfter.get()+datetimenow[-9:].replace(':','')+'.xls'
+            if l == '\n':
+                cmppage.write(lcnt, wcnt, s)
+                lcnt += 1
+                wcnt = 0
+                s = ''
+            elif l == '\t':
+                cmppage.write(lcnt, wcnt, s)
+                wcnt += 1
+                s = ''
+            s += l
+        xlsrepname = self.FAfter.get()+datetimenow[-9:].replace(':', '')+'.xls'
         xlsreport.save(xlsrepname)
         self.cmpOutput.insert(
-            '0.0', "\n\t%s report created"%xlsrepname)
+            '0.0', "\n\t%s report created" % xlsrepname)
 
     def duaptiming(self):
-        datetimenow=str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
-        self.cmpOutput.insert('0.0',duapt.duapthelp)
-        filesdir=filedialog.askdirectory()
+        datetimenow = str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
+        self.cmpOutput.insert('0.0', duapt.duapthelp)
+        filesdir = filedialog.askdirectory()
         duapt.duaptreport(str(filesdir))
         self.cmpOutput.insert('0.0',
-        '''
+                              '''
         DUAP Timing spreadsheet generated
         Look for Duap_Timing.xls file at the selected directory
         ''')
         pass
 
     def netbandwidth(self):
-        datetimenow=str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0',netband.netbandhelp)
-        filesdir=filedialog.askdirectory()
-        self.cmpOutput.insert('0.0','\n\t'+datetimenow+'\n'*3)
-        self.cmpOutput.insert('0.0',netband.netbandcalc(str(filesdir)))
+        datetimenow = str(dt.datetime.now())[:-7]
+        self.cmpOutput.insert('0.0', netband.netbandhelp)
+        filesdir = filedialog.askdirectory()
+        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
+        self.cmpOutput.insert('0.0', netband.netbandcalc(str(filesdir)))
         pass
 
     def get_explicit_logins(self):
         self.cmpOutput.insert('0.0',
-            '''
+                              '''
             run @ domain controller
             wevtutil qe Security | find /i "4648</EventID" >explicit_logins.txt
             or
             wevtutil qe Security | find /i "4625</EventID" >failed_logins.txt
             ''')
-        logsf= filedialog.askopenfilename(initialdir=self.dir_before,
-                title="Select log file",
-                filetypes=ftypes)
-        if len(logsf)>0:
-            self.cmpOutput.insert('0.0',logins.get_logins(logsf))
-#------------------------------------------------------------------------------
+        logsf = filedialog.askopenfilename(initialdir=self.dir_before,
+                                           title="Select log file",
+                                           filetypes=ftypes)
+        if len(logsf) > 0:
+            self.cmpOutput.insert('0.0', logins.get_logins(logsf))
+# ------------------------------------------------------------------------------
+
 
 print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool' % (rev, ampla_rev))
 print('\nMany thanks to Stuart Redman, \n\tfor the help in testing, debugging and fixing issues')
@@ -376,14 +406,12 @@ print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. \n\tYou 
 print('\nhttps://github.com/AlimYusifzada/AMPLA.git')
 
 Disclaimer = '''
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    This program is distributed in the hope 
+    that it will be useful,but WITHOUT ANY WARRANTY.
 '''
 
 print(Disclaimer)
-print('Please feel free contact me: yusifzaj@gmail.com \nwith suggestions and troubleshooting\n...')
+print('Please feel free contact me: yusifzaj@gmail.com')
 mainwin = Tk()
 mainGUI(mainwin)
 mainwin.grid_rowconfigure(rowOUTPUT, weight=1)
