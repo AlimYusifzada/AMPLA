@@ -42,8 +42,8 @@ class mainGUI:
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
         self.FMenu.add_command(label="files", command=self.aaxbrowse)
-        self.FMenu.add_command(label="directories",command=self.aaxbrowse)
-        self.FMenu.add_command(label="compare selected", command=self.icompare)
+        self.FMenu.add_command(label="directories",command=self.fcompare)
+        self.FMenu.add_command(label="compare selected", command=self.compareSelected)
         self.FMenu.add_command(label="generate report(s)",
                                command=self.genXLSreport)
         self.FMenu.add_command(label="x-reference", command=self.vpins)
@@ -98,21 +98,30 @@ class mainGUI:
                                                          title="Select modified file",
                                                          filetypes=ftypes)
                            )
-
-        self.dir_before = self.FBefore.get()
-        self.dir_after = self.FAfter.get()
-
-        self.icompare()
+        self.compareSelected()
 
     def opentxt(self):
         os.startfile(self.FBefore.get())
         os.startfile(self.FAfter.get())
 
+    def compareSelected(self):
+        self.dir_before = self.FBefore.get()
+        self.dir_after = self.FAfter.get()
+        self.icompare()
+
+    def fcompare(self):
+        # for _aa_aax in before_dir:
+        #     adir_after=find(_aa_aax)in after_directory
+        #     dir_before=_aa_aax
+        #     icompare()
+        #     genXLSreport()
+        pass
+
     def icompare(self):
         datetimenow = str(dt.datetime.now())[:-7]
         self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
-        extB = self.FBefore.get()[-3:].upper()
-        extA = self.FAfter.get()[-3:].upper()
+        extB = self.dir_before[-3:].upper()
+        extA = self.dir_after[-3:].upper()
 
         if extB == '.AA':
             fB = AA(self.FBefore.get())
@@ -200,8 +209,8 @@ class mainGUI:
     def genXLSreport(self):
         datetimenow = str(dt.datetime.now())[:-7]
         self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
-        extB = self.FBefore.get()[-3:].upper()
-        extA = self.FAfter.get()[-3:].upper()
+        extB = self.dir_before[-3:].upper()
+        extA = self.dir_after[-3:].upper()
 
         if extB == '.AA':
             fB = AA(self.FBefore.get())
