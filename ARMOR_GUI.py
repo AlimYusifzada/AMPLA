@@ -43,8 +43,8 @@ class mainGUI:
         self.FMenu = Menu(root)
         self.FMenu.add_command(label="files", command=self.aaxbrowse)
         self.FMenu.add_command(label="directories",command=self.fcompare)
-        self.FMenu.add_command(label="compare selected", command=self.compareSelected)
-        self.FMenu.add_command(label="generate report(s)",
+        self.FMenu.add_command(label="compare", command=self.compareSelected)
+        self.FMenu.add_command(label="generate xls report",
                                command=self.genXLSreport)
         self.FMenu.add_command(label="x-reference", command=self.vpins)
         self.FMenu.add_command(label="open in editor", command=self.opentxt)
