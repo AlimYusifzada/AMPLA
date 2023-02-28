@@ -3,7 +3,8 @@ import os
 from tkinter import Label, Entry, Tk  # ,Frame,Button,Text
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
-# from tkinter import PhotoImage
+from pathlib import Path
+# from tkinter import PhotoImage  
 from ampla import *
 import logins
 import netband
@@ -11,7 +12,7 @@ import duapt
 import xlwt
 import datetime as dt
 
-rev = 'Stormy CA'
+rev = 'MIST'
 
 file1 = ''
 file2 = ''
@@ -43,7 +44,7 @@ class mainGUI:
         self.FMenu = Menu(root)
         self.FMenu.add_command(label="files", command=self.aaxbrowse)
         self.FMenu.add_command(label="directories",command=self.fcompare)
-        self.FMenu.add_command(label="compare", command=self.compareSelected)
+        self.FMenu.add_command(label="compare again", command=self.compareSelected)
         self.FMenu.add_command(label="generate xls report",
                                command=self.genXLSreport)
         self.FMenu.add_command(label="x-reference", command=self.vpins)
@@ -110,12 +111,20 @@ class mainGUI:
         self.icompare()
 
     def fcompare(self):
-        # for _aa_aax in before_dir:
-        #     adir_after=find(_aa_aax)in after_directory
-        #     dir_before=_aa_aax
-        #     icompare()
-        #     genXLSreport()
-        pass
+        dibefore = filedialog.askdirectory(title="select directory with BEFORE")
+        diafter = filedialog.askdirectory(title="select directory with AFTER")
+        for dib in Path(dibefore).iterdir():
+            if dib.is_file() and str(dib)[-2:].lower()=="ax": # check aax and ax files
+                bfile=os.path.basename(dib)
+                self.dir_before=str(dib)
+                for dia in Path(diafter).iterdir():
+                    if dia.is_file() and str(dia)[-2:].lower()=="ax":
+                        afile=os.path.basename(dia)
+                        self.dir_after=str(dia)
+                        if bfile==afile:
+                            self.icompare()
+                            self.genXLSreport()
+                            pass
 
     def icompare(self):
         datetimenow = str(dt.datetime.now())[:-7]
@@ -124,24 +133,24 @@ class mainGUI:
         extA = self.dir_after[-3:].upper()
 
         if extB == '.AA':
-            fB = AA(self.FBefore.get())
+            fB = AA(self.dir_before)
         elif extB == 'AAX':
-            fB = AAX(self.FBefore.get())
+            fB = AAX(self.dir_before)
         elif extB == 'BAX':
-            fB = BAX(self.FBefore.get())
+            fB = BAX(self.dir_before)
         elif extB == '.BA':
-            fB = BA(self.FBefore.get())
+            fB = BA(self.dir_before)
         else:
             return
 
         if extA == '.AA':
-            fA = AA(self.FAfter.get())
+            fA = AA(self.dir_after)
         elif extA == 'AAX':
-            fA = AAX(self.FAfter.get())
+            fA = AAX(self.dir_after)
         elif extA == 'BAX':
-            fA = BAX(self.FAfter.get())
+            fA = BAX(self.dir_after)
         elif extA == '.BA':
-            fA = BA(self.FAfter.get())
+            fA = BA(self.dir_after)
         else:
             return
 
@@ -213,35 +222,42 @@ class mainGUI:
         extA = self.dir_after[-3:].upper()
 
         if extB == '.AA':
-            fB = AA(self.FBefore.get())
+            fB = AA(self.dir_before)
         elif extB == 'AAX':
-            fB = AAX(self.FBefore.get())
+            fB = AAX(self.dir_before)
         elif extB == 'BAX':
-            fB = BAX(self.FBefore.get())
+            fB = BAX(self.dir_before)
         elif extB == '.BA':
-            fB = BA(self.FBefore.get())
+            fB = BA(self.dir_before)
         else:
             return
 
         if extA == '.AA':
-            fA = AA(self.FAfter.get())
+            fA = AA(self.dir_after)
         elif extA == 'AAX':
-            fA = AAX(self.FAfter.get())
+            fA = AAX(self.dir_after)
         elif extA == 'BAX':
-            fA = BAX(self.FAfter.get())
+            fA = BAX(self.dir_after)
         elif extA == '.BA':
-            fA = BA(self.FAfter.get())
+            fA = BA(self.dir_after)
         else:
             return
 
         xlsreport = xlwt.Workbook(encoding='ascii')
 
         addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
-                                'font: colour blue, bold True;')
+                                'font: colour black, bold True;')
         diffstyle = xlwt.easyxf('pattern: pattern solid, fore_colour red;'
                                 'font: colour black, bold True;')
         headstyle = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;'
                                 'font: colour black, bold True;')
+        pinstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
+                                'font: colour blue, bold False;')
+        pinstyle.alignment.wrap=1
+        addrstyle.alignment.horz=addrstyle.alignment.HORZ_LEFT
+        pinstyle.alignment.horz=pinstyle.alignment.HORZ_LEFT
+        diffstyle.alignment.horz=diffstyle.alignment.HORZ_CENTER
+        headstyle.alignment.horz=headstyle.alignment.HORZ_CENTER
 
         cmppage = xlsreport.add_sheet(
             'Discrepancy Report', cell_overwrite_ok=False)
@@ -259,11 +275,11 @@ class mainGUI:
         desc_col = 0
         lcnt = 0
 
-        codepage_compare.col(addr_col).width = 5000
-        codepage_compare.col(pinv_col).width = 5000
-        codepage_compare.col(addr_col+col_offs).width = 5000
-        codepage_compare.col(pinv_col+col_offs).width = 5000
-        codepage_compare.col(stat_col).width = 10000
+        codepage_compare.col(addr_col).width = 6000
+        codepage_compare.col(pinv_col).width = 7500
+        codepage_compare.col(addr_col+col_offs).width = 6000
+        codepage_compare.col(pinv_col+col_offs).width = 7500
+        codepage_compare.col(stat_col).width = 3000
 
         codepage_compare.write(lcnt, addr_col, 'Address', headstyle)  # 0
         codepage_compare.write(lcnt, pins_col, 'Pin', headstyle)  # 1
@@ -279,45 +295,45 @@ class mainGUI:
         lcnt = stat_line
         for blk in fB.Blocks:  # check blocks in Before against After
             codepage_compare.write(
-                lcnt, addr_col, fB.Blocks[blk].Address, addrstyle)
+                lcnt, addr_col, fB.GetBlock(blk).Address, addrstyle)
             codepage_compare.write(
-                lcnt, name_col, fB.Blocks[blk].Name, addrstyle)
+                lcnt, name_col, fB.GetBlock(blk).Name, addrstyle)
             codepage_compare.write(
-                lcnt, extr_col, fB.Blocks[blk].Extra, addrstyle)
+                lcnt, extr_col, fB.GetBlock(blk).Extra, addrstyle)
             if blk in fA.Blocks:
                 codepage_compare.write(
-                    lcnt, addr_col+col_offs, fA.Blocks[blk].Address, addrstyle)
+                    lcnt, addr_col+col_offs, fA.GetBlock(blk).Address, addrstyle)
                 codepage_compare.write(
-                    lcnt, name_col+col_offs, fA.Blocks[blk].Name, addrstyle)
+                    lcnt, name_col+col_offs, fA.GetBlock(blk).Name, addrstyle)
                 codepage_compare.write(
-                    lcnt, extr_col+col_offs, fA.Blocks[blk].Extra, addrstyle)
-                if fB.Blocks[blk] != fA.Blocks[blk]:
+                    lcnt, extr_col+col_offs, fA.GetBlock(blk).Extra, addrstyle)
+                if fB.GetBlock(blk) != fA.GetBlock(blk):
                     codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
             else:
                 codepage_compare.write(
-                    lcnt, addr_col+col_offs, fB.Blocks[blk].Address, addrstyle)
+                    lcnt, addr_col+col_offs, fB.GetBlock(blk).Address, addrstyle)
                 codepage_compare.write(
-                    lcnt, name_col+col_offs, fB.Blocks[blk].Name, addrstyle)
+                    lcnt, name_col+col_offs, fB.GetBlock(blk).Name, addrstyle)
                 codepage_compare.write(
                     lcnt, extr_col+col_offs, 'NOT FOUND - STATEMENT REMOVED')
                 codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
             lcnt += 1
-            codepage_compare.write(lcnt, desc_col, fB.Blocks[blk].Description)
+            codepage_compare.write(lcnt, desc_col, fB.GetBlock(blk).Description)
             if blk in fA.Blocks:
                 codepage_compare.write(
-                    lcnt, desc_col+col_offs, fA.Blocks[blk].Description)
+                    lcnt, desc_col+col_offs, fA.GetBlock(blk).Description)
             lcnt += 1
-            for pin in fB.Blocks[blk].Pins.keys():
+            for pin in fB.GetBlock(blk).GetPins():
                 codepage_compare.write(lcnt, pins_col, pin)
                 codepage_compare.write(
-                    lcnt, pinv_col, fB.Blocks[blk].Pins[pin])
-                if blk in fA.Blocks and pin in fA.Blocks[blk].Pins.keys():
+                    lcnt, pinv_col, fB.GetBlock(blk).GetPin(pin),pinstyle)
+                if blk in fA.Blocks and pin in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
-                        lcnt, pinv_col+col_offs, fA.Blocks[blk].Pins[pin])
-                    if fA.Blocks[blk].Pins[pin] != fB.Blocks[blk].Pins[pin]:
+                        lcnt, pinv_col+col_offs, fA.GetBlock(blk).GetPin(pin),pinstyle)
+                    if fA.GetBlock(blk).GetPin(pin) != fB.GetBlock(blk).GetPin(pin):
                         codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
-                if blk in fA.Blocks and pin not in fA.Blocks[blk].Pins.keys():
+                if blk in fA.Blocks and pin not in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
                         lcnt, pinv_col+col_offs, 'NOT FOUND - PIN DISCONNECTED')
@@ -331,22 +347,22 @@ class mainGUI:
                 codepage_compare.write(
                     lcnt, addr_col+col_offs*2-1, 'NEW STATEMENT')
                 codepage_compare.write(
-                    lcnt, addr_col+col_offs*2, fA.Blocks[blk].Address)
+                    lcnt, addr_col+col_offs*2, fA.GetBlock(blk).Address)
                 codepage_compare.write(
-                    lcnt, name_col+col_offs*2, fA.Blocks[blk].Name)
+                    lcnt, name_col+col_offs*2, fA.GetBlock(blk).Name)
                 codepage_compare.write(
-                    lcnt, extr_col+col_offs*2, fA.Blocks[blk].Extra)
+                    lcnt, extr_col+col_offs*2, fA.GetBlock(blk).Extra)
                 lcnt += 1
                 codepage_compare.write(
-                    lcnt, desc_col+col_offs*2, fA.Blocks[blk].Description)
+                    lcnt, desc_col+col_offs*2, fA.GetBlock(blk).Description)
                 lcnt += 1
-                for pin in fA.Blocks[blk].Pins.keys():
+                for pin in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs*2, pin)
                     codepage_compare.write(
-                        lcnt, pinv_col+col_offs*2, fA.Blocks[blk].Pins[pin])
+                        lcnt, pinv_col+col_offs*2, fA.GetBlock(blk).Pins[pin])
                     lcnt += 1
             else:  # alignment with existing code
-                for pin in fA.Blocks[blk].Pins.keys():
+                for pin in fA.GetBlock(blk).GetPins():
                     lcnt += 1
                 lcnt += 4
 
@@ -354,20 +370,25 @@ class mainGUI:
         lcnt = stat_line
         wcnt = 0
         s = ''
-        cmppage.col(0).width = 10000
-        cmppage.col(1).width = 20000
+        cmppage.col(0).width = 8000
+        cmppage.col(1).width = 25000
+        cmppage.col(2).width = 5000
         for l in report:
+            style=pinstyle
+            if NEQ in s:
+                style=headstyle
+            style.alignment.horz=style.alignment.HORZ_LEFT
             if l == '\n':
-                cmppage.write(lcnt, wcnt, s)
+                cmppage.write(lcnt, wcnt, s,style)
                 lcnt += 1
                 wcnt = 0
                 s = ''
             elif l == '\t':
-                cmppage.write(lcnt, wcnt, s)
+                cmppage.write(lcnt, wcnt, s,style)
                 wcnt += 1
                 s = ''
             s += l
-        xlsrepname = self.FAfter.get()+datetimenow[-9:].replace(':', '')+'.xls'
+        xlsrepname = self.dir_after+datetimenow[-9:].replace(':', '')+'.xls'
         xlsreport.save(xlsrepname)
         self.cmpOutput.insert(
             '0.0', "\n\t%s report created" % xlsrepname)

@@ -24,7 +24,7 @@ from datetime import datetime as dt
 created_filename = '1.lst'
 accessed_filename = '2.lst'
 
-netband_rev = '0.23.01.01'
+netband_rev = '0.230101'
 netbandhelp = '''
 Run commands below:
 dir (path to Macrium backups)*.mrimg /s /tc >1.lst

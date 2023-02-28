@@ -2,7 +2,7 @@ import os
 from datetime import datetime as dt
 import xlwt
 
-duapt_rev = '0.22.02.14'
+duapt_rev = '0.220214'
 
 duapthelp = '''
 Search for *.LG files at the project directory.

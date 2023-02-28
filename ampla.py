@@ -6,14 +6,14 @@ amplahelp = '''
   (c) Copyright,2020 Alim Yusifzada
  '''
 
-ampla_rev = '0.23.02.09'
+ampla_rev = '0.230209'
 
 if sys.version_info[0] < 3:
     print('Please use Python version 3.*')
     sys.exit()
 
 if __name__ == '__main__':
-    print('\nAMPLA.PY revision:'+ampla_rev)
+    print('\nAMPLA revision:'+ampla_rev)
     input(amplahelp)
 
 NEQ = ' <- ! -> '
