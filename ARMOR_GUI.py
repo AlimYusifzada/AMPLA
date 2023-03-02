@@ -273,13 +273,21 @@ class mainGUI:
         extr_col = 2
         stat_col = 3
         desc_col = 0
+
         lcnt = 0
 
         codepage_compare.col(addr_col).width = 6000
         codepage_compare.col(pinv_col).width = 7500
+
+        codepage_compare.col(stat_col).width = 3000
+
         codepage_compare.col(addr_col+col_offs).width = 6000
         codepage_compare.col(pinv_col+col_offs).width = 7500
-        codepage_compare.col(stat_col).width = 3000
+
+        codepage_compare.col(addr_col+col_offs*2-1).width=6000 #message
+
+        codepage_compare.col(addr_col+col_offs*2).width=6000 
+        codepage_compare.col(pinv_col+col_offs*2).width=7500
 
         codepage_compare.write(lcnt, addr_col, 'Address', headstyle)  # 0
         codepage_compare.write(lcnt, pins_col, 'Pin', headstyle)  # 1
@@ -315,7 +323,7 @@ class mainGUI:
                 codepage_compare.write(
                     lcnt, name_col+col_offs, fB.GetBlock(blk).Name, addrstyle)
                 codepage_compare.write(
-                    lcnt, extr_col+col_offs, 'NOT FOUND - STATEMENT REMOVED')
+                    lcnt, extr_col+col_offs, 'STATEMENT NOT FOUND',headstyle)
                 codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
             lcnt += 1
             codepage_compare.write(lcnt, desc_col, fB.GetBlock(blk).Description)
@@ -336,7 +344,7 @@ class mainGUI:
                 if blk in fA.Blocks and pin not in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
-                        lcnt, pinv_col+col_offs, 'NOT FOUND - PIN DISCONNECTED')
+                        lcnt, pinv_col+col_offs, 'PIN DISCONNECTED',headstyle)
                     codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
                 lcnt += 1
             lcnt += 2
@@ -345,13 +353,13 @@ class mainGUI:
         for blk in fA.Blocks:  # check blocks in After against Before
             if blk not in fB.Blocks:  # new block
                 codepage_compare.write(
-                    lcnt, addr_col+col_offs*2-1, 'NEW STATEMENT')
+                    lcnt, addr_col+col_offs*2-1, 'NEW STATEMENT',headstyle)
                 codepage_compare.write(
-                    lcnt, addr_col+col_offs*2, fA.GetBlock(blk).Address)
+                    lcnt, addr_col+col_offs*2, fA.GetBlock(blk).Address,addrstyle)
                 codepage_compare.write(
-                    lcnt, name_col+col_offs*2, fA.GetBlock(blk).Name)
+                    lcnt, name_col+col_offs*2, fA.GetBlock(blk).Name,addrstyle)
                 codepage_compare.write(
-                    lcnt, extr_col+col_offs*2, fA.GetBlock(blk).Extra)
+                    lcnt, extr_col+col_offs*2, fA.GetBlock(blk).Extra,addrstyle)
                 lcnt += 1
                 codepage_compare.write(
                     lcnt, desc_col+col_offs*2, fA.GetBlock(blk).Description)
@@ -359,7 +367,7 @@ class mainGUI:
                 for pin in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs*2, pin)
                     codepage_compare.write(
-                        lcnt, pinv_col+col_offs*2, fA.GetBlock(blk).Pins[pin])
+                        lcnt, pinv_col+col_offs*2, fA.GetBlock(blk).Pins[pin],pinstyle)
                     lcnt += 1
             else:  # alignment with existing code
                 for pin in fA.GetBlock(blk).GetPins():
