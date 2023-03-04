@@ -114,14 +114,14 @@ class mainGUI:
         dibefore = filedialog.askdirectory(title="select directory with BEFORE")
         diafter = filedialog.askdirectory(title="select directory with AFTER")
         for dib in Path(dibefore).iterdir():
-            if dib.is_file() and str(dib)[-2:].lower()=="ax": # check aax and ax files
+            if dib.is_file() and (str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
                 bfile=os.path.basename(dib)
                 self.dir_before=str(dib)
                 for dia in Path(diafter).iterdir():
-                    if dia.is_file() and str(dia)[-2:].lower()=="ax":
+                    if dia.is_file() and (str(dia)[-2:].upper()=="AX" or str(dia)[-2:].upper()=="AA"): #look for the same file
                         afile=os.path.basename(dia)
                         self.dir_after=str(dia)
-                        if bfile==afile:
+                        if bfile.lower()==afile.lower():
                             self.icompare()
                             self.genXLSreport()
                             pass
@@ -246,7 +246,7 @@ class mainGUI:
         xlsreport = xlwt.Workbook(encoding='ascii')
 
         addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
-                                'font: colour black, bold True;')
+                                'font: colour black, bold False;')
         diffstyle = xlwt.easyxf('pattern: pattern solid, fore_colour red;'
                                 'font: colour black, bold True;')
         headstyle = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;'
@@ -378,11 +378,11 @@ class mainGUI:
         lcnt = stat_line
         wcnt = 0
         s = ''
-        cmppage.col(0).width = 8000
+        cmppage.col(0).width = 10000
         cmppage.col(1).width = 25000
         cmppage.col(2).width = 5000
         for l in report:
-            style=pinstyle
+            style=addrstyle
             if NEQ in s:
                 style=headstyle
             style.alignment.horz=style.alignment.HORZ_LEFT
