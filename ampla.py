@@ -167,10 +167,23 @@ class block:
         Create a pin with a value. Value could be any type
         block_obj.AddPin('pin',pin_value)
         '''
+        dPatn="D="
+        hcFlag=False
+        hcValue=.0
         if pin in self.GetPins():
             print('pin %s already exist' % pin)
             return False
-        self.Pins[pin] = value
+        # analise the values and change if required.
+        # hardcoded values MD,D,CD..
+        if dPatn in value:# if dPatn in st get it's position
+            dPos=value.index(dPatn)+2
+            try:
+                hcValue=float(value[dPos:])
+                hcFlag=True
+            except: hcFlag=False
+        if hcFlag: self.Pins[pin]=str("D=%.6f"%hcValue)
+        else: self.Pins[pin] = value
+        # -----------------------------
         return True
 
     def __str__(self):
@@ -442,7 +455,7 @@ class AAX:
                         par_pos = 1
                         continue  # go to the next line
 
-                # if pin has several values (output)
+                # if pin has several values
                 if par_pos == 2:  # one of the values for the pin - add it to the list
 
                     if ElementsCounter > 1:  # if there are spaces in the pin value
