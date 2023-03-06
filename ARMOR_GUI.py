@@ -19,10 +19,10 @@ file2 = ''
 wwidth = 50
 options = ()
 files = ()
-ftypes = [("AA files", "*.aa"), ("AAX files", "*.aax"),
-          ("AA files", "*.AA"), ("AAX files", "*.AAX"),
-          ("BA files", "*.ba"), ("BAX files", "*.bax"),
-          ("BA files", "*.BA"), ("BAX files", "*.BAX"),
+ftypes = [("AA/AAX files", "*.aa*"), 
+          ("AA/AAX files", "*.AA*"),
+          ("BA/BAX files", "*.ba*"),
+          ("BA/BAX files", "*.BA*"),
           ("TXT files", "*.txt"), ("all files", "*.*")]
 
 
