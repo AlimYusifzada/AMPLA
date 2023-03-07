@@ -12,6 +12,7 @@ import duapt
 import xlwt
 import datetime as dt
 
+
 rev = 'MIST'
 
 file1 = ''
@@ -48,7 +49,7 @@ class mainGUI:
         self.FMenu.add_command(label="generate xls report",
                                command=self.genXLSreport)
         self.FMenu.add_command(label="x-reference", command=self.vpins)
-        self.FMenu.add_command(label="open in editor", command=self.opentxt)
+        self.FMenu.add_command(label="about", command=self.about)
 
         self.TMenu = Menu(root)
         self.TMenu.add_command(
@@ -435,21 +436,42 @@ class mainGUI:
                                            filetypes=ftypes)
         if len(logsf) > 0:
             self.cmpOutput.insert('0.0', logins.get_logins(logsf))
+    
+    def about(self):
+        self.cmpOutput.insert('0.0',Disclaimer)
+        self.cmpOutput.insert('0.0',ABBlogo)
 # ------------------------------------------------------------------------------
 
 
-print('\nGUI rev: %s, AMPLA rev: %s\n Copyright (c) 2020, Alim Yusifzada\n AMPL logic (aax/bax files) compare tool' % (rev, ampla_rev))
-print('\nMany thanks to Stuart Redman, \n\tfor the help in testing, debugging and fixing issues')
-print('Thanks a lot to Baku ABB Team for the ideas to improve the tool. \n\tYou are always so helpful')
-print('\nhttps://github.com/AlimYusifzada/AMPLA.git')
-
 Disclaimer = '''
+    AC400 Logic Compare Tool
+    (c) 2020-2023, Alim Yusifzada
+    reddit: u/Crazy1Dunmer
+    mastodon: Crazy1Dunmer@alim@mas.to
+    gmail: yusifzaj@gmail.com
+
+    Many thanks to Stuart Redman and Baku ABB team
+    
     This program is distributed in the hope 
     that it will be useful,but WITHOUT ANY WARRANTY.
 '''
+ABBlogo='''             
+                ]@@@ ]@@@L        @@@@@@@  @@@@@m    ]@@@@@@L [@@@@b            
+               ,@@@@ ]@@@@w       @@@@@@@  @@@@@@@   ]@@@@@@L [@@@@@@           
+               @@@@@ ]@@@@@       @@@@@@@  @@@@@@@   ]@@@@@@L [@@@@@@           
+              @@@@@@ ]@@@@@@      @@@@@@@  @@@@@@`   ]@@@@@@L [@@@@@[           
+             g@@@@@@ ]@@@@@@m     @@@@@@@  @@@@@,    ]@@@@@@L [@@@@w            
+          
+            #@@@@@@@ ]@@@@@@@@    @@@@@@@  @@@@@@@@m ]@@@@@@L [@@@@@@@@         
+           g@@@@@@@@ ]@@@@@@@@b   @@@@@@@  @@@@@@@@[ ]@@@@@@L [@@@@@@@@         
+          ]@@@@@NM** '***$@@@@@g  @@@@@@@  @@@@@@@@F ]@@@@@@L [@@@@@@@P         
+         g@@@@@[         ']@@@@@L @@@@@@@  @@@@@@@"  ]@@@@@@L [@@@@@@M          
+         M@@@@@`          '@@@@@H @@@@@@@  @@@@*`    ]@@@@@@` *@@@@"            
+'''
 
+print(ABBlogo)
 print(Disclaimer)
-print('Please feel free contact me: yusifzaj@gmail.com')
+
 mainwin = Tk()
 mainGUI(mainwin)
 mainwin.grid_rowconfigure(rowOUTPUT, weight=1)
