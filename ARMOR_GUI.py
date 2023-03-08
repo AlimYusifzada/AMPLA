@@ -53,7 +53,7 @@ class mainGUI:
 
         self.TMenu = Menu(root)
         self.TMenu.add_command(
-            label="convert AA/BA to TXT format...", command=self.convert)
+            label="unpack AA/BA...", command=self.convert)
         self.TMenu.add_command(
             label="calculate DUAP timing from LG...", command=self.duaptiming)
         self.TMenu.add_command(
@@ -61,8 +61,8 @@ class mainGUI:
         self.TMenu.add_command(label="get failed logins...",
                                command=self.get_explicit_logins)
 
-        self.MMenu.add_cascade(label="BEFORE/AFTER", menu=self.FMenu)
-        self.MMenu.add_cascade(label="TOOLSET", menu=self.TMenu)
+        self.MMenu.add_cascade(label="before<>after", menu=self.FMenu)
+        self.MMenu.add_cascade(label="tools", menu=self.TMenu)
 
         # self.root.configure(menu=self.MMenu)
 
@@ -116,14 +116,16 @@ class mainGUI:
         diafter = filedialog.askdirectory(title="select directory with AFTER")
         for dib in Path(dibefore).iterdir():
             if dib.is_file() and (str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
-                bfile=os.path.basename(dib)
-                self.dir_before=str(dib)
+                bf=os.path.basename(dib)
+                bfile=bf[:bf.index('.')] # get just file name (before)
+                self.dir_before=str(dib) # save full path
                 for dia in Path(diafter).iterdir():
                     if dia.is_file() and (str(dia)[-2:].upper()=="AX" or str(dia)[-2:].upper()=="AA"): #look for the same file
-                        afile=os.path.basename(dia)
-                        self.dir_after=str(dia)
+                        bf=os.path.basename(dia)
+                        afile=bf[:bf.index('.')] # get just file name (after)
+                        self.dir_after=str(dia) # safe full path
                         if bfile.lower()==afile.lower():
-                            self.icompare()
+                            self.icompare() # compare using saved full path
                             self.genXLSreport()
                             pass
 
