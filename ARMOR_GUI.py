@@ -4,6 +4,7 @@ from tkinter import Label, Entry, Tk  # ,Frame,Button,Text
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
 from pathlib import Path
+from tkinter import messagebox
 # from tkinter import PhotoImage  
 from ampla import *
 import logins
@@ -114,6 +115,7 @@ class mainGUI:
     def fcompare(self):
         dibefore = filedialog.askdirectory(title="select directory with BEFORE")
         diafter = filedialog.askdirectory(title="select directory with AFTER")
+        messagebox.showinfo("PLEASE WAIT","Long procedure ahead.\nPlease wait till it finish")
         for dib in Path(dibefore).iterdir():
             if dib.is_file() and (str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
                 bf=os.path.basename(dib)
@@ -215,8 +217,8 @@ class mainGUI:
         else:
             return
         f.Write()
-        self.cmpOutput.insert(
-            '0.0', "\n\n\tSuccesfully converted to %s.txt " % afile)
+        messagebox.showinfo("convert","\n\n\tSuccesfully converted to %s.txt"%afile)
+
 
     def genXLSreport(self):
         datetimenow = str(dt.datetime.now())[:-7]
@@ -263,9 +265,9 @@ class mainGUI:
         headstyle.alignment.horz=headstyle.alignment.HORZ_CENTER
 
         cmppage = xlsreport.add_sheet(
-            'Discrepancy Report', cell_overwrite_ok=False)
+            'report', cell_overwrite_ok=False)
         codepage_compare = xlsreport.add_sheet(
-            'Compare', cell_overwrite_ok=False)
+            'line2line', cell_overwrite_ok=False)
 
         stat_line = 1
         col_offs = 4
@@ -406,27 +408,27 @@ class mainGUI:
 
     def duaptiming(self):
         datetimenow = str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
-        self.cmpOutput.insert('0.0', duapt.duapthelp)
+        # self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
+        messagebox.showinfo("", duapt.duapthelp)
         filesdir = filedialog.askdirectory()
         duapt.duaptreport(str(filesdir))
-        self.cmpOutput.insert('0.0',
+        messagebox.showinfo("",
                               '''
-        DUAP Timing spreadsheet generated
-        Look for Duap_Timing.xls file at the selected directory
+        DUAP Timing spreadsheet generated,
+        look for Duap_Timing.xls at the selected directory
         ''')
         pass
 
     def netbandwidth(self):
         datetimenow = str(dt.datetime.now())[:-7]
-        self.cmpOutput.insert('0.0', netband.netbandhelp)
+        messagebox.showinfo("", netband.netbandhelp)
         filesdir = filedialog.askdirectory()
         self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
         self.cmpOutput.insert('0.0', netband.netbandcalc(str(filesdir)))
         pass
 
     def get_explicit_logins(self):
-        self.cmpOutput.insert('0.0',
+        messagebox.showinfo("",
                               '''
             run @ domain controller
             wevtutil qe Security | find /i "4648</EventID" >explicit_logins.txt
