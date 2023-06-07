@@ -6,7 +6,7 @@ amplahelp = '''
   (c) Copyright,2020 Alim Yusifzada
  '''
 
-ampla_rev = '0.230209'
+ampla_rev = '0.230607'
 
 if sys.version_info[0] < 3:
     print('Please use Python version 3.*')
@@ -39,16 +39,17 @@ def trimD(txt):
     if txt[:2].upper() == 'D=':
         return txt[2:]
     return txt
-def trimDO(txt):
+def trimIO(txt):
     '''
-    replace =DO. with =
+    replace =DO. or =DI. with =
     required in cases when AA file dumped from controller (DUPCS)
     usually happened with Safeguards
     '''
-    if txt[:4].upper()=='=DO.':
-        return '='+txt[4:]
+    vio=("=DO.","=DI.")
+    vEQ="="
+    for p in vio:
+        txt=txt.upper().replace(p,vEQ)
     return txt
-
 def isNum(txt):
     '''
     check if argument a number
@@ -74,6 +75,7 @@ def ziPins(pinAval, pinBval):
         pinAval = [pinAval, ]
     if type(pinBval) != list:
         pinBval = [pinBval, ]
+
     if max(len(pinAval), len(pinBval)) == len(pinAval):
         # select longest and shortest
         xList = pinAval  # longest
@@ -166,18 +168,19 @@ class block:
         block_obj.GetPin('pin')
         '''
         if pin in self.GetPins():
-            return trimDO(str(self.Pins[pin]))
+            return str(self.Pins[pin])
         else:
             return NEX
 
     def AddPin(self, pin, value):
         '''
-        Create a pin with a value. Value could be any type
+        Create a pin with a value
         block_obj.AddPin('pin',pin_value)
         '''
         dPatn="D="
         hcFlag=False
         hcValue=.0
+
         if pin in self.GetPins():
             print('pin %s already exist' % pin)
             return False
@@ -191,7 +194,6 @@ class block:
             except: hcFlag=False
         if hcFlag: self.Pins[pin]=str("D=%.6f"%hcValue)
         else: self.Pins[pin] = value
-        # -----------------------------
         return True
 
     def __str__(self):
@@ -452,7 +454,7 @@ class AAX:
                         st = ''
                         for e in LineElements[1:]:
                             st += e+''  # put all back in to one string
-                        PinValue = st
+                        PinValue = trimIO(st)
                     if PinValue[-1:] == ',':  # another value at the next line
                         par_pos = 2  # pin values occupy several lines
                         PinMulValues.append(PinValue[:-1])
@@ -470,9 +472,9 @@ class AAX:
                         st = ''
                         for e in LineElements:
                             st += e+''  # put all back in to one string
-                        PinValue = st
+                        PinValue = trimIO(st)
                     else:
-                        PinValue = LineElements[0]
+                        PinValue = trimIO(LineElements[0])
 
                     if PinValue[-1:] == ',':  # there are still another value at the next line
                         PinMulValues.append(PinValue[:-1])

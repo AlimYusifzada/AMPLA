@@ -77,6 +77,7 @@ class mainGUI:
         self.cmpOutput = STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT, column=0,
                             sticky='N'+'S'+'w'+'E', columnspan=11)
+        
 # ENTRIES
 # AAX file entry - BEFORE
         self.FBefore = Entry(root, width=wwidth)
