@@ -39,7 +39,15 @@ def trimD(txt):
     if txt[:2].upper() == 'D=':
         return txt[2:]
     return txt
-
+def trimDO(txt):
+    '''
+    replace =DO. with =
+    required in cases when AA file dumped from controller (DUPCS)
+    usually happened with Safeguards
+    '''
+    if txt[:4].upper()=='=DO.':
+        return '='+txt[4:]
+    return txt
 
 def isNum(txt):
     '''
@@ -158,7 +166,7 @@ class block:
         block_obj.GetPin('pin')
         '''
         if pin in self.GetPins():
-            return str(self.Pins[pin])
+            return trimDO(str(self.Pins[pin]))
         else:
             return NEX
 

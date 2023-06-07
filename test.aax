@@ -48,8 +48,8 @@ PC32.1.11.1.1 MOVE(B,8)
           :2                  0
           :3                  1
           :4                  0
-          :5                  =2E-PI420311A:VALUE>H1
-          :6                  =2E-PI420311A:VALUE<L1
+          :5                  =DO.2E-PI420311A:VALUE>H1
+          :6                  =DO.2E-PI420311A:VALUE<L1
           :7                  0
           :8                  0
           :21                 =2E-PI420311A:EN_H2

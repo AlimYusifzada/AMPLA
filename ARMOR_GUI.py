@@ -305,24 +305,25 @@ class mainGUI:
         codepage_compare.write(lcnt, pinv_col+col_offs,
                                'Value', headstyle)  # 2
 # --------------------------COMPARE SHEET-----------------------------------
-        lcnt = stat_line
-        for blk in fB.Blocks:  # check blocks in Before against After
+        lcnt = stat_line # lines counter
+        for blk in fB.Blocks:  # check blocks in Before
             codepage_compare.write(
                 lcnt, addr_col, fB.GetBlock(blk).Address, addrstyle)
             codepage_compare.write(
                 lcnt, name_col, fB.GetBlock(blk).Name, addrstyle)
             codepage_compare.write(
                 lcnt, extr_col, fB.GetBlock(blk).Extra, addrstyle)
-            if blk in fA.Blocks:
+            
+            if blk in fA.Blocks: # if blk in After
                 codepage_compare.write(
                     lcnt, addr_col+col_offs, fA.GetBlock(blk).Address, addrstyle)
                 codepage_compare.write(
                     lcnt, name_col+col_offs, fA.GetBlock(blk).Name, addrstyle)
                 codepage_compare.write(
                     lcnt, extr_col+col_offs, fA.GetBlock(blk).Extra, addrstyle)
-                if fB.GetBlock(blk) != fA.GetBlock(blk):
+                if fB.GetBlock(blk) != fA.GetBlock(blk): # blocks are not equal
                     codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
-            else:
+            else: # blk not in After
                 codepage_compare.write(
                     lcnt, addr_col+col_offs, fB.GetBlock(blk).Address, addrstyle)
                 codepage_compare.write(
@@ -331,21 +332,25 @@ class mainGUI:
                     lcnt, extr_col+col_offs, 'STATEMENT NOT FOUND',headstyle)
                 codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
             lcnt += 1
+            #description line
             codepage_compare.write(lcnt, desc_col, fB.GetBlock(blk).Description)
-            if blk in fA.Blocks:
+            if blk in fA.Blocks: # check blk in After for Description 
                 codepage_compare.write(
                     lcnt, desc_col+col_offs, fA.GetBlock(blk).Description)
             lcnt += 1
+            # list PINs 
             for pin in fB.GetBlock(blk).GetPins():
                 codepage_compare.write(lcnt, pins_col, pin)
                 codepage_compare.write(
                     lcnt, pinv_col, fB.GetBlock(blk).GetPin(pin),pinstyle)
+                # check pin  in After
                 if blk in fA.Blocks and pin in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
                         lcnt, pinv_col+col_offs, fA.GetBlock(blk).GetPin(pin),pinstyle)
                     if fA.GetBlock(blk).GetPin(pin) != fB.GetBlock(blk).GetPin(pin):
                         codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
+                # check pin not in After    VVV
                 if blk in fA.Blocks and pin not in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
@@ -355,8 +360,8 @@ class mainGUI:
             lcnt += 2
 
         lcnt = stat_line
-        for blk in fA.Blocks:  # check blocks in After against Before
-            if blk not in fB.Blocks:  # new block
+        for blk in fA.Blocks:  # check blocks in After
+            if blk not in fB.Blocks:  # new block found
                 codepage_compare.write(
                     lcnt, addr_col+col_offs*2-1, 'NEW STATEMENT',headstyle)
                 codepage_compare.write(
