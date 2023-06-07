@@ -31,6 +31,7 @@ HEADER = ('design_ch', 'tech_ref', 'resp_dept', 'date',
           'l_text4', 'r_text4',
           'rev_ind', 'language')
 
+# support functions
 
 def trimD(txt):
     '''
@@ -39,6 +40,7 @@ def trimD(txt):
     if txt[:2].upper() == 'D=':
         return txt[2:]
     return txt
+
 def trimIO(txt):
     '''
     replace =DO. or =DI. with =
@@ -50,6 +52,7 @@ def trimIO(txt):
     for p in vio:
         txt=txt.upper().replace(p,vEQ)
     return txt
+
 def isNum(txt):
     '''
     check if argument a number
@@ -59,7 +62,6 @@ def isNum(txt):
         return True
     except:
         return False
-
 
 def ziPins(pinAval, pinBval):
     '''
@@ -106,7 +108,6 @@ def ziPins(pinAval, pinBval):
         return zip(yList, xList)
     else:
         return zip(xList, yList)
-
 
 def readA(fName):
     '''
@@ -168,9 +169,9 @@ class block:
         block_obj.GetPin('pin')
         '''
         if pin in self.GetPins():
-            return str(self.Pins[pin])
+            return str(self.Pins[pin]) # pin could have several connections
         else:
-            return NEX
+            return NEX # Not EXisting pin
 
     def AddPin(self, pin, value):
         '''
@@ -346,7 +347,6 @@ class block:
 
 # ------------------------------------------------------------------------------
 
-
 class AAX:
 
     def __init__(self, fname):
@@ -509,32 +509,6 @@ class AAX:
                     if len(getlabel(pinval)) > 2:
                         self.Labels[getlabel(pinval)] = pinval[2:]
         return self.Labels
-
-    # def countblocks(self, BlockName='dummy'):
-    #     '''
-    #     Count entries of the logic block
-    #     print number of DIC: print(BAX_obj.countblocks('DIC'))
-    #     print number of MOVE: print(AAX_obj.contblocks('MOVE'))
-    #     '''
-    #     counter = 0
-    #     for ad in self.Blocks.keys():
-    #         if self.Blocks[ad].Name == BlockName:
-    #             counter += 1
-    #     return counter
-
-    # def averagepins(self, BlockName='dummy'):
-    #     '''
-    #     Return average number of pins for given block type
-    #     '''
-    #     pcnt = 0
-    #     bcnt = 0
-    #     for ad in self.Blocks.keys():
-    #         if self.Blocks[ad].Name == BlockName:
-    #             bcnt += 1
-    #             pcnt += len(self.Blocks[ad].Pins)
-    #     if bcnt == 0:  # stop div by 0
-    #         bcnt = 1
-    #     return round(pcnt/bcnt, 1)
 
     def BlocksAround(self, key):
         '''
