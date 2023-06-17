@@ -47,7 +47,7 @@ def trimIO(txt):
     required in cases when AA file dumped from controller (DUPCS)
     usually happened with Safeguards
     '''
-    vio=("=DO.","=DI.")
+    vio=("=DO.","=DI.","=AI.","=AO.")
     vEQ="="
     for p in vio:
         txt=txt.upper().replace(p,vEQ)
