@@ -163,7 +163,7 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\t >>> END OF REPORT <<<')
         self.cmpOutput.insert('0.0', str(fB.compare(fA)))
         self.cmpOutput.insert(
-            '0.0', '\n\n\t >>> DISCREPANCIES REPORT <<<\n%s\nand\n%s\n' % (fB.fName, fA.fName))
+            '0.0', '\n\n%s\nand\n%s\n' % (fB.fName, fA.fName))
 
     def vpins(self):
         datetimenow = str(dt.datetime.now())[:-7]
