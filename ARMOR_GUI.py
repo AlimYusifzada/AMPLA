@@ -339,8 +339,15 @@ class mainGUI:
                 codepage_compare.write(
                     lcnt, desc_col+col_offs, fA.GetBlock(blk).Description)
             lcnt += 1
-            # list PINs 
-            for pin in fB.GetBlock(blk).GetPins():
+            # list PINs
+
+            pins_before=fB.GetBlock(blk).GetPins()
+            if blk in fA.Blocks:
+                pins=fA.GetBlock(blk).GetPins()
+                
+            if len(pins_before)>=len(pins):
+                pins=pins_before
+            for pin in pins:
                 codepage_compare.write(lcnt, pins_col, pin)
                 codepage_compare.write(
                     lcnt, pinv_col, fB.GetBlock(blk).GetPin(pin),pinstyle)
@@ -381,9 +388,7 @@ class mainGUI:
                         lcnt, pinv_col+col_offs*2, fA.GetBlock(blk).Pins[pin],pinstyle)
                     lcnt += 1
             else:  # alignment with existing code
-                for pin in fA.GetBlock(blk).GetPins():
-                    lcnt += 1
-                lcnt += 4
+                lcnt+=max(len(fA.GetBlock(blk).GetPins()),len(fB.GetBlock(blk).GetPins()))+4
 
         report = fB.compare(fA)
         lcnt = stat_line

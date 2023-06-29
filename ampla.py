@@ -17,9 +17,9 @@ if __name__ == '__main__':
     input(amplahelp)
 
 NEQ = ' <- ! -> '
-NEok = ' <- ok -> '
-NEX = 'not exist'
-NONE = 'not assigned'
+NEok = ' <- OK -> '
+NEX = 'NOT EXIST'
+NONE = 'NOT ASSIGNED'
 TAB = 30
 nSPC = -20
 
