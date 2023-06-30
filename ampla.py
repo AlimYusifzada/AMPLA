@@ -584,7 +584,7 @@ class AAX:
             selfBlocks = self.Blocks.keys()
             otherBlocks = other.Blocks.keys()
             if self.Header != other.Header:
-                s += '\nConflict at the HEADER:'
+                s += "\nConflicts at the HEADER section:\n================================="
                 for k in HEADER:
                     if k in other.Header and k in self.Header:
                         if self.Header[k] != other.Header[k]:
@@ -595,7 +595,7 @@ class AAX:
                 Put warning to change header manually
                 MDT command          
                 '''
-            s += '\n'
+            s += "\n\nConflicts at the CODE section:\n================================="
             if len(selfBlocks) != len(otherBlocks):
                 s += '\nNumber of logic statements are different\n \
                     at ..%s =%d\n \
