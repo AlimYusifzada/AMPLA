@@ -14,7 +14,7 @@ import xlwt
 import datetime as dt
 
 
-rev = 'MIST'
+rev = 'PUSA'
 
 file1 = ''
 file2 = ''
@@ -71,8 +71,8 @@ class mainGUI:
         root.title('GUI:%s AMPLA:%s' % (rev, ampla_rev))
         root.config(menu=self.MMenu)
         Label(text='X-REF:').grid(row=rowBefore, column=0, sticky='E')
-        Label(text='BEFORE:').grid(row=rowBefore, column=3, sticky='W')
-        Label(text='AFTER:').grid(row=rowAfter, column=3, sticky='W')
+        Label(text='file BEFORE:').grid(row=rowBefore, column=3, sticky='W')
+        Label(text='file  AFTER:').grid(row=rowAfter, column=3, sticky='W')
 # OUTPUT
         self.cmpOutput = STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT, column=0,
@@ -104,9 +104,9 @@ class mainGUI:
                            )
         self.compareSelected()
 
-    def opentxt(self):
-        os.startfile(self.FBefore.get())
-        os.startfile(self.FAfter.get())
+    # def opentxt(self):
+    #     os.startfile(self.FBefore.get())
+    #     os.startfile(self.FAfter.get())
 
     def compareSelected(self):
         self.dir_before = self.FBefore.get()
@@ -127,7 +127,7 @@ class mainGUI:
                         bf=os.path.basename(dia)
                         afile=bf[:bf.index('.')] # get just file name (after)
                         self.dir_after=str(dia) # safe full path
-                        if bfile.lower()==afile.lower():
+                        if bfile.lower()==afile.lower(): # compare if files matched
                             self.icompare() # compare using saved full path
                             self.genXLSreport()
                             pass
@@ -163,8 +163,8 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\t >>> END OF REPORT <<<')
         self.cmpOutput.insert('0.0', str(fB.compare(fA)))
         self.cmpOutput.insert(
-            '0.0', '\n%s\n\tVS\n%s\n' % (fB.fName, fA.fName))
-        self.cmpOutput.insert('0.0','\n\t<<< COMPARE REPORT >>>\n')
+            '0.0', '\n\tBEFORE\n%s\n\n\tAFTER\n%s\n' % (fB.fName, fA.fName))
+        self.cmpOutput.insert('0.0','\n\t<<< DIFFERENTIAL ANALYSIS REPORT >>>\n')
 
     def vpins(self):
         datetimenow = str(dt.datetime.now())[:-7]
@@ -195,7 +195,7 @@ class mainGUI:
             return
 
         self.cmpOutput.insert('0.0', "\n\t >>> END OF REPORT <<<")
-        s = str('\n\t%s at %s\n' % (self.TagEdit.get(), fB.fName))
+        s = str('\n\tLooking for %s at %s\n' % (self.TagEdit.get(), fB.fName))
         if len(s) > 0:
             for cradd in fB.xRef(self.TagEdit.get()):
                 s += str(fB.Blocks[cradd[:cradd.index(':')]])
@@ -220,7 +220,6 @@ class mainGUI:
             return
         f.Write()
         messagebox.showinfo("convert","\n\n\tSuccesfully converted to %s.txt"%afile)
-
 
     def genXLSreport(self):
         datetimenow = str(dt.datetime.now())[:-7]
@@ -340,26 +339,26 @@ class mainGUI:
                 codepage_compare.write(
                     lcnt, desc_col+col_offs, fA.GetBlock(blk).Description)
             lcnt += 1
-            # list PINs
+            # list PINs------------------------------------
 
             pins_before=fB.GetBlock(blk).GetPins()
             if blk in fA.Blocks:
                 pins=fA.GetBlock(blk).GetPins()
-                
-            if len(pins_before)>=len(pins):
+            if len(pins_before)>=len(pins): #get keys(pins) from bigger block
                 pins=pins_before
-            for pin in pins:
+
+            for pin in pins:# iterate through the pins and compare
                 codepage_compare.write(lcnt, pins_col, pin)
                 codepage_compare.write(
                     lcnt, pinv_col, fB.GetBlock(blk).GetPin(pin),pinstyle)
-                # check pin  in After
+                # check pin  in After --------------------------------
                 if blk in fA.Blocks and pin in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
                         lcnt, pinv_col+col_offs, fA.GetBlock(blk).GetPin(pin),pinstyle)
                     if fA.GetBlock(blk).GetPin(pin) != fB.GetBlock(blk).GetPin(pin):
                         codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
-                # check pin not in After    VVV
+                # check pin not in After ---------------------------------
                 if blk in fA.Blocks and pin not in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
@@ -418,6 +417,10 @@ class mainGUI:
         self.cmpOutput.insert(
             '0.0', "\n\t%s report created" % xlsrepname)
 
+
+    '''
+    duaptiming to be moved out as separate script with available/editable code
+    '''
     def duaptiming(self):
         datetimenow = str(dt.datetime.now())[:-7]
         # self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
@@ -431,6 +434,9 @@ class mainGUI:
         ''')
         pass
 
+    '''
+    netbandwidth to be moved out as separate script with available/editable code
+    '''
     def netbandwidth(self):
         datetimenow = str(dt.datetime.now())[:-7]
         messagebox.showinfo("", netband.netbandhelp)
@@ -439,6 +445,13 @@ class mainGUI:
         self.cmpOutput.insert('0.0', netband.netbandcalc(str(filesdir)))
         pass
 
+        '''
+    duaptiming to be moved out as separate script with available/editable code
+    '''
+    
+    '''
+    failed logins to be moved out as separate script with available/editable code
+    '''
     def get_explicit_logins(self):
         messagebox.showinfo("",
                               '''
@@ -453,11 +466,11 @@ class mainGUI:
         if len(logsf) > 0:
             self.cmpOutput.insert('0.0', logins.get_logins(logsf))
     
+   
     def about(self):
         self.cmpOutput.insert('0.0',Disclaimer)
         self.cmpOutput.insert('0.0',ABBlogo)
 # ------------------------------------------------------------------------------
-
 
 Disclaimer = '''
     AC400 Logic Compare Tool

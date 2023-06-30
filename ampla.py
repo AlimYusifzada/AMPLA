@@ -410,7 +410,7 @@ class AAX:
                     ss = ''
                     i = 0
                     for s in LineElements:
-                        if i != 0:
+                        if i > 0:
                             ss = ss+s+' '
                         i += 1
                     self.Header[LineElements[0].lower()] = ss
@@ -539,7 +539,7 @@ class AAX:
         out = ()
         for addr in self.Blocks:
             for pin in self.Blocks[addr].Pins:
-                pinval = self.Blocks[addr].getpin(pin)
+                pinval = self.Blocks[addr].GetPin(pin)
                 if tag in pinval:
                     out += (str(addr)+str(pin),)
         return out
@@ -583,8 +583,8 @@ class AAX:
         if isinstance(other, AAX):
             selfBlocks = self.Blocks.keys()
             otherBlocks = other.Blocks.keys()
+            s += "\n HEADER INSPECTION\n"+'='*30
             if self.Header != other.Header:
-                s += "\nConflicts at the HEADER section:\n================================="
                 for k in HEADER:
                     if k in other.Header and k in self.Header:
                         if self.Header[k] != other.Header[k]:
@@ -595,9 +595,9 @@ class AAX:
                 Put warning to change header manually
                 MDT command          
                 '''
-            s += "\n\nConflicts at the CODE section:\n================================="
+            s += "\n\n CODE INSPECTION\n"+'='*30
             if len(selfBlocks) != len(otherBlocks):
-                s += '\nNumber of logic statements are different\n \
+                s += '\nnumber of logic blocks are different!\n \
                     at ..%s =%d\n \
                     at ..%s =%d\n' % \
                     (self.fName[nSPC:], len(self.Blocks.keys()),
@@ -610,10 +610,10 @@ class AAX:
                         ksA, ksB = self.BlocksAround(statement)
                         koA, koB = other.BlocksAround(statement)
                         if ksA != koA and ksB != koB:
-                            s += str("\nMisplaced statement %s\n" % statement)
+                            s += str("\nDANGLING CODE: %s\n" % statement)
                 else:
                     # generate DS (Delete Statement ONB command)
-                    s += '\nstatement %s not found in (AFTER)..%s but exist in (BEFORE)..%s\n' % \
+                    s += '\nstatement %s NOT FOUND in (AFTER)..%s but EXIST in (BEFORE)..%s\n' % \
                         (statement, other.fName[nSPC:],
                          self.fName[nSPC:])+str(self.Blocks[statement])
                     '''
@@ -623,7 +623,7 @@ class AAX:
             for statement in other.Blocks.keys():
                 if statement not in self.Blocks.keys():
                     # generate IS (Insert Statement ONB command)
-                    s += '\nstatement %s not found at (BEFORE)..%s but Exist at (AFTER)..%s\n' % \
+                    s += '\nstatement %s NOT FOUND in (BEFORE)..%s but EXIST in (AFTER)..%s\n' % \
                         (statement, self.fName[nSPC:],
                          other.fName[nSPC:])+str(other.Blocks[statement])
                     '''
