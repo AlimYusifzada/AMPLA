@@ -435,7 +435,7 @@ class AAX:
                     self.Blocks[Address].LineNumber = linecounter
                     continue  # next line
 
-                # inside block and try read block name if exist
+                # inside block reading block name and other parts
                 if par_pos == 1 and LineElements[0] == 'INAME':
                     if ElementsCounter > 1:
                         st = ''
@@ -444,7 +444,7 @@ class AAX:
                         self.Blocks[Address].Description = st
                     continue  # go to the next line
 
-                # inside block and read pins
+                # inside block reading pins
                 if par_pos == 1 and LineElements[0][:1] == ':':  # pin found
                     PinName = LineElements[0]  # get pin NAME
                     if ElementsCounter == 1:  # empty pin
@@ -465,7 +465,7 @@ class AAX:
                         par_pos = 1
                         continue  # go to the next line
 
-                # if pin has several values
+                # pin has several values (multiple lines assignement)
                 if par_pos == 2:  # one of the values for the pin - add it to the list
 
                     if ElementsCounter > 1:  # if there are spaces in the pin value
