@@ -734,15 +734,15 @@ class BAX(AAX):
         if isinstance(other, BAX):
             skeys = self.Blocks.keys()
             okeys = other.Blocks.keys()
+            s += "\n HEADER INSPECTION\n"+'='*30
             if self.Header != other.Header:
-                s += '\nConflict at the HEADER:'
                 for k in HEADER:
                     if k in other.Header and k in self.Header:
                         if self.Header[k] != other.Header[k]:
                             s += '\n\t'+str(k).ljust(TAB) + \
                                 str(self.Header[k]).ljust(TAB)+NEok + \
                                 str(other.Header[k]).rjust(TAB)
-            s += '\n'
+            s += "\n\n DATABASE INSPECTION\n"+'='*30
             if len(skeys) != len(okeys):
                 s += '\nNumers of db instances are different\n \
                 at ..%s =%d\n \
@@ -761,13 +761,13 @@ class BAX(AAX):
                 else:
                     # generate MDB command to spare the instance (do not delete)
                     # topup.bax
-                    s += '\ninstance %s not found at (AFTER)..%s but exist at (BEFORE)..%s\n' % \
+                    s += '\ninstance %s NOT FOUND at (AFTER)..%s but EXIST at (BEFORE)..%s\n' % \
                         (key, other.fName[nSPC:],
                          self.fName[nSPC:])+str(self.Blocks[key])
             for key in other.Blocks.keys():
                 if key not in self.Blocks.keys():
                     # generate command to create new DB instance
-                    s += '\ninstance %s not found at (BEFORE)..%s but Exist at (AFTER)..%s\n' % \
+                    s += '\ninstance %s NOT FOUND at (BEFORE)..%s but EXIST at (AFTER)..%s\n' % \
                         (key, self.fName[nSPC:],
                          other.fName[nSPC:])+str(other.Blocks[key])
         return s
