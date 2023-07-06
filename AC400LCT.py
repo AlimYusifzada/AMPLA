@@ -412,7 +412,7 @@ class mainGUI:
                 wcnt += 1
                 s = ''
             s += l
-        xlsrepname = self.dir_after+datetimenow[-9:].replace(':', '')+'.xls'
+        xlsrepname = self.dir_after+""+'.xls' #+datetimenow[-9:].replace(':', '')
         xlsreport.save(xlsrepname)
         self.cmpOutput.insert(
             '0.0', "\n\t%s report created" % xlsrepname)

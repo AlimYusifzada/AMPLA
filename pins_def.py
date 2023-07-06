@@ -16,6 +16,12 @@ def gen_pins(start,stop)->tuple:
         T=T+(':'+str(i),)
     return T
 
+Link=(Block,pin)
+
+Upstream=[]
+Downstream=[]
+
+
 InputPins={
     "BLOCK":(":ON",":1"),
     "MUL":gen_pins(1,20),
