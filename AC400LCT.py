@@ -479,8 +479,6 @@ Disclaimer = '''
     mastodon: Crazy1Dunmer@alim@mas.to
     gmail: yusifzaj@gmail.com
 
-    Many thanks to Stuart Redman and Baku ABB team
-    
     This program is distributed in the hope 
     that it will be useful,but WITHOUT ANY WARRANTY.
 '''
