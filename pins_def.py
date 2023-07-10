@@ -1,4 +1,12 @@
 #AMPL blocks input and output pins definition
+from ampla import *
+
+#list of sink/source
+Sources=[] # upstrean connections, need to find inputs
+Sinks=[] # downstream connections, need to find outputs
+
+DeadSources=[] # untraceble sources, dead end
+DeadSinks=[] # untraceble sinks, dead end
 
 def is_input(block,pin)->bool:
     if block in InputPins:
@@ -15,11 +23,6 @@ def gen_pins(start,stop)->tuple:
     for i in range(start,stop+1):
         T=T+(':'+str(i),)
     return T
-
-Link=(Block,pin)
-
-Upstream=[]
-Downstream=[]
 
 
 InputPins={
@@ -53,3 +56,17 @@ OutputPins={
     "CE-OPC":(":5",":21"),
     "CE-MATR":(),
 }
+
+'''
+check if pin is InputPin or OutputPin
+
+source -> BLOCK -> sink
+
+for all Sources:
+calculate sinks and add them to Sinks
+
+for all Sinks:
+calculate sources and add them to Sources
+
+
+'''
