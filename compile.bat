@@ -1,1 +1,1 @@
-pyinstaller ARMOR_GUI.py -d all --onefile -i aaxcmp.ico --windowed
+pyinstaller AC400LCT.py -d all --onefile -i aaxcmp.ico --windowed

@@ -366,7 +366,7 @@ class AAX:
         self.Labels = {}  # strore labels {"PC##.##.##":label}
         self.Read()
         self.Parse()
-
+        
     def Read(self):
         try:
             self.Lines=[]

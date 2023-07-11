@@ -2,32 +2,104 @@
 from ampla import *
 
 #list of sink/source
-Sources=[] # upstrean connections, need to find inputs
-Sinks=[] # downstream connections, need to find outputs
+Sources=[] # upstrean connections
+Sinks=[] # downstream connections
 
 DeadSources=[] # untraceble sources, dead end
 DeadSinks=[] # untraceble sinks, dead end
 
-def is_input(block,pin)->bool:
-    if block in InputPins:
-        return pin in InputPins[block]
+def is_input(blk,pin)->bool:
+    '''
+    check if pin is input
+    '''
+    if blk.Name in InputPins:
+        return pin in InputPins[blk.Name]
     return False
 
-def is_output(block,pin)->bool:
-    if block in OutputPins:
-        return pin in OutputPins[block]
+def is_output(blk,pin)->bool:
+    '''
+    check if pin is output
+    '''
+    if blk.Name in OutputPins:
+        return pin in OutputPins[blk.Name]
     return False
 
 def gen_pins(start,stop)->tuple:
+    '''
+    generate series of pins names
+    '''
     T=()
     for i in range(start,stop+1):
         T=T+(':'+str(i),)
     return T
 
+def GetSink(blk,pin):
+    '''
+    return tuple of possible output pin(s)
+    given pin should be input
+    '''
+    if not is_input(blk,pin):
+        return () # return empty tuple if pin is output
+        pass
+    
+    match blk.Name:
+        case "MOVE":
+            return (blk.Address+':'+str(int(pin[pin.find(':')+1:])+20),)
+            pass
+        case "OR":
+            return (blk.Address+':20',)
+            pass
+        case "AND":
+            return (blk.Address+':20',)
+            pass
+        case "MUL":
+            return (blk.Address+':20',)
+            pass
+        case "ADD":
+            return (blk.Address+':20',)
+            pass
+        # expand for other blocks
+    pass
+
+def GetSource(blk,pin):
+    '''
+    return tuple of possible input pin(s)
+    given pin should be output pin
+    '''
+    if not is_output(blk,pin):
+        return ()
+    #----------------------------    
+    def ginp(blk):
+        # get all inputs pins for blocks like
+        # ADD, AND, OR, MUL
+        inputs=()
+        for p in blk.GetPins():
+            if int(p[pin.find(':')+1:])<20:
+                inputs=inputs+(blk.Address+p,)
+        return inputs
+    
+    #----------------------------    
+    
+    match blk.Name:
+        case "MOVE":
+            return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
+        case "OR":
+            # return all pins less than 20
+            return ginp(blk)        
+        case "AND":
+            return ginp(blk)
+        case "MUL":
+            return ginp(blk)
+        case "ADD":
+            return ginp(blk)
+    pass
+
+
+
 
 InputPins={
     "BLOCK":(":ON",":1"),
-    "MUL":gen_pins(1,20),
+    "MUL":gen_pins(1,19),
     "MOVE":gen_pins(1,19),
     "MOVE-A":gen_pins(1,19),
     "AND":gen_pins(1,19),
@@ -56,17 +128,3 @@ OutputPins={
     "CE-OPC":(":5",":21"),
     "CE-MATR":(),
 }
-
-'''
-check if pin is InputPin or OutputPin
-
-source -> BLOCK -> sink
-
-for all Sources:
-calculate sinks and add them to Sinks
-
-for all Sinks:
-calculate sources and add them to Sources
-
-
-'''
