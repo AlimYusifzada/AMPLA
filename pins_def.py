@@ -8,20 +8,41 @@ Sinks=[] # downstream connections
 DeadSources=[] # untraceble sources, dead end
 DeadSinks=[] # untraceble sinks, dead end
 
+def is_address(val)->bool:
+    '''
+    check if the val is an address (starts with PC..)
+    '''
+    if type(val) is str:
+        if val[:2]=='PC':
+            return True
+    return False
+
+def is_pointer(val)->bool:
+    '''
+    check if the val is and address and pointing to PIN
+    '''
+    if type(val) is str:
+        if is_address(val):
+            if ':' in val:
+                return True
+    return False
+
 def is_input(blk,pin)->bool:
     '''
     check if pin is input
     '''
-    if blk.Name in InputPins:
-        return pin in InputPins[blk.Name]
+    if type(blk) is block and type(pin) is str:
+        if blk.Name in InputPins:
+            return pin in InputPins[blk.Name]
     return False
 
 def is_output(blk,pin)->bool:
     '''
     check if pin is output
     '''
-    if blk.Name in OutputPins:
-        return pin in OutputPins[blk.Name]
+    if type(blk) is block and type(pin) is str:
+        if blk.Name in OutputPins:
+            return pin in OutputPins[blk.Name]
     return False
 
 def gen_pins(start,stop)->tuple:
@@ -33,43 +54,94 @@ def gen_pins(start,stop)->tuple:
         T=T+(':'+str(i),)
     return T
 
-def GetSink(blk,pin):
+def GetBlockName(aax,path)->str:
+    '''
+    return block name at path
+    '''
+    if type(aax) is AAX and type(path) is str:
+        if GetAddrPin(path)[0] in aax.Blocks:
+            return aax.Blocks[GetAddrPin(path)[0]].Name
+    return ''
+
+def GetBlock(aax,path)->block:
+    '''
+    return block by address or path from aax
+    '''
+    if type(aax) is AAX and is_pointer(path):
+        return aax.Blocks[GetAddrPin(path)[0]]
+    if type(aax) is AAX and is_address(path):
+        return aax.Blocks[path]
+    return None
+
+def GetAddrPin(path)->tuple:
+    '''
+    return tuple (address, pin) // (str,str)
+    '''
+    if type(path) is str:
+        if is_pointer(path):
+            return (path[:path.find(':')],path[path.find(':'):])
+        if is_address(path):
+            return (path,)
+    return ()
+
+def GetPinValue(aax,path):
+    '''
+    return value (str or list) of the <path> PC##.##.##:pin
+    <aax> logic blocks container
+    '''
+    if type(aax) is AAX and type(path) is str:
+        if is_pointer(path):
+            addr=path[:path.find(':')]
+            pin=path[path.find(':'):]
+            if addr in aax.Blocks:
+                if pin in aax.Blocks[addr].Pins:
+                    return aax.Blocks[addr].Pins[pin]
+    return []
+
+def GetOutput(blk,pin)->tuple:
     '''
     return tuple of possible output pin(s)
     given pin should be input
     '''
+    if type(blk) is not block or type(pin) is not str:
+        return ()
     if not is_input(blk,pin):
         return () # return empty tuple if pin is output
-        pass
     
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])+20),)
-            pass
+        # blocks below have only one output 
+        # and if it linked within the same logic 
+        # it's not recoreded at this end pin value - none
+        # we need to search for the path PC##.##..##:20 to find it usage
+        # other cases it might be connected to the DB elemen.
         case "OR":
             return (blk.Address+':20',)
-            pass
         case "AND":
             return (blk.Address+':20',)
-            pass
         case "MUL":
             return (blk.Address+':20',)
-            pass
         case "ADD":
             return (blk.Address+':20',)
-            pass
+        case "DIV":
+            return (blk.Address+':20',)
+        case "SUB":
+            return (blk.Address+':20',)
         # expand for other blocks
     pass
 
-def GetSource(blk,pin):
+def GetInput(blk,pin)->tuple:
     '''
     return tuple of possible input pin(s)
     given pin should be output pin
     '''
+    if type(blk) is not block or type(pin) is not str:
+        return ()
     if not is_output(blk,pin):
         return ()
     #----------------------------    
-    def ginp(blk):
+    def gtinp(blk):
         # get all inputs pins for blocks like
         # ADD, AND, OR, MUL
         inputs=()
@@ -77,25 +149,55 @@ def GetSource(blk,pin):
             if int(p[pin.find(':')+1:])<20:
                 inputs=inputs+(blk.Address+p,)
         return inputs
-    
     #----------------------------    
-    
+
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
         case "OR":
             # return all pins less than 20
-            return ginp(blk)        
+            return gtinp(blk)        
         case "AND":
-            return ginp(blk)
+            return gtinp(blk)
         case "MUL":
-            return ginp(blk)
+            return gtinp(blk)
         case "ADD":
-            return ginp(blk)
+            return gtinp(blk)
+        case "DIV":
+            return gtinp(blk)
+        case "SUB":
+            return gtinp(blk)
     pass
 
-
-
+def ProcessSources(aax):
+    '''
+    iterate trough the Sources list
+    '''
+    if type(aax) is not AAX:
+        return
+    while len(Sources)>0:
+        src=Sources.pop(0) 
+        if is_pointer(src) and src:
+            # process src   
+            pass
+        else:
+            DeadSources.append(src)
+    return
+                   
+def ProcessSinks(aax):
+    '''
+    iterate trough the Sink list
+    '''
+    if type(aax) is not AAX:
+        return
+    while len(Sinks)>0:
+        snk=Sinks.pop(0) 
+        if is_pointer(snk) and snk:
+            # process src
+            pass
+        else:
+            DeadSinks.append(snk)
+    return
 
 InputPins={
     "BLOCK":(":ON",":1"),
@@ -103,12 +205,16 @@ InputPins={
     "MOVE":gen_pins(1,19),
     "MOVE-A":gen_pins(1,19),
     "AND":gen_pins(1,19),
-    "OR":gen_pins(1,19)
+    "OR":gen_pins(1,19),
+    "SUB":(":1",":2"),
+    "DIV":(":1",":2")
     }
 
 OutputPins={
     "BLOCK":(":RUN",":5"),
     "MUL":(":20"),
+    "SUB":(":20"),
+    "DIV":(":20"),
     "MOVE":gen_pins(21,39),
     "MOVE-A":gen_pins(21,39),
     "AND":(":20"),

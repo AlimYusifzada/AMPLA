@@ -164,7 +164,7 @@ class block:
         self.LineNumber = 0  # line number at aax file.
         return
 
-    def GetPin(self, pin):
+    def GetPin(self, pin)->str:
         '''
         Return string value of the pin
         block_obj.GetPin('pin')
@@ -198,7 +198,7 @@ class block:
         else: self.Pins[pin] = value
         return True
 
-    def __str__(self):
+    def __str__(self)->str:
         '''
         Text representation of the Block
         print(block_obj) or str(block_obj)
@@ -209,7 +209,7 @@ class block:
             s += '\t'+str(k).ljust(TAB)+self.GetPin(k)+'\n'
         return s
 
-    def __eq__(self, other):
+    def __eq__(self, other)->bool:
         '''
         Compare blocks, return True or False
         block_obj1==block_obj2
