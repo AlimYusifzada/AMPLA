@@ -579,7 +579,7 @@ class AAX:
 
     def GetBlock(self, blkey=''):
         '''
-        Return block by name
+        Return block by address
         dbinst=BAX_obj.getblock('DIC101')
         pcinst=AAX_obj.getblock('PC23.12.1.3')
         '''

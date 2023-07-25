@@ -1,4 +1,6 @@
-#AMPL blocks input and output pins definition
+if __name__=='__main__':
+    exit()
+
 from ampla import *
 
 #list of sink/source
@@ -8,12 +10,21 @@ Sinks=[] # downstream connections
 DeadSources=[] # untraceble sources, dead end
 DeadSinks=[] # untraceble sinks, dead end
 
+def is_dbinst(val)->bool:
+    if val[:1]=='=':
+        return True
+    elif val[:2]=='-=':
+        return True
+    return False
+
 def is_address(val)->bool:
     '''
     check if the val is an address (starts with PC..)
     '''
     if type(val) is str:
         if val[:2]=='PC':
+            return True
+        elif val[:3]=='-PC':
             return True
     return False
 
@@ -84,19 +95,25 @@ def GetAddrPin(path)->tuple:
             return (path,)
     return ()
 
-def GetPinValue(aax,path):
+def GetPinValue(blk,pin):
     '''
     return value (str or list) of the <path> PC##.##.##:pin
     <aax> logic blocks container
     '''
-    if type(aax) is AAX and type(path) is str:
-        if is_pointer(path):
-            addr=path[:path.find(':')]
-            pin=path[path.find(':'):]
-            if addr in aax.Blocks:
-                if pin in aax.Blocks[addr].Pins:
-                    return aax.Blocks[addr].Pins[pin]
-    return []
+    if type(blk) is block and type(pin) is str:
+        if pin in blk.Pins:
+            tp=type(blk.Pins[pin])
+            if tp is list or tp is tuple:
+                return blk.Pins[pin]
+            else:
+                return (blk.Pins[pin],)
+        # if is_pointer(path):
+        #     addr=path[:path.find(':')]
+        #     pin=path[path.find(':'):]
+        #     if addr in aax.Blocks:
+        #         if pin in aax.Blocks[addr].Pins:
+        #             return aax.Blocks[addr].Pins[pin]
+    return ()
 
 def GetOutput(blk,pin)->tuple:
     '''
@@ -141,22 +158,21 @@ def GetInput(blk,pin)->tuple:
     if not is_output(blk,pin):
         return ()
     #----------------------------    
-    def gtinp(blk):
-        # get all inputs pins for blocks like
+    def gtinp(blk,maxp):
+        # get all inputs pins before maxp for blocks like
         # ADD, AND, OR, MUL
         inputs=()
         for p in blk.GetPins():
-            if int(p[pin.find(':')+1:])<20:
+            if int(p[pin.find(':')+1:])<maxp:
                 inputs=inputs+(blk.Address+p,)
         return inputs
     #----------------------------    
-
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
         case "OR":
             # return all pins less than 20
-            return gtinp(blk)        
+            return gtinp(blk)
         case "AND":
             return gtinp(blk)
         case "MUL":
@@ -166,6 +182,8 @@ def GetInput(blk,pin)->tuple:
         case "DIV":
             return gtinp(blk)
         case "SUB":
+            return gtinp(blk)
+        case "OR-A":
             return gtinp(blk)
     pass
 
@@ -178,8 +196,17 @@ def ProcessSources(aax):
     while len(Sources)>0:
         src=Sources.pop(0) 
         if is_pointer(src) and src:
-            # process src   
-            pass
+            blk=GetBlock(aax,src)
+            pin=GetAddrPin(src)[1]
+            if is_input(blk,pin):
+                val=GetPinValue(blk,pin) # empty pins need to be processed
+                for v in val:
+                    Sources.append(v)
+            elif is_output(blk,pin):
+                for v in GetInput(blk,pin):
+                    Sources.append(v)
+            else:
+                DeadSources.append(src)  
         else:
             DeadSources.append(src)
     return
@@ -191,10 +218,24 @@ def ProcessSinks(aax):
     if type(aax) is not AAX:
         return
     while len(Sinks)>0:
-        snk=Sinks.pop(0) 
+        snk=Sinks.pop(0) # get the top one
         if is_pointer(snk) and snk:
-            # process src
-            pass
+            blk=GetBlock(aax,snk)
+            pin=GetAddrPin(snk)[1]
+            if is_output(blk,pin):
+                val=GetPinValue(blk,pin)
+                if len(val)==0:
+                    # empty or non existing pin
+                    # serch logic for using the blk.Address:pin
+                    # add points to Sinks
+                    pass
+                for v in val:
+                    Sinks.append(v) # push at te end
+            elif is_input(blk,pin):
+                for v in GetOutput(blk,pin):
+                    Sinks.append(v) # push at the end
+            else:
+                DeadSinks.append(snk)  
         else:
             DeadSinks.append(snk)
     return
@@ -207,7 +248,8 @@ InputPins={
     "AND":gen_pins(1,19),
     "OR":gen_pins(1,19),
     "SUB":(":1",":2"),
-    "DIV":(":1",":2")
+    "DIV":(":1",":2"),
+    "OR-A":gen_pins(11,59)
     }
 
 OutputPins={
@@ -228,6 +270,7 @@ OutputPins={
     "ADD-MR":(":50"),
     "ADD-MR1":(":95"),
     "AND-O":(":60"),
+    "OR-A":(":60"),
     "DB-COP":(":8",":9"),
     "FI-VOTE":gen_pins(80,93),
     "GI-VOTE":gen_pins(80,93),
