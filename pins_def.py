@@ -107,12 +107,6 @@ def GetPinValue(blk,pin):
                 return blk.Pins[pin]
             else:
                 return (blk.Pins[pin],)
-        # if is_pointer(path):
-        #     addr=path[:path.find(':')]
-        #     pin=path[path.find(':'):]
-        #     if addr in aax.Blocks:
-        #         if pin in aax.Blocks[addr].Pins:
-        #             return aax.Blocks[addr].Pins[pin]
     return ()
 
 def GetOutput(blk,pin)->tuple:
@@ -220,15 +214,13 @@ def ProcessSinks(aax):
     while len(Sinks)>0:
         snk=Sinks.pop(0) # get the top one
         if is_pointer(snk) and snk:
-            blk=GetBlock(aax,snk)
-            pin=GetAddrPin(snk)[1]
-            if is_output(blk,pin):
+            blk=GetBlock(aax,snk) # shell check if block exist?
+            pin=GetAddrPin(snk)[1] # extract pin name
+            xrefpin=aax.xRef(snk) # search usage of the pin
+            for v in xrefpin:
+                Sinks.append(v) #add usage points to Sinks
+            if is_output(blk,pin): # check if the pin is output
                 val=GetPinValue(blk,pin)
-                if len(val)==0:
-                    # empty or non existing pin
-                    # serch logic for using the blk.Address:pin
-                    # add points to Sinks
-                    pass
                 for v in val:
                     Sinks.append(v) # push at te end
             elif is_input(blk,pin):
