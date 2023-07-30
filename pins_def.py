@@ -11,26 +11,28 @@ DeadSources=[] # untraceble sources, dead end
 DeadSinks=[] # untraceble sinks, dead end
 
 def is_dbinst(val)->bool:
-    if val[:1]=='=':
-        return True
-    elif val[:2]=='-=':
+    if val[:1]=='=' or val[:2]=='-=':
         return True
     return False
+
+def is_inverted(val)->bool:
+    if val[0]=='-':
+        return True
+    return False
+    pass
 
 def is_address(val)->bool:
     '''
     check if the val is an address (starts with PC..)
     '''
     if type(val) is str:
-        if val[:2]=='PC':
-            return True
-        elif val[:3]=='-PC':
+        if val[:2]=='PC'or val[:3]=='-PC':
             return True
     return False
 
 def is_pointer(val)->bool:
     '''
-    check if the val is and address and pointing to PIN
+    check if the val is and address and pointing to a pin
     '''
     if type(val) is str:
         if is_address(val):
@@ -78,6 +80,8 @@ def GetBlock(aax,path)->block:
     '''
     return block by address or path from aax
     '''
+    if path[0]=='-':# dont need inversion.
+        path=path[1:] 
     if type(aax) is AAX and is_pointer(path):
         return aax.Blocks[GetAddrPin(path)[0]]
     if type(aax) is AAX and is_address(path):
@@ -166,19 +170,19 @@ def GetInput(blk,pin)->tuple:
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
         case "OR":
             # return all pins less than 20
-            return gtinp(blk)
+            return gtinp(blk,20)
         case "AND":
-            return gtinp(blk)
+            return gtinp(blk,20)
         case "MUL":
-            return gtinp(blk)
+            return gtinp(blk,20)
         case "ADD":
-            return gtinp(blk)
+            return gtinp(blk,20)
         case "DIV":
-            return gtinp(blk)
+            return gtinp(blk,20)
         case "SUB":
-            return gtinp(blk)
+            return gtinp(blk,20)
         case "OR-A":
-            return gtinp(blk)
+            return gtinp(blk,20)
     pass
 
 def ProcessSources(aax):
@@ -223,7 +227,7 @@ def ProcessSinks(aax):
                 val=GetPinValue(blk,pin)
                 for v in val:
                     Sinks.append(v) # push at te end
-            elif is_input(blk,pin):
+            elif is_input(blk,pin) and GetOutput(blk,pin):
                 for v in GetOutput(blk,pin):
                     Sinks.append(v) # push at the end
             else:
