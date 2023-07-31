@@ -257,6 +257,7 @@ def ProcessSinks(aax):
             DeadSinks.append(snk)
     return
 
+# dictionary of tuples!, even single elemets should be stored as tuple
 InputPins={
     "BLOCK":(":ON",":1"),
     "MUL":gen_pins(1,19),
@@ -269,6 +270,7 @@ InputPins={
     "OR-A":gen_pins(11,59)
     }
 
+# dictionary of tuples!, even single elemets should be stored as tuple
 OutputPins={
     "BLOCK":(":RUN",":5"),
     "MUL":(":20",),
