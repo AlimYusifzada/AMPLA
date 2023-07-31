@@ -46,7 +46,9 @@ def is_input(blk,pin)->bool:
     '''
     if type(blk) is block and type(pin) is str:
         if blk.Name in InputPins:
-            return pin in InputPins[blk.Name]
+            for p in InputPins[blk.Name]:
+                if p==pin:
+                    return True
     return False
 
 def is_output(blk,pin)->bool:
@@ -55,7 +57,17 @@ def is_output(blk,pin)->bool:
     '''
     if type(blk) is block and type(pin) is str:
         if blk.Name in OutputPins:
-            return pin in OutputPins[blk.Name]
+            for p in OutputPins[blk.Name]:
+                if p==pin:
+                    return True
+    return False
+
+def is_loop(blk,pin)->bool:
+    pval=GetPinValue(blk,pin)
+    for v in pval:
+        if is_address(v):
+            if GetAddrPin(v)[0]==blk.Address:
+                return True
     return False
 
 def gen_pins(start,stop)->tuple:
@@ -144,7 +156,7 @@ def GetOutput(blk,pin)->tuple:
         case "SUB":
             return (blk.Address+':20',)
         # expand for other blocks
-    pass
+    return ()
 
 def GetInput(blk,pin)->tuple:
     '''
@@ -183,7 +195,7 @@ def GetInput(blk,pin)->tuple:
             return gtinp(blk,20)
         case "OR-A":
             return gtinp(blk,20)
-    pass
+    return ()
 
 def ProcessSources(aax):
     '''
@@ -192,11 +204,15 @@ def ProcessSources(aax):
     if type(aax) is not AAX:
         return
     while len(Sources)>0:
-        src=Sources.pop(0) 
+        src=Sources.pop(0)
+        if is_inverted(src):
+            src=src[1:]
         if is_pointer(src) and src:
             blk=GetBlock(aax,src)
             pin=GetAddrPin(src)[1]
-            if is_input(blk,pin):
+            if is_loop(blk,pin):
+                DeadSources.append(src) 
+            elif is_input(blk,pin):
                 val=GetPinValue(blk,pin) # empty pins need to be processed
                 for v in val:
                     Sources.append(v)
@@ -217,19 +233,24 @@ def ProcessSinks(aax):
         return
     while len(Sinks)>0:
         snk=Sinks.pop(0) # get the top one
+        if is_inverted(snk):
+            snk=snk[1:] # remove invertion
         if is_pointer(snk) and snk:
             blk=GetBlock(aax,snk) # shell check if block exist?
             pin=GetAddrPin(snk)[1] # extract pin name
-            xrefpin=aax.xRef(snk) # search usage of the pin
-            for v in xrefpin:
-                Sinks.append(v) #add usage points to Sinks
             if is_output(blk,pin): # check if the pin is output
+                xrefpin=aax.xRef(snk) # search usage of the pin
+                for v in xrefpin:
+                    if not is_loop(blk,pin):
+                        Sinks.append(v) #add usage points to Sinks
                 val=GetPinValue(blk,pin)
                 for v in val:
-                    Sinks.append(v) # push at te end
+                    if not is_loop(blk,pin):
+                        Sinks.append(v) # push at te end
             elif is_input(blk,pin) and GetOutput(blk,pin):
                 for v in GetOutput(blk,pin):
-                    Sinks.append(v) # push at the end
+                    if not is_loop(blk,pin):
+                        Sinks.append(v) # push at the end
             else:
                 DeadSinks.append(snk)  
         else:
@@ -250,23 +271,23 @@ InputPins={
 
 OutputPins={
     "BLOCK":(":RUN",":5"),
-    "MUL":(":20"),
-    "SUB":(":20"),
-    "DIV":(":20"),
+    "MUL":(":20",),
+    "SUB":(":20",),
+    "DIV":(":20",),
     "MOVE":gen_pins(21,39),
     "MOVE-A":gen_pins(21,39),
-    "AND":(":20"),
-    "OR":(":20"),
-    "ADD":(":20"),
-    "I-AND":(":20"),
-    "IOR":(":20"),
-    "INOT":(":5"),
-    "BTST":(":5"),
-    "ABS":(":5"),
-    "ADD-MR":(":50"),
-    "ADD-MR1":(":95"),
-    "AND-O":(":60"),
-    "OR-A":(":60"),
+    "AND":(":20",),
+    "OR":(":20",),
+    "ADD":(":20",),
+    "I-AND":(":20",),
+    "IOR":(":20",),
+    "INOT":(":5",),
+    "BTST":(":5",),
+    "ABS":(":5",),
+    "ADD-MR":(":50",),
+    "ADD-MR1":(":95",),
+    "AND-O":(":60",),
+    "OR-A":(":60",),
     "DB-COP":(":8",":9"),
     "FI-VOTE":gen_pins(80,93),
     "GI-VOTE":gen_pins(80,93),
