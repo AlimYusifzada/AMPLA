@@ -138,11 +138,7 @@ def GetOutput(blk,pin)->tuple:
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])+20),)
-        # blocks below have only one output 
-        # and if it linked within the same logic 
-        # it's not recoreded at this end pin value - none
-        # we need to search for the path PC##.##..##:20 to find it usage
-        # other cases it might be connected to the DB elemen.
+        # blocks below have only one output pin
         case "OR":
             return (blk.Address+':20',)
         case "AND":
@@ -181,7 +177,6 @@ def GetInput(blk,pin)->tuple:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
         case "OR":
-            # return all pins less than 20
             return gtinp(blk,20)
         case "AND":
             return gtinp(blk,20)
