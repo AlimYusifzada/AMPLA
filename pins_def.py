@@ -262,7 +262,13 @@ InputPins={
     "OR":gen_pins(1,19),
     "SUB":(":1",":2"),
     "DIV":(":1",":2"),
-    "OR-A":gen_pins(11,59)
+    "OR-A":gen_pins(11,59),
+    "ABS":(":1",":2"),
+    "ADD-MR":gen_pins(1,49),
+    "ADD-MR1":gen_pins(1,94),
+    "ANALYSE":(":1",":2",":11",":21",":31"),
+    "BLOCK":(":1",),
+    "COM-AIS":(":1",":2",":3",":4",":5",":6",":21",":23",":24"),
     }
 
 # dictionary of tuples!, even single elemets should be stored as tuple
@@ -290,4 +296,11 @@ OutputPins={
     "GI-VOTE":gen_pins(80,93),
     "CE-OPC":(":5",":21"),
     "CE-MATR":(),
+    "ABS":(":5",),
+    "ADD-MR":(":50",),
+    "ADD-MR1":(":95",),
+    "ANALYSE":(":5",":6",":7",":8",":12",":22",":32"),
+    "BLOCK":(":5",),
+    "COM-AIS":(":7",":8",":9",":10",":11",":22",":25",":33",":36"),
+
 }
