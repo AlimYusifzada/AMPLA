@@ -73,7 +73,7 @@ class mainGUI:
         root.config(menu=self.MMenu)
         Label(text='X-REF:').grid(row=rowBefore, column=0, sticky='E')
         Label(text='file BEFORE:').grid(row=rowBefore, column=3, sticky='W')
-        Label(text='file  AFTER:').grid(row=rowAfter, column=3, sticky='W')
+        Label(text='file AFTER:').grid(row=rowAfter, column=3, sticky='W')
 # OUTPUT
         self.cmpOutput = STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT, column=0,
@@ -447,7 +447,7 @@ class mainGUI:
         self.cmpOutput.insert('0.0', netband.netbandcalc(str(filesdir)))
         pass
 
-        '''
+    '''
     duaptiming to be moved out as separate script with available/editable code
     '''
     

@@ -26,6 +26,7 @@ def ReadSRCE(path):
     '''
     dib=""
     if type(path) is not str:
+        warnings.warn("incorrect type @ReadSRCE(%s)"%type(path),stacklevel=2)
         return
     
     def read_source(dib):
@@ -38,7 +39,7 @@ def ReadSRCE(path):
         elif is_AA:
             pc=AA(srcfile)
         else:
-            warnings.warn("uncknown source")
+            warnings.warn("uncknown source @read_source(%s)"%dib,stacklevel=2)
             return
         SRCE[bn[:bn.index('.')]]=pc
 
@@ -47,7 +48,7 @@ def ReadSRCE(path):
             if dib.is_file():
                 trd.Thread(target=read_source(dib)).start()
     except:
-        warnings.warn("cant read file %s"%(dib))
+        warnings.warn("cant read file @read_source(%s)"%(dib),stacklevel=2)
 
 
 def SearchSRCE(item)->tuple:
@@ -60,7 +61,7 @@ def SearchSRCE(item)->tuple:
         for pc in SRCE:
             output=output+SRCE[pc].xRef(item)
     else:
-        warnings.warn("incorrect type @ SearchSRCE")
+        warnings.warn("incorrect type @SearchSRCE(%s)"%type(item),stacklevel=2)
     return output
 
 def is_dbinst(val)->bool:
@@ -68,7 +69,7 @@ def is_dbinst(val)->bool:
         if val[:1]=='=' or val[:2]=='-=':
             return True
     else:
-        warnings.warn("incorrect type @ is_dbinst")
+        warnings.warn("incorrect type @is_dbinst",stacklevel=2)
     return False
 
 def is_inverted(val)->bool:
@@ -76,7 +77,7 @@ def is_inverted(val)->bool:
         if val[0]=='-':
             return True
     else:
-        warnings.warn("incorrect type @ is_inverted")
+        warnings.warn("incorrect type @is_inverted(%s)"%type(val),stacklevel=2)
     return False
 
 def is_address(val)->bool:
@@ -87,7 +88,7 @@ def is_address(val)->bool:
         if val[:2]=='PC'or val[:3]=='-PC':
             return True
     else:
-        warnings.warn("incorrect type @ is_address")
+        warnings.warn("incorrect type @is_address(%s)"%type(val),stacklevel=2)
     return False
 
 def is_pointer(val)->bool:
@@ -99,7 +100,7 @@ def is_pointer(val)->bool:
             if ':' in val:
                 return True
     else:
-        warnings.warn("incorrect type @ is_pointer")
+        warnings.warn("incorrect type @is_pointer(%s)"%type(val),stacklevel=2)
     return False
 
 def is_input(blk,pin)->bool:
@@ -112,7 +113,7 @@ def is_input(blk,pin)->bool:
                 if p==pin:
                     return True
     else:
-        warnings.warn("incorrect type @ is_input")
+        warnings.warn("incorrect type @is_input(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
 def is_output(blk,pin)->bool:
@@ -125,7 +126,7 @@ def is_output(blk,pin)->bool:
                 if p==pin:
                     return True
     else:
-        warnings.warn("incorrect type @ is_output")
+        warnings.warn("incorrect type @is_output(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
 def is_loop(blk,pin)->bool:
@@ -136,7 +137,7 @@ def is_loop(blk,pin)->bool:
                 if GetAddrPin(v)[0]==blk.Address:
                     return True
     else:
-        warnings.warn("incorrect type @ is_loop")
+        warnings.warn("incorrect type @is_loop(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
 def gen_pins(start,stop)->tuple:
@@ -152,7 +153,7 @@ def GetPCName(path)->str:
     if is_address(path):
         return str.removeprefix(path,'-')[:path.find('.')]
     else:
-        warnings.warn("incorrect type @ GetPCName")
+        warnings.warn("incorrect type @GetPCName(%s)"%type(path))
     return path
 
 def GetBlockName(aax,path)->str:
@@ -163,7 +164,7 @@ def GetBlockName(aax,path)->str:
         if GetAddrPin(path)[0] in aax.Blocks:
             return aax.Blocks[GetAddrPin(path)[0]].Name
     else:
-        warnings.warn("incorrect type @ GetBlockName")
+        warnings.warn("incorrect type @GetBlockName(%s,%s)"%(type(aax),type(path)))
     return ''
 
 def GetBlock(aax,path)->block:
@@ -176,7 +177,7 @@ def GetBlock(aax,path)->block:
         return aax.Blocks[GetAddrPin(path)[0]]
     if type(aax) is AAX or type(aax) is AA and is_address(path):
         return aax.Blocks[path]
-    warnings.warn("incorrect type @ GetBlock")
+    warnings.warn("incorrect type @GetBlock(%s,%s)"%(type(aax),type(path)))
     return None
 
 def GetAddrPin(path)->tuple:
@@ -189,7 +190,7 @@ def GetAddrPin(path)->tuple:
         if is_address(path):
             return (path,)
     else:
-        warnings.warn("incorrect type @ GetAddrPin")
+        warnings.warn("incorrect type @GetAddrPin(%s)"%type(path))
     return ()
 
 def GetPinValue(blk,pin):
@@ -205,7 +206,7 @@ def GetPinValue(blk,pin):
             else:
                 return (blk.Pins[pin],)
     else:
-        warnings.warn("incorrect type @ GetPinValue")
+        warnings.warn("incorrect type @GetPinValue(%s,%s)"%(type(blk),type(pin)))
     return ()
 
 def GetOutput(blk,pin)->tuple:
@@ -214,10 +215,10 @@ def GetOutput(blk,pin)->tuple:
     given pin should be input
     '''
     if type(blk) is not block or type(pin) is not str:
-        warnings.warn("incorrect type @ GetOutput")
+        warnings.warn("incorrect type @GetOutput(%s,%s)"%(type(blk),type(pin)))
         return ()
     if not is_input(blk,pin):
-        warnings.warn("incorrect type @ GetOutput")
+        warnings.warn("%s should be an input @GetOutput"%pin)
         return () # return empty tuple if pin is output
     
     match blk.Name:
@@ -237,7 +238,7 @@ def GetOutput(blk,pin)->tuple:
         case "SUB":
             return (blk.Address+':20',)
         # expand for other blocks
-    warnings.warn("block type not found @ GetOutput")
+    warnings.warn("block type:%s not found @GetOutput"%blk.Name)
     return ()
 
 def GetInput(blk,pin)->tuple:
@@ -246,10 +247,10 @@ def GetInput(blk,pin)->tuple:
     given pin should be output pin
     '''
     if type(blk) is not block or type(pin) is not str:
-        warnings.warn("incorrect type @ GetInput")
+        warnings.warn("incorrect type @GetInput(%s,%s)"%(type(blk),type(pin)))
         return ()
     if not is_output(blk,pin):
-        warnings.warn("incorrect type @ GetInput")
+        warnings.warn("%s should be an output @GetInput"%pin)
         return ()
     #----------------------------    
     def gtinp(blk,maxp):
@@ -278,7 +279,7 @@ def GetInput(blk,pin)->tuple:
             return gtinp(blk,20)
         case "OR-A":
             return gtinp(blk,20)
-    warnings.warn("block type not found @ GetInput")
+    warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
 def ProcessSources(aax):
@@ -286,7 +287,7 @@ def ProcessSources(aax):
     iterate trough the Sources list
     '''
     if type(aax) is not AAX or type(aax) is not AA:
-        warnings.warn("incorrect type @ ProcessSources")
+        warnings.warn("incorrect type @ProcessSources(%s)"%type(aax))
         return
     while len(Sources)>0:
         src=Sources.pop(0)
@@ -315,7 +316,7 @@ def ProcessSinks(aax):
     iterate trough the Sink list
     '''
     if type(aax) is not AAX or type(aax) is not AA:
-        warnings.warn("incorrect type @ ProcessSinks")
+        warnings.warn("incorrect type @ProcessSinks(%s)"%type(aax))
         return
     while len(Sinks)>0:
         snk=Sinks.pop(0) # get the top one
