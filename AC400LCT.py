@@ -45,8 +45,8 @@ class mainGUI:
 # Menu
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
-        self.FMenu.add_command(label="files", command=self.aaxbrowse)
-        self.FMenu.add_command(label="directories",command=self.fcompare)
+        self.FMenu.add_command(label="file", command=self.aaxbrowse)
+        self.FMenu.add_command(label="directory",command=self.fcompare)
         self.FMenu.add_command(label="compare again", command=self.compareSelected)
         self.FMenu.add_command(label="generate xls report",
                                command=self.genXLSreport)
@@ -165,7 +165,7 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\t >>> END OF REPORT <<<')
         self.cmpOutput.insert('0.0', str(fB.compare(fA)))
         self.cmpOutput.insert(
-            '0.0', '\n\tBEFORE\n%s\n\n\tAFTER\n%s\n' % (fB.fName, fA.fName))
+            '0.0', '\n\tsource BEFORE\n%s\n\n\tsource AFTER\n%s\n' % (fB.fName, fA.fName))
         self.cmpOutput.insert('0.0','\n\t<<< DIFFERENTIAL ANALYSIS REPORT >>>\n')
 
     def vpins(self):
