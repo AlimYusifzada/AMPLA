@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import threading as trd
 from tkinter import Label, Entry, Tk  # ,Frame,Button,Text
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
@@ -114,6 +115,8 @@ class mainGUI:
         self.icompare()
 
     def fcompare(self):
+        '''compare folders
+        '''
         dibefore = filedialog.askdirectory(title="select directory with BEFORE")
         diafter = filedialog.askdirectory(title="select directory with AFTER")
         messagebox.showinfo("PLEASE WAIT","Long procedure ahead.\nPlease wait till it finish")
@@ -128,9 +131,8 @@ class mainGUI:
                         afile=bf[:bf.index('.')] # get just file name (after)
                         self.dir_after=str(dia) # safe full path
                         if bfile.lower()==afile.lower(): # compare if files matched
-                            self.icompare() # compare using saved full path
-                            self.genXLSreport()
-                            pass
+                            # trd.Thread(name=bfile,target=self.icompare()).start()  # compare using saved full path
+                            trd.Thread(name=bfile,target=self.genXLSreport()).start()
 
     def icompare(self):
         datetimenow = str(dt.datetime.now())[:-7]
@@ -226,6 +228,7 @@ class mainGUI:
         self.cmpOutput.insert('0.0', '\n\t'+datetimenow+'\n'*3)
         extB = self.dir_before[-3:].upper()
         extA = self.dir_after[-3:].upper()
+        # xlsrepname=self.dir_after
 
         if extB == '.AA':
             fB = AA(self.dir_before)
@@ -412,10 +415,9 @@ class mainGUI:
                 wcnt += 1
                 s = ''
             s += l
-        xlsrepname = self.dir_after+""+'.xls' #+datetimenow[-9:].replace(':', '')
-        xlsreport.save(xlsrepname)
+        xlsreport.save(self.dir_after+""+'.xls') #+datetimenow[-9:].replace(':', '')
         self.cmpOutput.insert(
-            '0.0', "\n\t%s report created" % xlsrepname)
+            '0.0', "\nreport created for\t%s.xls" % self.dir_after)
 
 
     '''

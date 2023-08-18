@@ -7,7 +7,7 @@ amplahelp = '''
   (c) Copyright,2020 Alim Yusifzada
  '''
 
-ampla_rev = '0.230607'
+ampla_rev = '0.230718'
 
 if sys.version_info[0] < 3:
     print('Please use Python version 3.*')
