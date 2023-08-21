@@ -1,111 +1,23 @@
-from ampla import *
 if __name__=='__main__':
     print("this is extension of AMPLA","rev:%s"%ampla_rev)
     exit()
 
+from ampla import *
 import warnings
-from pathlib import Path
-import threading as trd
+# from pathlib import Path
+# import threading as trd
 
-#list of sink/source
+# list of sink/source
 Sources=[] # upstrean connections
 Sinks=[] # downstream connections
-
+Items=[] # database entries or other non-adress items
 DeadSources=[] # untraceble sources, dead end
 DeadSinks=[] # untraceble sinks, dead end
-
-Items=[] #database entries or other non-adress item
-
-SRCE={} # contain PC programs dict like "PC_program_name":<class AA>  
-
-def ReadSRCE(path):
-    '''
-    read all PC programs source code from the path
-    and populate PCprograms dictionary
-    initiate parsing as different thread for each file
-    '''
-    dib=""
-    if type(path) is not str:
-        warnings.warn("incorrect type @ReadSRCE(%s)"%type(path),stacklevel=2)
-        return
-    
-    def read_source(dib):
-        bn=os.path.basename(dib)
-        is_AAX=str(dib)[-2:].upper()=="AX"
-        is_AA=str(dib)[-2:].upper()=="AA"
-        srcfile=str(dib) #get the filename (full path)
-        if is_AAX:
-            pc=AAX(srcfile)
-        elif is_AA:
-            pc=AA(srcfile)
-        else:
-            warnings.warn("uncknown source @read_source(%s)"%dib,stacklevel=2)
-            return
-        SRCE[bn[:bn.index('.')]]=pc
-
-    try:
-        for dib in Path(path).iterdir():
-            if dib.is_file():
-                trd.Thread(target=read_source(dib)).start()
-    except:
-        warnings.warn("cant read file @read_source(%s)"%(dib),stacklevel=2)
-
-
-def SearchSRCE(item)->tuple:
-    '''
-    search item in PCprograms
-    return tuple with addresses where item was found
-    '''
-    output=()
-    if type(item) is str:
-        for pc in SRCE:
-            output=output+SRCE[pc].xRef(item)
-    else:
-        warnings.warn("incorrect type @SearchSRCE(%s)"%type(item),stacklevel=2)
-    return output
-
-def is_dbinst(val)->bool:
-    if type(val) is str:
-        if val[:1]=='=' or val[:2]=='-=':
-            return True
-    else:
-        warnings.warn("incorrect type @is_dbinst",stacklevel=2)
-    return False
-
-def is_inverted(val)->bool:
-    if type(val) is str:
-        if val[0]=='-':
-            return True
-    else:
-        warnings.warn("incorrect type @is_inverted(%s)"%type(val),stacklevel=2)
-    return False
-
-def is_address(val)->bool:
-    '''
-    check if the val is an address (starts with PC..)
-    '''
-    if type(val) is str:
-        if val[:2]=='PC'or val[:3]=='-PC':
-            return True
-    else:
-        warnings.warn("incorrect type @is_address(%s)"%type(val),stacklevel=2)
-    return False
-
-def is_pointer(val)->bool:
-    '''
-    check if the val is and address and pointing to a pin
-    '''
-    if type(val) is str:
-        if is_address(val):
-            if ':' in val:
-                return True
-    else:
-        warnings.warn("incorrect type @is_pointer(%s)"%type(val),stacklevel=2)
-    return False
 
 def is_input(blk,pin)->bool:
     '''
     check if pin is input
+    need InputPins dictionary
     '''
     if type(blk) is block and type(pin) is str:
         if blk.Name in InputPins:
@@ -119,6 +31,7 @@ def is_input(blk,pin)->bool:
 def is_output(blk,pin)->bool:
     '''
     check if pin is output
+    need OutputPins dictionary
     '''
     if type(blk) is block and type(pin) is str:
         if blk.Name in OutputPins:
@@ -129,87 +42,7 @@ def is_output(blk,pin)->bool:
         warnings.warn("incorrect type @is_output(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
-def is_loop(blk,pin)->bool:
-    if type(blk) is block and type(pin) is str:
-        pval=GetPinValue(blk,pin)
-        for v in pval:
-            if is_address(v):
-                if GetAddrPin(v)[0]==blk.Address:
-                    return True
-    else:
-        warnings.warn("incorrect type @is_loop(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
-    return False
-
-def gen_pins(start,stop)->tuple:
-    '''
-    generate series of pins names
-    '''
-    T=()
-    for i in range(start,stop+1):
-        T=T+(':'+str(i),)
-    return T
-
-def GetPCName(path)->str:
-    if is_address(path):
-        return str.removeprefix(path,'-')[:path.find('.')]
-    else:
-        warnings.warn("incorrect type @GetPCName(%s)"%type(path))
-    return path
-
-def GetBlockName(aax,path)->str:
-    '''
-    return block name at path
-    '''
-    if type(aax) is AAX or type(aax) is AA and type(path) is str:
-        if GetAddrPin(path)[0] in aax.Blocks:
-            return aax.Blocks[GetAddrPin(path)[0]].Name
-    else:
-        warnings.warn("incorrect type @GetBlockName(%s,%s)"%(type(aax),type(path)))
-    return ''
-
-def GetBlock(aax,path)->block:
-    '''
-    return block by address or path from aax
-    '''
-    if path[0]=='-':# dont need inversion.
-        path=path[1:] 
-    if type(aax) is AAX or type(aax) is AA and is_pointer(path):
-        return aax.Blocks[GetAddrPin(path)[0]]
-    if type(aax) is AAX or type(aax) is AA and is_address(path):
-        return aax.Blocks[path]
-    warnings.warn("incorrect type @GetBlock(%s,%s)"%(type(aax),type(path)))
-    return None
-
-def GetAddrPin(path)->tuple:
-    '''
-    return tuple (address, pin) // (str,str)
-    '''
-    if type(path) is str:
-        if is_pointer(path):
-            return (path[:path.find(':')],path[path.find(':'):])
-        if is_address(path):
-            return (path,)
-    else:
-        warnings.warn("incorrect type @GetAddrPin(%s)"%type(path))
-    return ()
-
-def GetPinValue(blk,pin):
-    '''
-    return value (str or list) of the <path> PC##.##.##:pin
-    <aax> logic blocks container
-    '''
-    if type(blk) is block and type(pin) is str:
-        if pin in blk.Pins:
-            tp=type(blk.Pins[pin])
-            if tp is list or tp is tuple:
-                return blk.Pins[pin]
-            else:
-                return (blk.Pins[pin],)
-    else:
-        warnings.warn("incorrect type @GetPinValue(%s,%s)"%(type(blk),type(pin)))
-    return ()
-
-def GetOutput(blk,pin)->tuple:
+def get_output_for(blk,pin)->tuple:
     '''
     return tuple of possible output pin(s)
     given pin should be input
@@ -241,7 +74,7 @@ def GetOutput(blk,pin)->tuple:
     warnings.warn("block type:%s not found @GetOutput"%blk.Name)
     return ()
 
-def GetInput(blk,pin)->tuple:
+def get_input_for(blk,pin)->tuple:
     '''
     return tuple of possible input pin(s)
     given pin should be output pin
@@ -282,67 +115,71 @@ def GetInput(blk,pin)->tuple:
     warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
-def ProcessSources(aax):
+def ProcessSources(aax,source:list)->list:
     '''
     iterate trough the Sources list
     '''
-    if type(aax) is not AAX or type(aax) is not AA:
-        warnings.warn("incorrect type @ProcessSources(%s)"%type(aax))
-        return
-    while len(Sources)>0:
-        src=Sources.pop(0)
+    # if type(aax) is not AAX or type(aax) is not AA:
+    #     warnings.warn("incorrect type @ProcessSources(%s)"%type(aax))
+    #     return
+    deadsources=[]
+    while len(source)>0:
+        src=source.pop(0)
         if is_inverted(src):
             src=src[1:]
-        if is_pointer(src) and src:
-            blk=GetBlock(aax,src)
-            pin=GetAddrPin(src)[1]
+        if is_pointer(src):
+            blk=get_block(aax,src)
+            pin=get_addr_pin(src)[1]
             if is_loop(blk,pin):
-                DeadSources.append(src) 
+                # deadsources.append(src) 
+                # looped link any plans?
+                warnings.warn("loop detected @%s"%(src))
+                pass
             elif is_input(blk,pin):
-                val=GetPinValue(blk,pin) # empty pins need to be processed
-                for v in val:
-                    Sources.append(v)
+                for v in get_pin_value(blk,pin):
+                    source.append(v)
             elif is_output(blk,pin):
-                for v in GetInput(blk,pin):
-                    Sources.append(v)
+                for v in get_input_for(blk,pin):
+                    source.append(v)
             else:
-                DeadSources.append(src)  
+                deadsources.append(src)  
         else:
-            DeadSources.append(src)
-    return
+            deadsources.append(src)
+    return deadsources
                    
-def ProcessSinks(aax):
+def ProcessSinks(aax,sink:list)->list:
     '''
     iterate trough the Sink list
     '''
-    if type(aax) is not AAX or type(aax) is not AA:
-        warnings.warn("incorrect type @ProcessSinks(%s)"%type(aax))
-        return
-    while len(Sinks)>0:
-        snk=Sinks.pop(0) # get the top one
+    # if (type(aax) is not AAX) or (type(aax) is not AA):
+    #     warnings.warn("incorrect type @ProcessSinks(%s)"%type(aax))
+    #     return
+    deadsinks=[]
+    while len(sink)>0:
+        snk=sink.pop(0) # get the top one
         if is_inverted(snk):
             snk=snk[1:] # remove invertion
-        if is_pointer(snk) and snk:
-            blk=GetBlock(aax,snk) # shell check if block exist?
-            pin=GetAddrPin(snk)[1] # extract pin name
+        if is_pointer(snk): # not database
+            blk=get_block(aax,snk) # shell check if block exist?
+            pin=get_addr_pin(snk)[1] # extract pin name
             if is_output(blk,pin): # check if the pin is output
                 xrefpin=aax.xRef(snk) # search usage of the pin
                 for v in xrefpin:
                     if not is_loop(blk,pin):
-                        Sinks.append(v) #add usage points to Sinks
-                val=GetPinValue(blk,pin)
+                        sink.append(v) #add usage points to Sinks
+                val=get_pin_value(blk,pin)
                 for v in val:
                     if not is_loop(blk,pin):
-                        Sinks.append(v) # push at te end
-            elif is_input(blk,pin) and GetOutput(blk,pin):
-                for v in GetOutput(blk,pin):
+                        sink.append(v) # push at te end
+            elif is_input(blk,pin):
+                for v in get_output_for(blk,pin):
                     if not is_loop(blk,pin):
-                        Sinks.append(v) # push at the end
+                        sink.append(v) # push at the end
             else:
-                DeadSinks.append(snk)  
+                deadsinks.append(snk)  
         else:
-            DeadSinks.append(snk)
-    return
+            deadsinks.append(snk)
+    return deadsinks
 
 # dictionary of tuples!, even single elemets should be stored as tuple
 InputPins={

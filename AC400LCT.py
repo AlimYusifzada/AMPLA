@@ -6,7 +6,9 @@ from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
 from pathlib import Path
 from tkinter import messagebox
-# from tkinter import PhotoImage  
+
+# from tkinter import PhotoImage
+
 from ampla import *
 import logins
 import netband
@@ -42,7 +44,10 @@ class mainGUI:
         self.root = root
         self.dir_before = "~"
         self.dir_after = "~"
+        # self.image=PhotoImage(file="smallico.png")
+
 # Menu
+
         self.MMenu = Menu(root)
         self.FMenu = Menu(root)
         self.FMenu.add_command(label="file", command=self.aaxbrowse)
@@ -74,6 +79,7 @@ class mainGUI:
         Label(text='X-REF:').grid(row=rowBefore, column=0, sticky='E')
         Label(text='file BEFORE:').grid(row=rowBefore, column=3, sticky='W')
         Label(text='file AFTER:').grid(row=rowAfter, column=3, sticky='W')
+        # Label(image=self.image).grid(row=rowAfter,column=0,sticky='N'+'W')
 # OUTPUT
         self.cmpOutput = STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT, column=0,
