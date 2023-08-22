@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import threading as trd
-from tkinter import Label, Entry, Tk  # ,Frame,Button,Text
+from tkinter import Label, Entry, Tk
 from tkinter import filedialog, Menu
 from tkinter import scrolledtext as STX
 from pathlib import Path
@@ -84,7 +84,7 @@ class mainGUI:
         self.cmpOutput = STX.ScrolledText(root)
         self.cmpOutput.grid(row=rowOUTPUT, column=0,
                             sticky='N'+'S'+'w'+'E', columnspan=11)
-        
+    
 # ENTRIES
 # AAX file entry - BEFORE
         self.FBefore = Entry(root, width=wwidth)

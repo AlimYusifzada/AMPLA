@@ -11,7 +11,7 @@ amplahelp = '''
   (c) Copyright,2020 Alim Yusifzada
  '''
 
-ampla_rev = '0.230718'
+ampla_rev = '0.1.230822'
 if sys.version_info[0] < 3:
     warnings.warn('Please use Python version 3.*',stacklevel=0)
     sys.exit()
