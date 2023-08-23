@@ -933,15 +933,6 @@ def is_loop(blk,pin)->bool:
         warnings.warn("incorrect type @is_loop(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
-def gen_pins(start,stop)->tuple:
-    '''
-    generate series of pins names
-    '''
-    T=()
-    for i in range(start,stop+1):
-        T=T+(':'+str(i),)
-    return T
-
 def get_PC_name(path)->str:
     '''
     return PC## based on the address (path)

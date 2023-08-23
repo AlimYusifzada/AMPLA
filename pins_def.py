@@ -42,6 +42,36 @@ def is_output(blk,pin)->bool:
         warnings.warn("incorrect type @is_output(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
+def gen_pins(start=1,stop=2,mode='1')->tuple:
+    '''
+    generate series of pins names
+    
+    step=1 gen pins in series between start and stop (1,2,3,...)
+    
+    step=10 gen pins from 11 till stop
+    in case stop = 30
+    genereate (11,12,21,22,31,32)
+
+    step-13 gen pins from 13 till stop+3 where stop is deciaml
+    in case stop = 40
+    generate (13,23,33,43)
+    '''
+    T=()
+    if stop<=start:
+        stop=start
+        start=1
+    match mode:
+        case '1':
+            for i in range(start,stop+1):
+                T=T+(':'+str(i),)
+        case "SW-C_in": #SW-C inputs
+            for i in range(1,int(stop+1)):
+                T=T+(':'+str(i*10+1),':'+str(i*10+2))
+        case "SW-C_out": #SW-C outputs
+            for i in range(1,int(stop+1)):
+                T=T+(':'+str(i*10+3),)
+    return T
+
 def get_output_for(blk,pin)->tuple:
     '''
     return tuple of possible output pin(s)
@@ -53,25 +83,18 @@ def get_output_for(blk,pin)->tuple:
     if not is_input(blk,pin):
         warnings.warn("%s should be an input @GetOutput"%pin)
         return () # return empty tuple if pin is output
-    
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])+20),)
         # blocks below have only one output pin
-        case "OR":
-            return (blk.Address+':20',)
-        case "AND":
-            return (blk.Address+':20',)
-        case "MUL":
-            return (blk.Address+':20',)
-        case "ADD":
-            return (blk.Address+':20',)
-        case "DIV":
-            return (blk.Address+':20',)
-        case "SUB":
-            return (blk.Address+':20',)
+        case _:
+            res=()
+            for p in OutputPins[blk.Name]:
+                res+=(blk.Address+p,)
+            return res
+            pass
         # expand for other blocks
-    warnings.warn("block type:%s not found @GetOutput"%blk.Name)
+    # warnings.warn("block type:%s not found @GetOutput"%blk.Name)
     return ()
 
 def get_input_for(blk,pin)->tuple:
@@ -84,35 +107,17 @@ def get_input_for(blk,pin)->tuple:
         return ()
     if not is_output(blk,pin):
         warnings.warn("%s should be an output @GetInput"%pin)
-        return ()
-    #----------------------------    
-    def gtinp(blk,maxp):
-        # get all inputs pins before maxp for blocks like
-        # ADD, AND, OR, MUL
-        inputs=()
-        for p in blk.GetPins():
-            if int(p[pin.find(':')+1:])<maxp:
-                inputs=inputs+(blk.Address+p,)
-        return inputs
-    #----------------------------    
+        return ()    
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
-        case "OR":
-            return gtinp(blk,20)
-        case "AND":
-            return gtinp(blk,20)
-        case "MUL":
-            return gtinp(blk,20)
-        case "ADD":
-            return gtinp(blk,20)
-        case "DIV":
-            return gtinp(blk,20)
-        case "SUB":
-            return gtinp(blk,20)
-        case "OR-A":
-            return gtinp(blk,20)
-    warnings.warn("block type:%s not found @GetInput"%blk.Name)
+        case _:
+            res=()
+            for p in InputPins[blk.Name]:
+                res+=(blk.Address+p,)
+            return res
+            pass
+    # warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
 def ProcessSources(aax,source:list)->list:
@@ -156,10 +161,10 @@ def ProcessSinks(aax,sink:list)->list:
     #     return
     deadsinks=[]
     while len(sink)>0:
-        snk=sink.pop(0) # get the top one
+        snk=sink.pop(0) # get the top item
         if is_inverted(snk):
             snk=snk[1:] # remove invertion
-        if is_pointer(snk): # not database
+        if is_pointer(snk): # check not database
             blk=get_block(aax,snk) # shell check if block exist?
             pin=get_addr_pin(snk)[1] # extract pin name
             if is_output(blk,pin): # check if the pin is output
@@ -181,6 +186,21 @@ def ProcessSinks(aax,sink:list)->list:
             deadsinks.append(snk)
     return deadsinks
 
+def check_block_def():
+    
+    for ky in InputPins.keys():
+        if ky in OutputPins.keys():
+            pass
+        else:
+            warnings.warn("%s\t/-> OutputPins"%ky)
+   
+    for ky in OutputPins.keys():
+        if ky in InputPins.keys():
+            pass
+        else:
+            warnings.warn("%s\t/-> InputPins"%ky)
+
+
 # dictionary of tuples!, even single elemets should be stored as tuple
 InputPins={
     "BLOCK":(":ON",":1"),
@@ -191,13 +211,17 @@ InputPins={
     "OR":gen_pins(1,19),
     "SUB":(":1",":2"),
     "DIV":(":1",":2"),
-    "OR-A":gen_pins(11,59),
+    "OR-A":gen_pins(1,59),
     "ABS":(":1",":2"),
     "ADD-MR":gen_pins(1,49),
     "ADD-MR1":gen_pins(1,94),
     "ANALYSE":(":1",":2",":11",":21",":31"),
     "BLOCK":(":1",),
     "COM-AIS":(":1",":2",":3",":4",":5",":6",":21",":23",":24"),
+    "ADD":gen_pins(1,19),
+    "AND-O": gen_pins(1,59),
+    "MONO": (":1",":2",":3",":I",":TP"),
+    "SW-C":(":ACT",":1")+gen_pins(9,mode="SW-C_in"),
     }
 
 # dictionary of tuples!, even single elemets should be stored as tuple
@@ -211,25 +235,18 @@ OutputPins={
     "AND":(":20",),
     "OR":(":20",),
     "ADD":(":20",),
-    "I-AND":(":20",),
-    "IOR":(":20",),
-    "INOT":(":5",),
-    "BTST":(":5",),
     "ABS":(":5",),
     "ADD-MR":(":50",),
     "ADD-MR1":(":95",),
     "AND-O":(":60",),
     "OR-A":(":60",),
-    "DB-COP":(":8",":9"),
-    "FI-VOTE":gen_pins(80,93),
-    "GI-VOTE":gen_pins(80,93),
-    "CE-OPC":(":5",":21"),
-    "CE-MATR":(),
     "ABS":(":5",),
     "ADD-MR":(":50",),
     "ADD-MR1":(":95",),
     "ANALYSE":(":5",":6",":7",":8",":12",":22",":32"),
     "BLOCK":(":5",),
     "COM-AIS":(":7",":8",":9",":10",":11",":22",":25",":33",":36"),
+    "MONO":(":O",":TE",":5",":6"),
+    "SW-C":gen_pins(9,mode="SW-C_out")
 
 }
