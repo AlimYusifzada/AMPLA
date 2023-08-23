@@ -120,7 +120,7 @@ def get_input_for(blk,pin)->tuple:
     # warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
-def ProcessSources(aax,source:list)->list:
+def Source(aax,source:list)->list:
     '''
     iterate trough the Sources list
     '''
@@ -147,12 +147,14 @@ def ProcessSources(aax,source:list)->list:
                 for v in get_input_for(blk,pin):
                     source.append(v)
             else:
-                deadsources.append(src)  
+                if src not in deadsources:
+                    deadsources.append(src)  
         else:
-            deadsources.append(src)
+            if src not in deadsources:
+                deadsources.append(src)
     return deadsources
                    
-def ProcessSinks(aax,sink:list)->list:
+def Sink(aax,sink:list)->list:
     '''
     iterate trough the Sink list
     '''
@@ -181,9 +183,11 @@ def ProcessSinks(aax,sink:list)->list:
                     if not is_loop(blk,pin):
                         sink.append(v) # push at the end
             else:
-                deadsinks.append(snk)  
+                if snk not in deadsinks:
+                    deadsinks.append(snk)  
         else:
-            deadsinks.append(snk)
+            if snk not in deadsinks:
+                deadsinks.append(snk)
     return deadsinks
 
 def check_block_def():
@@ -212,16 +216,23 @@ InputPins={
     "SUB":(":1",":2"),
     "DIV":(":1",":2"),
     "OR-A":gen_pins(1,59),
-    "ABS":(":1",":2"),
+    "ABS":(":1",":2",":I",":K"),
     "ADD-MR":gen_pins(1,49),
     "ADD-MR1":gen_pins(1,94),
-    "ANALYSE":(":1",":2",":11",":21",":31"),
+    "ANALYSE":(":1",":2",":11",":21",":31",":MPLDH1",":HYS",":CLDH1",":CLDH2",":CLDH3"),
     "BLOCK":(":1",),
     "COM-AIS":(":1",":2",":3",":4",":5",":6",":21",":23",":24"),
     "ADD":gen_pins(1,19),
     "AND-O": gen_pins(1,59),
     "MONO": (":1",":2",":3",":I",":TP"),
     "SW-C":(":ACT",":1")+gen_pins(9,mode="SW-C_in"),
+    "COMP":(":I1",":I2",":1",":2"),
+    "COMP-I":(":I1",":I2",":1",":2"),
+    "CONTRM":(":ON",":1",":SINGLE",":2",":R",":3"),
+    "CONV":(":I",":1"),
+    "CONV-AI":(":1",":BA_1",":2","::BA_2",":3","::BA_3",":4","::BA_4"),
+    "TON":(":I",":TD",":1",":2"),
+    "TOFF":(":I",":TD",":1",":2"),
     }
 
 # dictionary of tuples!, even single elemets should be stored as tuple
@@ -235,7 +246,7 @@ OutputPins={
     "AND":(":20",),
     "OR":(":20",),
     "ADD":(":20",),
-    "ABS":(":5",),
+    "ABS":(":5",":O"),
     "ADD-MR":(":50",),
     "ADD-MR1":(":95",),
     "AND-O":(":60",),
@@ -243,10 +254,16 @@ OutputPins={
     "ABS":(":5",),
     "ADD-MR":(":50",),
     "ADD-MR1":(":95",),
-    "ANALYSE":(":5",":6",":7",":8",":12",":22",":32"),
+    "ANALYSE":(":5",":6",":7",":8",":12",":22",":32",":MPLD",":OVERLD",":MPLD>H1",":CLD",":CLD>H1",":CLD>H2",":CLD>H3"),
     "BLOCK":(":5",),
     "COM-AIS":(":7",":8",":9",":10",":11",":22",":25",":33",":36"),
     "MONO":(":O",":TE",":5",":6"),
-    "SW-C":gen_pins(9,mode="SW-C_out")
-
+    "SW-C":gen_pins(9,mode="SW-C_out"),
+    "COMP":(":I1>I2",":I1=I2",":I1<I2",":5",":6",":7"),
+    "COMP-I":(":I1>I2",":I1=I2",":I1<I2",":5",":6",":7"),
+    "CONTRM":(":RUN",":5",":MODP",":6"),
+    "CONV":(":O",":ERR",":5",":6"),
+    "CONV-AI":(":O",":5"),
+    "TON":(":O",":5",":TE",":6"),
+    "TOFF":(":O",":5",":TE",":6"),
 }
