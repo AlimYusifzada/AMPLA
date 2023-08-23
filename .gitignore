@@ -128,19 +128,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 *.ipynb
-*.ipynb
-explicit_logins.ipynb
-pusatest.ipynb
-explicit_logins.ipynb
-pusatest.ipynb
-*.ipynb
-*.ipynb
-*.ipynb
-*.ipynb
-*.ipynb
-*.ipynb
-*.ipynb
 *.xls
 *.AAX
 *.ipynb
 *.AAX
+*.AA
+*.BA
+*.BAX
