@@ -120,7 +120,7 @@ def get_input_for(blk,pin)->tuple:
     # warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
-def Source(aax,source:list)->list:
+def get_source(aax,source:list)->list:
     '''
     iterate trough the Sources list
     '''
@@ -154,7 +154,7 @@ def Source(aax,source:list)->list:
                 deadsources.append(src)
     return deadsources
                    
-def Sink(aax,sink:list)->list:
+def get_sink(aax,sink:list)->list:
     '''
     iterate trough the Sink list
     '''
@@ -190,7 +190,7 @@ def Sink(aax,sink:list)->list:
                 deadsinks.append(snk)
     return deadsinks
 
-def check_block_def():
+def check_block_dict():
     
     for ky in InputPins.keys():
         if ky in OutputPins.keys():
@@ -203,6 +203,37 @@ def check_block_def():
             pass
         else:
             warnings.warn("%s\t/-> InputPins"%ky)
+
+
+def get_max(stat)->tuple:
+    max=('dummy',0)
+    for k in stat:
+        if stat[k]>max[1]:
+            max=(k,stat[k])
+    return max
+
+def get_sorted(stat)->tuple:
+    res=()
+    while len(stat)>0:
+        i=get_max(stat)
+        res+=(i,)
+        stat.pop(i[0])
+    return res
+
+def get_stat(prj)->dict:
+    '''
+    statistical data
+    logic blocks frequency
+    '''
+    stat={}
+    for aax in prj.SRCE.keys():
+        for blk in prj.SRCE[aax].Blocks.keys():
+            blknme=get_block_name(prj.SRCE[aax],blk)
+            if blknme in stat.keys():
+                stat[blknme]+=1
+            else:
+                stat[blknme]=1
+    return stat
 
 
 # dictionary of tuples!, even single elemets should be stored as tuple
