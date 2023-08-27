@@ -1015,6 +1015,7 @@ class Proj():
         initiate parsing as different thread for each file
         '''
         dib=""
+        self.SRCE.clear()
         if type(path) is not str:
             warnings.warn("incorrect type @ReadSRCE(%s)"%type(path),stacklevel=2)
             return
