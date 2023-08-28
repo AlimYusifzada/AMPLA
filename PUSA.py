@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import os
 import threading as trd
+import xlwt
 import PySimpleGUI as pg
 from tkinter import filedialog
-import xlwt
-from ampla import *
 
+from ampla import *
+myico='aaxcmp.ico'
 rev = 'PUSA'
 ftypes = [("AA/AAX files", "*.aa*"), 
           ("AA/AAX files", "*.AA*"),
@@ -13,37 +14,18 @@ ftypes = [("AA/AAX files", "*.aa*"),
           ("BA/BAX files", "*.BA*"),
           ("TXT files", "*.txt"), ("all files", "*.*")]
 
-mainMenuR=[
-    ['Proj',
-     ['Open','Search','Source','Sink']],
-    ['Compare',
-     ['Dir2Dir']],
-    ['About',
-     ['Help','Exit']],
-    ]
 
 
-mainMenu=pg.MenuBar(mainMenuR)
-buttons=[[pg.Button('Clear Output',key='-clear'),pg.Button('Open'),pg.Button('Search'),pg.Button('Compare',key='Dir2Dir')]]
-inputs=[[pg.Input('',key='-search',size=(100,0))]]
-
-labels=[[pg.Text('',key='-info',size=(100,0))]]
-
-
-mainlayout=[[mainMenu],buttons,labels,inputs]
 projlayout=[[]]
 pcprogs=[]
-
-
-mainWin=pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False)
-# projWin=pg.Window(title=rev,layout=projlayout,resizable=True)
 
 
 E=None
 V=None
 project=Proj('dummy')
 
-def fcompare():
+#----------------------------------XLS report----------------------------------
+def fcompare(win:pg.Window):
     '''compare folders
     '''
     dibefore = filedialog.askdirectory(title="select directory with BEFORE")
@@ -58,9 +40,9 @@ def fcompare():
                     afile=bf[:bf.index('.')] # get just file name (after)
                     if bfile.lower()==afile.lower(): # compare if files matched
                         trd.Thread(name=bfile,target=genXLSreport(str(dib),str(dia))).start()
-                        mainWin['-info'].update(mainWin['-info'].get()+'\n...processing:%s'%bfile)
-                        mainWin.Refresh()
-    mainWin['-info'].update('check results at\n%s'%diafter)
+                        win['-infotxt-'].update(win['-infotxt-'].get()+'\n...processing:%s'%bfile)
+                        win.Refresh()
+    win['-infotxt-'].update('check results at\n%s'%diafter)
 
 def genXLSreport(dir_before,dir_after):
     extB = dir_before[-3:].upper()
@@ -230,6 +212,7 @@ def genXLSreport(dir_before,dir_after):
             lcnt+=max(len(fA.GetBlock(blk).GetPins()),len(fB.GetBlock(blk).GetPins()))+4
 
     report = fB.compare(fA)
+    # pg.ScrolledTextBox(report,icon=myico,title=fB.fName)
     lcnt = stat_line
     wcnt = 0
     s = ''
@@ -251,46 +234,79 @@ def genXLSreport(dir_before,dir_after):
             wcnt += 1
             s = ''
         s += l
-    xlsreport.save(dir_after+""+'.xls') #+datetimenow[-9:].replace(':', '')
+    xlsreport.save(dir_after+""+'.xls')
+#===============================================================================
 
+#---------------------------------Windows---------------------------------------
+#===============================================================================
+#--------------------------------Main Window------------------------------------
+def MainWin()->pg.Window:
 
-while True:
-    E,V=mainWin.read()
-    if E=='Dir2Dir':
-        fcompare()
-        pass
-    if E=='-clear':
+    buttons=[[pg.Button('Refresh',key='-clear-'),
+            pg.Button('Open',key='-open-'),
+            pg.Button('Search',key='-search-',disabled=True),
+            pg.Button('Browse PC',key='-browse-',disabled=True),
+            pg.Button('Sink',key='-sink-',disabled=True),
+            pg.Button('Source',key='-source-',disabled=True),
+            pg.Button('Compare',key='-compare-'),
+            pg.Button('Exit',key='-exit-',button_color='red')
+            ]]
+    inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
+    labels=[[pg.Text('',key='-infotxt-',size=(100,0))]]
+    mainlayout=[buttons,labels,inputs]
+    return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
+
+def refreshGUI(W:pg.Window):
         pcs=''
-        mainWin['-info'].update(pcs)
-        mainWin.Refresh()
+        W['-infotxt-'].update(pcs)
+        W.Refresh()
         for pc in project.SRCE.keys():
             pcs+=pc+', '
         pcs+=''
-        mainWin['-info'].update(pcs)
-        mainWin.Refresh() 
-    if E=='Trace':
-        pass
-    if E=='Search':
-        if len(mainWin['-search'].get())>3:
-            mainWin['-info'].update('...searching...')
-            mainWin.Refresh()
-            sr=project.Search(mainWin['-search'].get())
-            if len(sr)>0:
-                mainWin['-info'].update(sr)
-            else:
-                mainWin['-info'].update('found nothing')
+        W['-infotxt-'].update(pcs)
+        if len(project.SRCE.keys())>0:
+            W['-search-'].update(disabled=False)
+            W['-browse-'].update(disabled=False)
+            W['-sink-'].update(disabled=False)
+            W['-source-'].update(disabled=False)
+        else:
+            W['-search-'].update(disabled=True)
+            W['-browse-'].update(disabled=True)
+            W['-sink-'].update(disabled=True)
+            W['-source-'].update(disabled=True)
+        W.Refresh() 
 
-    if E=='exit' or E=='Exit' or E==pg.WIN_CLOSED:
+mainwin=MainWin()
+
+while True:
+    W,E,V=pg.read_all_windows()
+    if E=='-browse-':
+        pckey=W['-searchtxt-'].get()
+        pcname=get_PC_name(pckey)
+        if pcname in project.SRCE.keys():
+            if pckey in project.SRCE[pcname].Blocks.keys():
+                s=str(project.SRCE[pcname].Blocks[pckey])
+                pg.ScrolledTextBox(s,title=pckey,icon=myico)
+        
+    if E=='-compare-':
+        fcompare(W)
+        pass
+    if E=='-clear-':
+        refreshGUI(W)
+    if E=='-search-':
+        if len(W['-searchtxt-'].get())>3:
+            sr=project.Search(W['-searchtxt-'].get())
+            if len(sr)>0:
+                pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get(),icon=myico)
+            else:
+                W['-infotxt-'].update('found nothing')
+    if E=='-exit-'or E==pg.WIN_CLOSED:
         break
-    if E=='Open':
+    if E=='-open-':
         path=filedialog.askdirectory(title='Select SRCE directory')
         pcs=''
-        mainWin['-info'].update('...downloading...')
-        mainWin.Refresh()
+        W['-infotxt-'].update('...AMPL source code downloading...')
+        W.Refresh()
         project.Read(path)
-        for pc in project.SRCE.keys():
-            pcs+=pc+', '
-        pcs+=' dowloaded'
-        mainWin['-info'].update(pcs)
-        mainWin.Refresh()
-mainWin.close()
+        refreshGUI(W)
+mainwin.close()
