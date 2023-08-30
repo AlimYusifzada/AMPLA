@@ -4,32 +4,38 @@ import threading as trd
 import xlwt
 import PySimpleGUI as pg
 from tkinter import filedialog
-
 from ampla import *
+from pins_def import *
+
+about = '''
+    AMPL Logic Compare Tool
+    (c) 2020-2023, Alim Yusifzada
+    reddit: u/Crazy1Dunmer
+    mastodon: Crazy1Dunmer@alim@mas.to
+    gmail: yusifzaj@gmail.com
+
+    This program is distributed in the hope 
+    that it will be useful,but WITHOUT ANY WARRANTY.
+'''
+
 myico='aaxcmp.ico'
-rev = 'PUSA'
+rev = 'Pusa'
 ftypes = [("AA/AAX files", "*.aa*"), 
           ("AA/AAX files", "*.AA*"),
           ("BA/BAX files", "*.ba*"),
           ("BA/BAX files", "*.BA*"),
           ("TXT files", "*.txt"), ("all files", "*.*")]
 
-
-
-projlayout=[[]]
-pcprogs=[]
-
-
-E=None
-V=None
 project=Proj('dummy')
 
 #----------------------------------XLS report----------------------------------
 def fcompare(win:pg.Window):
     '''compare folders
     '''
-    dibefore = filedialog.askdirectory(title="select directory with BEFORE")
-    diafter = filedialog.askdirectory(title="select directory with AFTER")
+    dibefore = filedialog.askdirectory(title="select BEFORE source directory")
+    diafter = filedialog.askdirectory(title="select AFTER source directory")
+    if diafter==dibefore:
+        return
     for dib in Path(dibefore).iterdir():
         if dib.is_file() and (str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
             bf=os.path.basename(dib)
@@ -241,7 +247,6 @@ def genXLSreport(dir_before,dir_after):
 #===============================================================================
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
-
     buttons=[[pg.Button('Refresh',key='-clear-'),
             pg.Button('Open',key='-open-'),
             pg.Button('Search',key='-search-',disabled=True),
@@ -249,13 +254,13 @@ def MainWin()->pg.Window:
             pg.Button('Sink',key='-sink-',disabled=True),
             pg.Button('Source',key='-source-',disabled=True),
             pg.Button('Compare',key='-compare-'),
-            pg.Button('Exit',key='-exit-',button_color='red')
+            pg.Button('Exit',key='-exit-',button_color='red'),
+            pg.Button('About',key='-about-',button_color='gray'),
             ]]
-    inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
+    inputs=[[pg.Input('',key='-searchtxt-',size=(115,0))]]
     labels=[[pg.Text('',key='-infotxt-',size=(100,0))]]
     mainlayout=[buttons,labels,inputs]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
-
 def refreshGUI(W:pg.Window):
         pcs=''
         W['-infotxt-'].update(pcs)
@@ -276,18 +281,35 @@ def refreshGUI(W:pg.Window):
             W['-source-'].update(disabled=True)
         W.Refresh() 
 
-mainwin=MainWin()
+mainwin=MainWin()   #main window starts here
 
 while True:
     W,E,V=pg.read_all_windows()
+    if E=='-source-':
+        sinklist=W['-searchtxt-'].get().split()
+        sinks=[]
+        for item in sinklist:
+            if project.is_pc_exist(get_addr_pin(item)[0]):
+                pcname=get_PC_name(item)
+                sinks.append(get_source(project.SRCE[pcname],[item,]))
+        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico)
+        pass
+    if E=='-sink-':
+        sinklist=W['-searchtxt-'].get().split()
+        sinks=[]
+        for item in sinklist:
+            if project.is_pc_exist(get_addr_pin(item)[0]):
+                pcname=get_PC_name(item)
+                sinks.append(get_sink(project.SRCE[pcname],[item,]))
+        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico)
+        pass
     if E=='-browse-':
         pckey=W['-searchtxt-'].get()
         pcname=get_PC_name(pckey)
         if pcname in project.SRCE.keys():
             if pckey in project.SRCE[pcname].Blocks.keys():
                 s=str(project.SRCE[pcname].Blocks[pckey])
-                pg.ScrolledTextBox(s,title=pckey,icon=myico)
-        
+                pg.ScrolledTextBox(s,title=pckey,icon=myico)      
     if E=='-compare-':
         fcompare(W)
         pass
@@ -309,4 +331,6 @@ while True:
         W.Refresh()
         project.Read(path)
         refreshGUI(W)
+    if E=='-about-':
+        pg.ScrolledTextBox("Pusa Caspica "+ampla_rev,about,title='about',icon=myico)
 mainwin.close()

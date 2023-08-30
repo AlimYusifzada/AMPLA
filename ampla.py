@@ -983,7 +983,7 @@ def get_addr_pin(path)->tuple:
 
 def get_pin_value(blk,pin):
     '''
-    return value (str or list) of the <path> PC##.##.##:pin
+    return tuple or list of the <path> PC##.##.##:pin
     <aax> logic blocks container
     '''
     if type(blk) is block and type(pin) is str:
@@ -1008,6 +1008,13 @@ class Proj():
         self.Read(path)
         pass
     
+    def is_pc_exist(self,path)->bool:
+        pcn=get_PC_name(path)
+        if pcn in self.SRCE.keys():
+            if path in self.SRCE[pcn].Blocks.keys():
+                return True
+        return False
+    
     def Read(self,path):
         '''
         read all PC programs source code from the path
@@ -1019,7 +1026,7 @@ class Proj():
         if type(path) is not str:
             warnings.warn("incorrect type @ReadSRCE(%s)"%type(path),stacklevel=2)
             return
-        
+
         def read_source(dib):
             bn=os.path.basename(dib)
             is_AAX=str(dib)[-2:].upper()=="AX"

@@ -1,9 +1,10 @@
-if __name__=='__main__':
-    print("this is extension of AMPLA","rev:%s"%ampla_rev)
-    exit()
-
 from ampla import *
 import warnings
+
+if __name__=='__main__':
+    print("this is extension for ampla.py","rev:%s"%ampla_rev)
+    exit()
+
 # from pathlib import Path
 # import threading as trd
 
@@ -129,29 +130,26 @@ def get_source(aax,source:list)->list:
     #     return
     deadsources=[]
     while len(source)>0:
-        src=source.pop(0)
+        src=source.pop(0) # get the first element
         if is_inverted(src):
-            src=src[1:]
-        if is_pointer(src):
-            blk=get_block(aax,src)
-            pin=get_addr_pin(src)[1]
-            if is_loop(blk,pin):
-                # deadsources.append(src) 
-                # looped link any plans?
-                warnings.warn("loop detected @%s"%(src))
-                pass
-            elif is_input(blk,pin):
-                for v in get_pin_value(blk,pin):
+            src=src[1:] # remove inversion
+        if is_pointer(src): # check if it is address with pin (pointer)
+            blk=get_block(aax,src) #get block object
+            pin=get_addr_pin(src)[1] #getpin name
+            if is_loop(blk,pin): #if it's link to itself - just warn
+                warnings.warn("loop detected @%s"%(src)) 
+            elif is_input(blk,pin): #check if the pin is input for the block
+                for v in get_pin_value(blk,pin): #it should be only one value but...
                     source.append(v)
             elif is_output(blk,pin):
                 for v in get_input_for(blk,pin):
                     source.append(v)
             else:
                 if src not in deadsources:
-                    deadsources.append(src)  
+                    deadsources.append(src)
         else:
-            if src not in deadsources:
-                deadsources.append(src)
+            if src not in deadsources: #check if it's already there
+                deadsources.append(src) #add to the deads list
     return deadsources
                    
 def get_sink(aax,sink:list)->list:
@@ -177,7 +175,7 @@ def get_sink(aax,sink:list)->list:
                 val=get_pin_value(blk,pin)
                 for v in val:
                     if not is_loop(blk,pin):
-                        sink.append(v) # push at te end
+                        sink.append(v)
             elif is_input(blk,pin):
                 for v in get_output_for(blk,pin):
                     if not is_loop(blk,pin):
@@ -203,7 +201,6 @@ def check_block_dict():
             pass
         else:
             warnings.warn("%s\t/-> InputPins"%ky)
-
 
 def get_max(stat)->tuple:
     max=('dummy',0)
