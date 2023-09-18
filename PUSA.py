@@ -248,12 +248,12 @@ def genXLSreport(dir_before,dir_after):
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
     buttons=[[pg.Button('Refresh',key='-clear-'),
-            pg.Button('Open',key='-open-'),
+            [pg.Button('Read sources (AA/AAX)',key='-open-'),
             pg.Button('Search',key='-search-',disabled=True),
-            pg.Button('Browse PC',key='-browse-',disabled=True),
-            pg.Button('Sink',key='-sink-',disabled=True),
-            pg.Button('Source',key='-source-',disabled=True),
-            pg.Button('Compare',key='-compare-'),
+            pg.Button('Browse PC element',key='-browse-',disabled=True),
+            pg.Button('trace Sink',key='-sink-',disabled=True),
+            pg.Button('trace Source',key='-source-',disabled=True)],
+            [pg.Button('Compare folders <before/after>',key='-compare-')],
             pg.Button('Exit',key='-exit-',button_color='red'),
             pg.Button('About',key='-about-',button_color='gray'),
             ]]
@@ -286,7 +286,7 @@ mainwin=MainWin()   #main window starts here
 while True:
     W,E,V=pg.read_all_windows()
     if E=='-source-':
-        sinklist=W['-searchtxt-'].get().split()
+        sinklist=W['-searchtxt-'].get().upper().split()
         sinks=[]
         for item in sinklist:
             if project.is_pc_exist(get_addr_pin(item)[0]):
@@ -295,7 +295,7 @@ while True:
         pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico)
         pass
     if E=='-sink-':
-        sinklist=W['-searchtxt-'].get().split()
+        sinklist=W['-searchtxt-'].get().upper().split()
         sinks=[]
         for item in sinklist:
             if project.is_pc_exist(get_addr_pin(item)[0]):
@@ -304,7 +304,7 @@ while True:
         pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico)
         pass
     if E=='-browse-':
-        pckey=W['-searchtxt-'].get()
+        pckey=W['-searchtxt-'].get().upper()
         pcname=get_PC_name(pckey)
         if pcname in project.SRCE.keys():
             if pckey in project.SRCE[pcname].Blocks.keys():
@@ -317,9 +317,9 @@ while True:
         refreshGUI(W)
     if E=='-search-':
         if len(W['-searchtxt-'].get())>3:
-            sr=project.Search(W['-searchtxt-'].get())
+            sr=project.Search(W['-searchtxt-'].get().upper())
             if len(sr)>0:
-                pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get(),icon=myico)
+                pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get().upper(),icon=myico)
             else:
                 W['-infotxt-'].update('found nothing')
     if E=='-exit-'or E==pg.WIN_CLOSED:

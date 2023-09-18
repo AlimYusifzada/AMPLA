@@ -52,11 +52,17 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
     
     mode=SW-C_in gen pins from 11 till stop
     in case stop = 30
-    genereate (11,12,21,22,31,32)
+    generate (11,12,21,22,31,32)
 
     mode=SW-C_out gen pins from 13 till stop+3 where stop is deciaml
     in case stop = 40
     generate (13,23,33,43)
+
+    mode=SW_in
+    generate inputs (11,21,31,41)
+
+    mode=SW_out
+    generate outputs (12,22,32,42)
     '''
     T=()
     if stop<=start:
@@ -72,6 +78,12 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
         case "SW-C_out": #SW-C outputs
             for i in range(1,int(stop+1)):
                 T=T+(':'+str(i*10+3),)
+        case "SW_in":
+            for i in range(1,int(stop+1)):
+                T=T+(':'+str(i*10+1),)
+        case "SW_out":
+            for i in range(1,int(stop+1)):
+                T=T+(":"+str(i*10+2),)
     return T
 
 def get_output_for(blk,pin)->tuple:
@@ -281,6 +293,7 @@ InputPins={
     "ADD":gen_pins(1,19),
     "AND-O": gen_pins(1,59),
     "MONO": (":1",":2",":3",":I",":TP"),
+    "SW":(":ACT",":1")+gen_pins(9,mode="SW_in"),#calculate
     "SW-C":(":ACT",":1")+gen_pins(9,mode="SW-C_in"),#calculate
     "COMP":(":I1",":I2",":1",":2"),
     "COMP-I":(":I1",":I2",":1",":2"),
@@ -289,6 +302,8 @@ InputPins={
     "CONV-AI":(":1",":BA_1",":2","::BA_2",":3","::BA_3",":4","::BA_4"),
     "TON":(":I",":TD",":1",":2"),
     "TOFF":(":I",":TD",":1",":2"),
+    "COUNT":(":L",":U/D-N",":C",":R",":EN",":21",":I")+gen_pins(1,5),
+    "CONV-IB":(),
     }
 
 # dictionary of tuples!, even single elemets should be stored as tuple
@@ -314,6 +329,7 @@ OutputPins={
     "BLOCK":(":5",),
     "COM-AIS":(":7",":8",":9",":10",":11",":22",":25",":33",":36"),
     "MONO":(":O",":TE",":5",":6"),
+    "SW":gen_pins(9,mode="SW_out"),#calculate
     "SW-C":gen_pins(9,mode="SW-C_out"),#calculate
     "COMP":(":I1>I2",":I1=I2",":I1<I2",":5",":6",":7"),
     "COMP-I":(":I1>I2",":I1=I2",":I1<I2",":5",":6",":7"),
@@ -322,4 +338,6 @@ OutputPins={
     "CONV-AI":(":O",":5"),
     "TON":(":O",":5",":TE",":6"),
     "TOFF":(":O",":5",":TE",":6"),
+    "COUNT":(":>0",":=0",":<0",":O",":10",":11",":12",":22"),
+    "CONV-IB":(),
 }

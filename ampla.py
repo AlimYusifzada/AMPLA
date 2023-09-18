@@ -901,8 +901,9 @@ def is_address(val)->bool:
     check if the val is an address (starts with PC..)
     '''
     if type(val) is str:
-        if val[:2]=='PC'or val[:3]=='-PC':
-            return True
+        if len(val)>3:
+            if val[:2]=='PC'or val[:3]=='-PC':
+                return True
     else:
         warnings.warn("incorrect type @is_address(%s)"%type(val),stacklevel=2)
     return False
@@ -1009,10 +1010,11 @@ class Proj():
         pass
     
     def is_pc_exist(self,path)->bool:
-        pcn=get_PC_name(path)
-        if pcn in self.SRCE.keys():
-            if path in self.SRCE[pcn].Blocks.keys():
-                return True
+        if is_address(path):
+            pcn=get_PC_name(path)
+            if pcn in self.SRCE.keys():
+                if path in self.SRCE[pcn].Blocks.keys():
+                    return True
         return False
     
     def Read(self,path):
