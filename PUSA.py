@@ -11,7 +11,6 @@ about = '''
     AMPL Logic Compare Tool
     (c) 2020-2023, Alim Yusifzada
     reddit: u/Crazy1Dunmer
-    mastodon: Crazy1Dunmer@alim@mas.to
     gmail: yusifzaj@gmail.com
 
     This program is distributed in the hope 
@@ -19,6 +18,7 @@ about = '''
 '''
 
 myico='aaxcmp.ico'
+waitico='aaxcmpwait.gif'
 rev = 'Pusa'
 ftypes = [("AA/AAX files", "*.aa*"), 
           ("AA/AAX files", "*.AA*"),
@@ -240,21 +240,29 @@ def genXLSreport(dir_before,dir_after):
             wcnt += 1
             s = ''
         s += l
-    xlsreport.save(dir_after+""+'.xls')
+    if fB.difstat:
+        xlsreport.save(dir_after+'_DIF.xls')
+    else:
+        xlsreport.save(dir_after+'.xls')
 #===============================================================================
 
 #---------------------------------Windows---------------------------------------
 #===============================================================================
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
-    buttons=[[pg.Button('Refresh',key='-clear-'),
-            [pg.Button('Read sources (AA/AAX)',key='-open-'),
-            pg.Button('Search',key='-search-',disabled=True),
-            pg.Button('Browse PC element',key='-browse-',disabled=True),
-            pg.Button('trace Sink',key='-sink-',disabled=True),
-            pg.Button('trace Source',key='-source-',disabled=True)],
-            [pg.Button('Compare folders <before/after>',key='-compare-')],
-            pg.Button('Exit',key='-exit-',button_color='red'),
+    buttons=[[
+            [pg.Button('read source files',key='-open-'),
+            pg.Button('search',key='-search-',disabled=True),
+            pg.Button('show element',key='-browse-',disabled=True),
+            pg.Button('<= source',key='-source-',disabled=True),
+            pg.Button('sink =>',key='-sink-',disabled=True),
+            pg.Button('compare folders <before/after>',key='-compare-'),
+            pg.Button('refresh',key='-clear-'),
+            ],
+            # pg.Image(waitico,size=(64,64)),
+            ],
+
+            [pg.Button('Exit',key='-exit-',button_color='red'),
             pg.Button('About',key='-about-',button_color='gray'),
             ]]
     inputs=[[pg.Input('',key='-searchtxt-',size=(115,0))]]
@@ -332,5 +340,5 @@ while True:
         project.Read(path)
         refreshGUI(W)
     if E=='-about-':
-        pg.ScrolledTextBox("Pusa Caspica "+ampla_rev,about,title='about',icon=myico)
+        pg.ScrolledTextBox("Pusa Caspica "+ampla_rev,about,title='about',icon=myico,no_sizegrip=True,no_titlebar=True)
 mainwin.close()

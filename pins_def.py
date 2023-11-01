@@ -3,7 +3,7 @@ import warnings
 import threading as trd
 
 if __name__=='__main__':
-    print("this is extension for ampla.py","rev:%s"%ampla_rev)
+    print("this is extension to ampla.py","rev:%s"%ampla_rev)
     exit()
 
 # from pathlib import Path
@@ -63,6 +63,9 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
 
     mode=SW_out
     generate outputs (12,22,32,42)
+
+    mode="Ox"
+    generate outputs (O1,O2,...Ox) s=stop
     '''
     T=()
     if stop<=start:
@@ -84,6 +87,9 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
         case "SW_out":
             for i in range(1,int(stop+1)):
                 T=T+(":"+str(i*10+2),)
+        case "Ox":
+            for i in range(1,int(stop+1)):
+                T=T+(":O"+str(i),)
     return T
 
 def get_output_for(blk,pin)->tuple:
@@ -303,7 +309,10 @@ InputPins={
     "TON":(":I",":TD",":1",":2"),
     "TOFF":(":I",":TD",":1",":2"),
     "COUNT":(":L",":U/D-N",":C",":R",":EN",":21",":I")+gen_pins(1,5),
-    "CONV-IB":(),
+    "CONV-IB":(":S",":L",":R",":I",":1",":2",":3",":10"),
+    "MONO":(":RTG",":I",":TP",":1",":2",":3"),
+    "TRIGG":(":1"),
+    
     }
 
 # dictionary of tuples!, even single elemets should be stored as tuple
@@ -339,5 +348,8 @@ OutputPins={
     "TON":(":O",":5",":TE",":6"),
     "TOFF":(":O",":5",":TE",":6"),
     "COUNT":(":>0",":=0",":<0",":O",":10",":11",":12",":22"),
-    "CONV-IB":(),
+    "CONV-IB":(":ERR",":SIGN",":ZERO")+gen_pins(start=1,stop=32,mode="Ox"),
+    "MONO":(":O",":TE"),
+    "TRIGG":(":5"),
+
 }
