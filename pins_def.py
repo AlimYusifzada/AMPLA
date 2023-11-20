@@ -76,6 +76,7 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
             for i in range(start,stop+1):
                 T=T+(':'+str(i),)
         case "SW-C_in": #SW-C inputs
+            # pin in
             for i in range(1,int(stop+1)):
                 T=T+(':'+str(i*10+1),':'+str(i*10+2))
         case "SW-C_out": #SW-C outputs
@@ -109,15 +110,16 @@ def get_output_for(blk,pin)->tuple:
     if not is_input(blk,pin):
         warnings.warn("%s should be an input @GetOutput"%pin)
         return () # return empty tuple if pin is output
+    #pin_int_num=int(pin[pin.find(':')+1:]) # get integer value of the pin
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])+20),)
         # blocks below have only one output pin
-        case "OR-C":
+        case "SW-C":
             if pin==":ACT":
                 return getall()
             else:
-                return (blk.Address+':'+pin[1]+'3')
+                return (blk.Address+':'+pin[1]+'3',)
         case _:
             return getall()
 
@@ -145,8 +147,8 @@ def get_input_for(blk,pin)->tuple:
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
-        case "OR-C":
-            return (blk.Address+':'+pin[1]+'1',blk.Address+':'+pin[1]+'2',)
+        case "SW-C":
+            return (blk.Address+':'+pin[1]+'1',blk.Address+':'+pin[1]+'2',blk.Address+':ACT',)
         case _:
             return getall()
     # warnings.warn("block type:%s not found @GetInput"%blk.Name)
@@ -279,7 +281,9 @@ def get_stat(prj)->dict:
     return stat
 
 
-# dictionary of tuples!, even single elemets should be stored as tuple
+# dictionary of BLOCKs and PINs, 
+# even single pin elemets should be stored as a tuple!
+
 InputPins={
     "BLOCK":(":ON",":1"),
     "MUL":gen_pins(1,19),
