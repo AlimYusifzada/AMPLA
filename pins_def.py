@@ -64,8 +64,12 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
     mode=SW_out
     generate outputs (12,22,32,42)
 
-    mode="Ox"
+    mode="CONV-IB_out"
     generate outputs (O1,O2,...Ox) s=stop
+
+    mode="MUX-N_in"
+    generate inputs A1..A19 IA1..IA19
+
     '''
     T=()
     if stop<=start:
@@ -88,9 +92,15 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
         case "SW_out":
             for i in range(1,int(stop+1)):
                 T=T+(":"+str(i*10+2),)
-        case "Ox":
+        case "CONV-IB_out":
             for i in range(1,int(stop+1)):
                 T=T+(":O"+str(i),)
+        case "MUX-N_in":
+            for i in range(1,stop+1):
+                T=T+(":A"+str(i),":IA"+str(i),)
+        case "CONV-BI_in":
+            for i in range(1,stop+1):
+                T=T+(":I"+str(i),)
     return T
 
 def get_output_for(blk,pin)->tuple:
@@ -298,11 +308,9 @@ InputPins={
     "ADD-MR":gen_pins(1,49),
     "ADD-MR1":gen_pins(1,94),
     "ANALYSE":(":1",":2",":11",":21",":31",":MPLDH1",":HYS",":CLDH1",":CLDH2",":CLDH3"),
-    "BLOCK":(":1",),
     "COM-AIS":(":1",":2",":3",":4",":5",":6",":21",":23",":24"),
     "ADD":gen_pins(1,19),
     "AND-O": gen_pins(1,59),
-    "MONO": (":1",":2",":3",":I",":TP"),
     "SW":(":ACT",":1")+gen_pins(9,mode="SW_in"),#calculate
     "SW-C":(":ACT",":1")+gen_pins(9,mode="SW-C_in"),#calculate
     "COMP":(":I1",":I2",":1",":2"),
@@ -316,8 +324,15 @@ InputPins={
     "CONV-IB":(":S",":L",":R",":I",":1",":2",":3",":10"),
     "MONO":(":RTG",":I",":TP",":1",":2",":3"),
     "TRIGG":(":1"),
-    
-    }
+    "TON-RET":(":1",":2",":3",":I",":R",":TD"),
+    "DATE":(),
+    "TIME":(),
+    "MUX-N":gen_pins(19,mode="MUX-N_in"),
+    "SENDREQ":(":ACT",":NODE",":NET",":IDENT",":DEST_NET",":DEST_NODE",":BLOCK",":PRVBLK"),
+    "OSC-B":(":EN",":TP",":TC",":1",":2",":3"),
+    "CONV-BI":(":S",":L",":R",":SIGN")+gen_pins(32,mode="CONV-BI_in"),
+
+}
 
 # dictionary of tuples!, even single elemets should be stored as tuple
 OutputPins={
@@ -335,11 +350,7 @@ OutputPins={
     "ADD-MR1":(":95",),
     "AND-O":(":60",),
     "OR-A":(":60",),
-    "ABS":(":5",),
-    "ADD-MR":(":50",),
-    "ADD-MR1":(":95",),
     "ANALYSE":(":5",":6",":7",":8",":12",":22",":32",":MPLD",":OVERLD",":MPLD>H1",":CLD",":CLD>H1",":CLD>H2",":CLD>H3"),
-    "BLOCK":(":5",),
     "COM-AIS":(":7",":8",":9",":10",":11",":22",":25",":33",":36"),
     "MONO":(":O",":TE",":5",":6"),
     "SW":gen_pins(9,mode="SW_out"),#calculate
@@ -352,8 +363,14 @@ OutputPins={
     "TON":(":O",":5",":TE",":6"),
     "TOFF":(":O",":5",":TE",":6"),
     "COUNT":(":>0",":=0",":<0",":O",":10",":11",":12",":22"),
-    "CONV-IB":(":ERR",":SIGN",":ZERO")+gen_pins(start=1,stop=32,mode="Ox"),
-    "MONO":(":O",":TE"),
+    "CONV-IB":(":ERR",":SIGN",":ZERO")+gen_pins(32,mode="CONV-IB_out"),
     "TRIGG":(":5"),
+    "TON-RET":(":5",":6",":O",":TE"),
+    "DATE":(":5",":6",":7",":YEAR",":MONTH",":DAY"),
+    "TIME":(":5",":TIME"),
+    "MUX-N":(":O",":AERR"),
+    "SENDREQ":(":BUSY",":DEST_ERR",":NXTBLK"),
+    "OSC-B":(":O",":5"),
+    "CONV-BI":(":ERR",":5",":O",":50"),
 
 }
