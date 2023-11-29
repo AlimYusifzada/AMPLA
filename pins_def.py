@@ -101,6 +101,9 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
         case "CONV-BI_in":
             for i in range(1,stop+1):
                 T=T+(":I"+str(i),)
+        case "PB-DIAG_out":
+            for i in range(1,stop+1):
+                T=T+(":VALUE_"+str(i),)
     return T
 
 def get_output_for(blk,pin)->tuple:
@@ -331,7 +334,9 @@ InputPins={
     "SENDREQ":(":ACT",":NODE",":NET",":IDENT",":DEST_NET",":DEST_NODE",":BLOCK",":PRVBLK"),
     "OSC-B":(":EN",":TP",":TC",":1",":2",":3"),
     "CONV-BI":(":S",":L",":R",":SIGN")+gen_pins(32,mode="CONV-BI_in"),
-
+    "PB-DIAG":(":DBINST",":VALUENO"),
+    "COUNT-L":(":L",":U/D-N",":C",":R",":EN",":HL",":LL",":I"),
+    # "COMP-R":(":I",":HHYS",":H1",":H2",":")
 }
 
 # dictionary of tuples!, even single elemets should be stored as tuple
@@ -372,5 +377,7 @@ OutputPins={
     "SENDREQ":(":BUSY",":DEST_ERR",":NXTBLK"),
     "OSC-B":(":O",":5"),
     "CONV-BI":(":ERR",":5",":O",":50"),
+    "PB-DIAG":(":VALID",":ERR",":ERRTYPE")+gen_pins(32,mode="PB-DIAG_out"),
+    "COUNT-L":(":>0",":=0",":<0",":>=HL",":<=LL",":O"),
 
 }

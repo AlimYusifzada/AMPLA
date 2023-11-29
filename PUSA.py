@@ -313,7 +313,8 @@ while True:
         pass
     if E=='-browse-':
         pckey=W['-searchtxt-'].get().upper()
-        pcname=get_PC_name(pckey)
+        pcname=get_addr_pin(pckey)[0]
+        pcname=str.removeprefix(pcname,"-")
         if pcname in project.SRCE.keys():
             if pckey in project.SRCE[pcname].Blocks.keys():
                 s=str(project.SRCE[pcname].Blocks[pckey])
