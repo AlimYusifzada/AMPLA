@@ -7,6 +7,7 @@ from tkinter import scrolledtext as STX
 from pathlib import Path
 from tkinter import messagebox
 
+
 # from tkinter import PhotoImage
 
 from ampla import *
@@ -36,6 +37,12 @@ rowBUTTONS = 1
 rowBefore = 2
 rowAfter = 3
 rowOUTPUT = 4
+
+mainMenu=[
+    ["Proj",
+     ["Open","Search","Trace"]]
+
+]
 
 
 class mainGUI:

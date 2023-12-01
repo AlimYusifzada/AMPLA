@@ -372,6 +372,7 @@ class AAX:
         self.Labels = {}  # strore labels {"PC##.##.##":label}
         self.Read()
         self.Parse()
+        self.difstat=False
         
     def Read(self):
         try:
@@ -613,12 +614,14 @@ class AAX:
 
         future version will have option to generate CF file
         '''
+        self.difstat=False
         s = ''
         if isinstance(other, AAX):
             selfBlocks = self.Blocks.keys()
             otherBlocks = other.Blocks.keys()
             s += "\n HEADER INSPECTION\n"+'='*30
             if self.Header != other.Header:
+                self.difstat=True
                 for k in HEADER:
                     if k in other.Header and k in self.Header:
                         if self.Header[k] != other.Header[k]:
@@ -631,6 +634,7 @@ class AAX:
                 '''
             s += "\n\n CODE INSPECTION\n"+'='*30
             if len(selfBlocks) != len(otherBlocks):
+                self.difstat=True
                 s += '\nnumber of logic blocks are different!\n \
                     at ..%s =%d\n \
                     at ..%s =%d\n' % \
@@ -639,14 +643,17 @@ class AAX:
             for statement in self.Blocks.keys():
                 if statement in other.Blocks.keys():
                     if self.Blocks[statement] != other.Blocks[statement]:
+                        self.difstat=True
                         s += str(self.Blocks[statement].compare(other.Blocks[statement]))
                     if self.BlocksAround(statement) != other.BlocksAround(statement):
                         ksA, ksB = self.BlocksAround(statement)
                         koA, koB = other.BlocksAround(statement)
                         if ksA != koA and ksB != koB:
+                            self.difstat=True
                             s += str("\nDANGLING CODE: %s\n" % statement)
                 else:
                     # generate DS (Delete Statement ONB command)
+                    self.difstat=True
                     s += '\nstatement %s NOT FOUND in (AFTER)..%s but EXIST in (BEFORE)..%s\n' % \
                         (statement, other.fName[nSPC:],
                          self.fName[nSPC:])+str(self.Blocks[statement])
@@ -657,6 +664,7 @@ class AAX:
             for statement in other.Blocks.keys():
                 if statement not in self.Blocks.keys():
                     # generate IS (Insert Statement ONB command)
+                    self.difstat=True
                     s += '\nstatement %s NOT FOUND in (BEFORE)..%s but EXIST in (AFTER)..%s\n' % \
                         (statement, self.fName[nSPC:],
                          other.fName[nSPC:])+str(other.Blocks[statement])
@@ -901,8 +909,9 @@ def is_address(val)->bool:
     check if the val is an address (starts with PC..)
     '''
     if type(val) is str:
-        if val[:2]=='PC'or val[:3]=='-PC':
-            return True
+        if len(val)>3:
+            if val[:2]=='PC'or val[:3]=='-PC':
+                return True
     else:
         warnings.warn("incorrect type @is_address(%s)"%type(val),stacklevel=2)
     return False
@@ -983,7 +992,7 @@ def get_addr_pin(path)->tuple:
 
 def get_pin_value(blk,pin):
     '''
-    return value (str or list) of the <path> PC##.##.##:pin
+    return tuple or list of the <path> PC##.##.##:pin
     <aax> logic blocks container
     '''
     if type(blk) is block and type(pin) is str:
@@ -1008,6 +1017,14 @@ class Proj():
         self.Read(path)
         pass
     
+    def is_pc_exist(self,path)->bool:
+        if is_address(path):
+            pcn=get_PC_name(path)
+            if pcn in self.SRCE.keys():
+                if path in self.SRCE[pcn].Blocks.keys():
+                    return True
+        return False
+    
     def Read(self,path):
         '''
         read all PC programs source code from the path
@@ -1015,10 +1032,11 @@ class Proj():
         initiate parsing as different thread for each file
         '''
         dib=""
+        self.SRCE.clear()
         if type(path) is not str:
             warnings.warn("incorrect type @ReadSRCE(%s)"%type(path),stacklevel=2)
             return
-        
+
         def read_source(dib):
             bn=os.path.basename(dib)
             is_AAX=str(dib)[-2:].upper()=="AX"

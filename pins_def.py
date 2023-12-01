@@ -1,9 +1,11 @@
-if __name__=='__main__':
-    print("this is extension of AMPLA","rev:%s"%ampla_rev)
-    exit()
-
 from ampla import *
 import warnings
+import threading as trd
+
+if __name__=='__main__':
+    print("this is extension to ampla.py","rev:%s"%ampla_rev)
+    exit()
+
 # from pathlib import Path
 # import threading as trd
 
@@ -46,15 +48,28 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
     '''
     generate series of pins names
     
-    step=1 gen pins in series between start and stop (1,2,3,...)
+    mode=1 gen pins in series between start and stop (1,2,3,...)
     
-    step=10 gen pins from 11 till stop
+    mode=SW-C_in gen pins from 11 till stop
     in case stop = 30
-    genereate (11,12,21,22,31,32)
+    generate (11,12,21,22,31,32)
 
-    step-13 gen pins from 13 till stop+3 where stop is deciaml
+    mode=SW-C_out gen pins from 13 till stop+3 where stop is deciaml
     in case stop = 40
     generate (13,23,33,43)
+
+    mode=SW_in
+    generate inputs (11,21,31,41)
+
+    mode=SW_out
+    generate outputs (12,22,32,42)
+
+    mode="CONV-IB_out"
+    generate outputs (O1,O2,...Ox) s=stop
+
+    mode="MUX-N_in"
+    generate inputs A1..A19 IA1..IA19
+
     '''
     T=()
     if stop<=start:
@@ -65,11 +80,30 @@ def gen_pins(start=1,stop=2,mode='1')->tuple:
             for i in range(start,stop+1):
                 T=T+(':'+str(i),)
         case "SW-C_in": #SW-C inputs
+            # pin in
             for i in range(1,int(stop+1)):
                 T=T+(':'+str(i*10+1),':'+str(i*10+2))
         case "SW-C_out": #SW-C outputs
             for i in range(1,int(stop+1)):
                 T=T+(':'+str(i*10+3),)
+        case "SW_in":
+            for i in range(1,int(stop+1)):
+                T=T+(':'+str(i*10+1),)
+        case "SW_out":
+            for i in range(1,int(stop+1)):
+                T=T+(":"+str(i*10+2),)
+        case "CONV-IB_out":
+            for i in range(1,int(stop+1)):
+                T=T+(":O"+str(i),)
+        case "MUX-N_in":
+            for i in range(1,stop+1):
+                T=T+(":A"+str(i),":IA"+str(i),)
+        case "CONV-BI_in":
+            for i in range(1,stop+1):
+                T=T+(":I"+str(i),)
+        case "PB-DIAG_out":
+            for i in range(1,stop+1):
+                T=T+(":VALUE_"+str(i),)
     return T
 
 def get_output_for(blk,pin)->tuple:
@@ -77,22 +111,31 @@ def get_output_for(blk,pin)->tuple:
     return tuple of possible output pin(s)
     given pin should be input
     '''
+    def getall():
+        res=()
+        for p in OutputPins[blk.Name]:
+            res+=(blk.Address+p,)
+        return res
+    
     if type(blk) is not block or type(pin) is not str:
         warnings.warn("incorrect type @GetOutput(%s,%s)"%(type(blk),type(pin)))
         return ()
     if not is_input(blk,pin):
         warnings.warn("%s should be an input @GetOutput"%pin)
         return () # return empty tuple if pin is output
+    #pin_int_num=int(pin[pin.find(':')+1:]) # get integer value of the pin
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])+20),)
         # blocks below have only one output pin
+        case "SW-C":
+            if pin==":ACT":
+                return getall()
+            else:
+                return (blk.Address+':'+pin[1]+'3',)
         case _:
-            res=()
-            for p in OutputPins[blk.Name]:
-                res+=(blk.Address+p,)
-            return res
-            pass
+            return getall()
+
         # expand for other blocks
     # warnings.warn("block type:%s not found @GetOutput"%blk.Name)
     return ()
@@ -102,6 +145,12 @@ def get_input_for(blk,pin)->tuple:
     return tuple of possible input pin(s)
     given pin should be output pin
     '''
+    def getall():
+        res=()
+        for p in InputPins[blk.Name]:
+            res+=(blk.Address+p,)
+        return res
+    
     if type(blk) is not block or type(pin) is not str:
         warnings.warn("incorrect type @GetInput(%s,%s)"%(type(blk),type(pin)))
         return ()
@@ -111,83 +160,93 @@ def get_input_for(blk,pin)->tuple:
     match blk.Name:
         case "MOVE":
             return (blk.Address+':'+str(int(pin[pin.find(':')+1:])-20),)
+        case "SW-C":
+            return (blk.Address+':'+pin[1]+'1',blk.Address+':'+pin[1]+'2',blk.Address+':ACT',)
         case _:
-            res=()
-            for p in InputPins[blk.Name]:
-                res+=(blk.Address+p,)
-            return res
-            pass
+            return getall()
     # warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
 def get_source(aax,source:list)->list:
     '''
     iterate trough the Sources list
+    multythreading!!!
     '''
     # if type(aax) is not AAX or type(aax) is not AA:
     #     warnings.warn("incorrect type @ProcessSources(%s)"%type(aax))
     #     return
     deadsources=[]
-    while len(source)>0:
-        src=source.pop(0)
-        if is_inverted(src):
-            src=src[1:]
-        if is_pointer(src):
-            blk=get_block(aax,src)
-            pin=get_addr_pin(src)[1]
-            if is_loop(blk,pin):
-                # deadsources.append(src) 
-                # looped link any plans?
-                warnings.warn("loop detected @%s"%(src))
-                pass
-            elif is_input(blk,pin):
-                for v in get_pin_value(blk,pin):
+    processed=[]
+    def innerfunc(source,srcn):
+        if is_inverted(srcn):
+            srcn=srcn[1:] # remove inversion
+        if is_pointer(srcn): # check if it is address with pin (pointer)
+            blk=get_block(aax,srcn) #get block object
+            pin=get_addr_pin(srcn)[1] #getpin name
+            if is_loop(blk,pin): #if it's link to itself - just warn
+                warnings.warn("loop detected @%s"%srcn) 
+            elif is_input(blk,pin): #check if the pin is input for the block
+                for v in get_pin_value(blk,pin): #it should be only one value but...
                     source.append(v)
             elif is_output(blk,pin):
                 for v in get_input_for(blk,pin):
                     source.append(v)
             else:
-                if src not in deadsources:
-                    deadsources.append(src)  
+                if srcn not in deadsources:
+                    deadsources.append(srcn)
         else:
-            if src not in deadsources:
-                deadsources.append(src)
+            if srcn not in deadsources: #check if it's already there
+                deadsources.append(srcn) #add to the deads list
+        pass
+
+    while len(source)>0:
+        src=source.pop(0) # get the first element
+        if src not in processed:
+            processed.append(src)
+            trd.Thread(target=innerfunc(source,src),name=src)
     return deadsources
                    
 def get_sink(aax,sink:list)->list:
     '''
     iterate trough the Sink list
+    multythreading!!!
     '''
     # if (type(aax) is not AAX) or (type(aax) is not AA):
     #     warnings.warn("incorrect type @ProcessSinks(%s)"%type(aax))
     #     return
     deadsinks=[]
-    while len(sink)>0:
-        snk=sink.pop(0) # get the top item
-        if is_inverted(snk):
-            snk=snk[1:] # remove invertion
-        if is_pointer(snk): # check not database
-            blk=get_block(aax,snk) # shell check if block exist?
-            pin=get_addr_pin(snk)[1] # extract pin name
+    processed=[]
+    def innerfunc(sink,snkn):
+        if is_inverted(snkn):
+            snkn=snkn[1:] # remove invertion
+        if is_pointer(snkn): # check not database
+            blk=get_block(aax,snkn) # shell check if block exist?
+            pin=get_addr_pin(snkn)[1] # extract pin name
             if is_output(blk,pin): # check if the pin is output
-                xrefpin=aax.xRef(snk) # search usage of the pin
+                xrefpin=aax.xRef(snkn) # search usage of the pin
                 for v in xrefpin:
                     if not is_loop(blk,pin):
                         sink.append(v) #add usage points to Sinks
                 val=get_pin_value(blk,pin)
                 for v in val:
                     if not is_loop(blk,pin):
-                        sink.append(v) # push at te end
+                        sink.append(v)
             elif is_input(blk,pin):
                 for v in get_output_for(blk,pin):
                     if not is_loop(blk,pin):
                         sink.append(v) # push at the end
             else:
-                if snk not in deadsinks:
-                    deadsinks.append(snk)  
+                if snkn not in deadsinks:
+                    deadsinks.append(snkn)  
         else:
-            if snk not in deadsinks:
-                deadsinks.append(snk)
+            if snkn not in deadsinks:
+                deadsinks.append(snkn)
+   
+    while len(sink)>0:
+        snk=sink.pop(0)
+        if snk not in processed:
+            processed.append(snk)
+            trd.Thread(target=innerfunc(sink,snk),name=snk)
     return deadsinks
 
 def check_block_dict():
@@ -203,7 +262,6 @@ def check_block_dict():
             pass
         else:
             warnings.warn("%s\t/-> InputPins"%ky)
-
 
 def get_max(stat)->tuple:
     max=('dummy',0)
@@ -236,7 +294,9 @@ def get_stat(prj)->dict:
     return stat
 
 
-# dictionary of tuples!, even single elemets should be stored as tuple
+# dictionary of BLOCKs and PINs, 
+# even single pin elemets should be stored as a tuple!
+
 InputPins={
     "BLOCK":(":ON",":1"),
     "MUL":gen_pins(1,19),
@@ -251,12 +311,11 @@ InputPins={
     "ADD-MR":gen_pins(1,49),
     "ADD-MR1":gen_pins(1,94),
     "ANALYSE":(":1",":2",":11",":21",":31",":MPLDH1",":HYS",":CLDH1",":CLDH2",":CLDH3"),
-    "BLOCK":(":1",),
     "COM-AIS":(":1",":2",":3",":4",":5",":6",":21",":23",":24"),
     "ADD":gen_pins(1,19),
     "AND-O": gen_pins(1,59),
-    "MONO": (":1",":2",":3",":I",":TP"),
-    "SW-C":(":ACT",":1")+gen_pins(9,mode="SW-C_in"),
+    "SW":(":ACT",":1")+gen_pins(9,mode="SW_in"),#calculate
+    "SW-C":(":ACT",":1")+gen_pins(9,mode="SW-C_in"),#calculate
     "COMP":(":I1",":I2",":1",":2"),
     "COMP-I":(":I1",":I2",":1",":2"),
     "CONTRM":(":ON",":1",":SINGLE",":2",":R",":3"),
@@ -264,7 +323,21 @@ InputPins={
     "CONV-AI":(":1",":BA_1",":2","::BA_2",":3","::BA_3",":4","::BA_4"),
     "TON":(":I",":TD",":1",":2"),
     "TOFF":(":I",":TD",":1",":2"),
-    }
+    "COUNT":(":L",":U/D-N",":C",":R",":EN",":21",":I")+gen_pins(1,5),
+    "CONV-IB":(":S",":L",":R",":I",":1",":2",":3",":10"),
+    "MONO":(":RTG",":I",":TP",":1",":2",":3"),
+    "TRIGG":(":1"),
+    "TON-RET":(":1",":2",":3",":I",":R",":TD"),
+    "DATE":(),
+    "TIME":(),
+    "MUX-N":gen_pins(19,mode="MUX-N_in"),
+    "SENDREQ":(":ACT",":NODE",":NET",":IDENT",":DEST_NET",":DEST_NODE",":BLOCK",":PRVBLK"),
+    "OSC-B":(":EN",":TP",":TC",":1",":2",":3"),
+    "CONV-BI":(":S",":L",":R",":SIGN")+gen_pins(32,mode="CONV-BI_in"),
+    "PB-DIAG":(":DBINST",":VALUENO"),
+    "COUNT-L":(":L",":U/D-N",":C",":R",":EN",":HL",":LL",":I"),
+    # "COMP-R":(":I",":HHYS",":H1",":H2",":")
+}
 
 # dictionary of tuples!, even single elemets should be stored as tuple
 OutputPins={
@@ -282,14 +355,11 @@ OutputPins={
     "ADD-MR1":(":95",),
     "AND-O":(":60",),
     "OR-A":(":60",),
-    "ABS":(":5",),
-    "ADD-MR":(":50",),
-    "ADD-MR1":(":95",),
     "ANALYSE":(":5",":6",":7",":8",":12",":22",":32",":MPLD",":OVERLD",":MPLD>H1",":CLD",":CLD>H1",":CLD>H2",":CLD>H3"),
-    "BLOCK":(":5",),
     "COM-AIS":(":7",":8",":9",":10",":11",":22",":25",":33",":36"),
     "MONO":(":O",":TE",":5",":6"),
-    "SW-C":gen_pins(9,mode="SW-C_out"),
+    "SW":gen_pins(9,mode="SW_out"),#calculate
+    "SW-C":gen_pins(9,mode="SW-C_out"),#calculate
     "COMP":(":I1>I2",":I1=I2",":I1<I2",":5",":6",":7"),
     "COMP-I":(":I1>I2",":I1=I2",":I1<I2",":5",":6",":7"),
     "CONTRM":(":RUN",":5",":MODP",":6"),
@@ -297,4 +367,17 @@ OutputPins={
     "CONV-AI":(":O",":5"),
     "TON":(":O",":5",":TE",":6"),
     "TOFF":(":O",":5",":TE",":6"),
+    "COUNT":(":>0",":=0",":<0",":O",":10",":11",":12",":22"),
+    "CONV-IB":(":ERR",":SIGN",":ZERO")+gen_pins(32,mode="CONV-IB_out"),
+    "TRIGG":(":5"),
+    "TON-RET":(":5",":6",":O",":TE"),
+    "DATE":(":5",":6",":7",":YEAR",":MONTH",":DAY"),
+    "TIME":(":5",":TIME"),
+    "MUX-N":(":O",":AERR"),
+    "SENDREQ":(":BUSY",":DEST_ERR",":NXTBLK"),
+    "OSC-B":(":O",":5"),
+    "CONV-BI":(":ERR",":5",":O",":50"),
+    "PB-DIAG":(":VALID",":ERR",":ERRTYPE")+gen_pins(32,mode="PB-DIAG_out"),
+    "COUNT-L":(":>0",":=0",":<0",":>=HL",":<=LL",":O"),
+
 }

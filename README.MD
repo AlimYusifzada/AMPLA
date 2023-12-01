@@ -1,5 +1,5 @@
 Requirements 
-Python3, External lib to install: tkinter or PySimpleGUI, xlwt, datetime
+Python3, External lib to install: tkinter, xlwt, datetime
 Other files: ampla.py, netband.py, duapt.py
 
 except ampla, netband and duapt and be run independantly
