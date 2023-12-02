@@ -909,7 +909,7 @@ def is_address(val)->bool:
     check if the val is an address (starts with PC..)
     '''
     if type(val) is str:
-        if len(val)>3:
+        if len(val)>=3:
             if val[:2]=='PC'or val[:3]=='-PC':
                 return True
     else:
@@ -946,8 +946,11 @@ def get_PC_name(path)->str:
     '''
     return PC## based on the address (path)
     '''
-    if is_address(path):
+    adrchk=is_address(path)
+    if adrchk and path.find('.')>0:
         return str.removeprefix(path,'-')[:path.find('.')]
+    elif adrchk:
+        return str.removeprefix(path,'-')
     else:
         warnings.warn("incorrect type @GetPCName(%s)"%type(path))
     return path
