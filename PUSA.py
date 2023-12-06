@@ -253,7 +253,7 @@ def MainWin()->pg.Window:
     buttons=[[
             [pg.Button('read source files',key='-open-'),
             pg.Button('search',key='-search-',disabled=True),
-            pg.Button('show element',key='-browse-',disabled=True),
+            pg.Button('show PC element',key='-browse-',disabled=True),
             pg.Button('<= source',key='-source-',disabled=True),
             pg.Button('sink =>',key='-sink-',disabled=True),
             pg.Button('compare folders <before/after>',key='-compare-'),
@@ -313,8 +313,9 @@ while True:
         pass
     if E=='-browse-':
         pckey=W['-searchtxt-'].get().upper()
-        pcname=get_addr_pin(pckey)[0]
-        pcname=str.removeprefix(pcname,"-")
+        if pckey.find(':')>0:
+            pckey=pckey[:pckey.find(':')] #cutoff pin number
+        pcname=get_PC_name(pckey)
         if pcname in project.SRCE.keys():
             if pckey in project.SRCE[pcname].Blocks.keys():
                 s=str(project.SRCE[pcname].Blocks[pckey])
