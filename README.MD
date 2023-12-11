@@ -1,11 +1,14 @@
-Requirements 
+Requirements:
 Python3, External lib to install: tkinter, xlwt, datetime
+note: pusa.py is using pysimplegui
 Other files: ampla.py, netband.py, duapt.py
 
-except ampla, netband and duapt and be run independantly
+except ampla, netband and duapt can run independantly in the terminal.
 
 ---------------------------------
-**ampla.py** are **Python** functions set for **AMPL** code compare/analysis 
+**ampla.py** are **Python** functions set for **AMPL** code compare/analysis
+
+**AMPL** Advant Master Piece Language is an ABB company product for AC400 series controllers 
 
 see code below as example to compare **AA** and **AAX** files
 
