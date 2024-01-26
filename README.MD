@@ -11,11 +11,11 @@ XLS files will be generated in the 'after' directory.
 XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
 
->Comarison performed by logic blocks (not line to line)<, so AMPL code parsing performed before comapison.
+>Comarison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
 
-The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 and D=0.0023 are the same and will not be detected as differnce
+>The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 and D=0.0023 are the same and will not be detected as differnce
 
-If XLS file has *DIF* in its name it means, descrepancies found and logged
+>If XLS file has *DIF* in its name it means, descrepancies found and logged
     										
 Requirements for people who are using source code instead of compiled version 
 * Python3 is required.
