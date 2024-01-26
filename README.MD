@@ -40,9 +40,8 @@ print(aa_before.compare(aa_after))
 **netband.py** to calculate network bandwidth
 
 command below run from the terminal to collect data
-
-dir ...\*.mrimg /s /tc >1.lst
-dir ...\*.mrimg /s /tw >2.lst
+>dir ...\*.mrimg /s /tc >1.lst
+>dir ...\*.mrimg /s /tw >2.lst
 
 mrimg files are images of the hosts collected at NAS and used to calculate network broadband
 >file 1.lst contains date and time of the files were created
@@ -50,5 +49,5 @@ mrimg files are images of the hosts collected at NAS and used to calculate netwo
 
 ---------------------------------
 **duapt.py** to create spreadsheet report from LG files
-LG files need to be created with ONB contains start and finish time of the dump
+>LG files need to be created with ONB contains start and finish time of the dump
 
