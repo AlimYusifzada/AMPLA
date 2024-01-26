@@ -14,11 +14,13 @@ Please note that "line to line" is not genue line to line due to... see next lin
 
 The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 and D=0.0023 are the same and will not be detected as differnce
 
-If XLS file has *DIF* in its name it means, descrepancies found and logged
-    										
+If XLS file name ends with *DIF* it means, descrepancies found and logged
+
+New revision (PUSA) has some experimental funtionality wich do not affect comparison tool
+
 Requirements for people who are using source code instead of compiled version 
 * use Python3.
-* *ampla.py* is core file containing all functions. Use it in your own projects without any other libraries.
+* *ampla.py* is a core file contains all functions for parsing and code compare.
 * External libs to install to run PUSA.PY: tkinter, xlwt, datetime, pysimplegui
 * Other files: netband.py, duapt.py (not revelant for comparison and can be used separately)
 
