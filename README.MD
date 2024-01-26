@@ -17,11 +17,10 @@ The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 
 If XLS file has *DIF* in its name it means, descrepancies found and logged
     										
 Requirements for people who are using source code instead of compiled version 
-Python3 required!
-Core file containing all funcs: *ampla.py* - you could use it in your own projects without any other libraries.
-External libs to install: tkinter, xlwt, datetime
-To run pusa.py required pysimplegui
-Other files: netband.py, duapt.py (not revelant for comparison and can run independently)
+* Python3 is required.
+* *ampla.py* is core file containing all functions. Use it in your own projects without any other libraries.
+* External libs to install to run PUSA.PY: tkinter, xlwt, datetime, pysimplegui
+* Other files: netband.py, duapt.py (not revelant for comparison and can run independently)
 
 ---------------------------------
 **ampla.py** are **Python 3** functions set for **AMPL** code compare/analysis
