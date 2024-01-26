@@ -5,9 +5,9 @@ Code files can be from different source, i.e. can have one extracted from FCB an
 
 Once "compare <before/after>" button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare.
 
-A workbook will be output and saved in the 'after' directory.
+XLS files will be generated in the 'after' directory.
 
-XLS file crated individually for each pair and contain two tabs. Comparison report and "line to line"
+XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
 
 Comarison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
