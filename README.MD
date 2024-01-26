@@ -1,17 +1,20 @@
+
+This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. Possible comparisions (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->BA)								
 	
 Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
 
-This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. Possible comparisions (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->BA)								
-
-Once 'Compare' is pressed you will be asked to select the two directories (before and after) you wish to compare. The default search location is the same location as this program.											
+Once 'compare <before/after>' is pressed you will be asked to select the two directories contains source code you wish to compare.
 
 A workbook will be output and saved in the 'after' directory.
 
+XLS file crated individually for each pair and contain two tabs. Comparison report and "line to line"
+Please note that "line to line" is not genue line to line due to... see next line.
+
 Comarison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
 
-XLS file crated individually for each pair and contain two tabs
+The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 and D=0.0023 are the same and will not be detected as differnce
 
-if XLS file has *DIF*	in its name it means, descrepancies found and logged
+If XLS file has *DIF* in its name it means, descrepancies found and logged
     										
 Requirements for people who are using source code instead of compiled version 
 Python3 required!
