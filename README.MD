@@ -20,7 +20,7 @@ Requirements for people who are using source code instead of compiled version
 * Python3 is required.
 * *ampla.py* is core file containing all functions. Use it in your own projects without any other libraries.
 * External libs to install to run PUSA.PY: tkinter, xlwt, datetime, pysimplegui
-* Other files: netband.py, duapt.py (not revelant for comparison and can run independently)
+* Other files: netband.py, duapt.py (not revelant for comparison and can be used separately)
 
 ---------------------------------
 **ampla.py** are **Python 3** functions set for **AMPL** code compare/analysis
