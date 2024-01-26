@@ -1,5 +1,6 @@
 
-This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. Possible comparisions (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->BA)								
+This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. 
+Possible combinations (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->BA)							
 	
 Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
 
