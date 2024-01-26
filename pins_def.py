@@ -326,7 +326,7 @@ InputPins={
     "COUNT":(":L",":U/D-N",":C",":R",":EN",":21",":I")+gen_pins(1,5),
     "CONV-IB":(":S",":L",":R",":I",":1",":2",":3",":10"),
     "MONO":(":RTG",":I",":TP",":1",":2",":3"),
-    "TRIGG":(":1"),
+    "TRIGG":(":1",),
     "TON-RET":(":1",":2",":3",":I",":R",":TD"),
     "DATE":(),
     "TIME":(),
@@ -369,7 +369,7 @@ OutputPins={
     "TOFF":(":O",":5",":TE",":6"),
     "COUNT":(":>0",":=0",":<0",":O",":10",":11",":12",":22"),
     "CONV-IB":(":ERR",":SIGN",":ZERO")+gen_pins(32,mode="CONV-IB_out"),
-    "TRIGG":(":5"),
+    "TRIGG":(":5",),
     "TON-RET":(":5",":6",":O",":TE"),
     "DATE":(":5",":6",":7",":YEAR",":MONTH",":DAY"),
     "TIME":(":5",":TIME"),
@@ -379,5 +379,4 @@ OutputPins={
     "CONV-BI":(":ERR",":5",":O",":50"),
     "PB-DIAG":(":VALID",":ERR",":ERRTYPE")+gen_pins(32,mode="PB-DIAG_out"),
     "COUNT-L":(":>0",":=0",":<0",":>=HL",":<=LL",":O"),
-
 }

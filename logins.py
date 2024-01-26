@@ -4,7 +4,7 @@ import re
 def get_logins(logsfilename='logins.txt'):
     '''
     run @ domain controller
-    wevtutil qe Security | find /i "4648</EventID" >logins.txt
+    wevtutil qe Security | find /i "4625</EventID" >logins.txt
     '''
     timepattern = "\d+-\d+-\d+T\d+:\d+:\d+"
     namepattern = "'TargetUserName'>\w+"

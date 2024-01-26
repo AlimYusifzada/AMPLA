@@ -1,16 +1,25 @@
-Requirements:
-Python3, External lib to install: tkinter, xlwt, datetime
-note: pusa.py is using pysimplegui
-Other files: ampla.py, netband.py, duapt.py
-
-except ampla, netband and duapt can run independantly in the terminal.
+	
+    
+    - Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
+	- This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. Possible comparisions (AAX<->AAX; AAX<->AA; BAX<->BAX; BA<->BAX)										
+	- Once 'Compare' is pressed you will be asked to select the two directories (before and after) you wish to compare. The default search location is the same location as this program.											
+	- A workbook will be output and saved in the 'after' directory.
+    - XLS file crated individually for each pair and contain two tabs
+    - if XLS file has *DIF*	in its name it means, descrepancies found and logged
+    										
+Requirements for people who are using source code instead of compiled version 
+Python3 required!
+Core file containing all funcs: *ampla.py* - you could use it in your own projects without any other libraries.
+External libs to install: tkinter, xlwt, datetime
+To run pusa.py required pysimplegui
+Other files: netband.py, duapt.py (not revelant for comparison and can run independently)
 
 ---------------------------------
-**ampla.py** are **Python** functions set for **AMPL** code compare/analysis
+**ampla.py** are **Python 3** functions set for **AMPL** code compare/analysis
 
-**AMPL** Advant Master Piece Language is an ABB company product for AC400 series controllers 
+**AMPL** Advant Master Piece Language is an ABB Ltd company product for AC400 series controllers 
 
-see code below as example to compare **AA** and **AAX** files
+some examples to compare **AA** and **AAX** files shown below:
 
 from ampla import *
 aa_before = AA('source_code_before.aa')

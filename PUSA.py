@@ -46,7 +46,7 @@ def fcompare(win:pg.Window):
                     afile=bf[:bf.index('.')] # get just file name (after)
                     if bfile.lower()==afile.lower(): # compare if files matched
                         trd.Thread(name=bfile,target=genXLSreport(str(dib),str(dia))).start()
-                        win['-infotxt-'].update(win['-infotxt-'].get()+'\n...processing:%s'%bfile)
+                        win['-infotxt-'].update('\nplease wait, processing: %s'%bfile)
                         win.Refresh()
     win['-infotxt-'].update('check results at\n%s'%diafter)
 
@@ -250,22 +250,22 @@ def genXLSreport(dir_before,dir_after):
 #===============================================================================
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
-    buttons=[[
-            [pg.Button('read source files',key='-open-'),
+    buttons=[
+            [
+            pg.Button('compare <before/after>',key='-compare-'),
+            pg.Button('refresh',key='-clear-',button_color='green'),
+            pg.Button('Exit',key='-exit-',button_color='red'),
+            pg.Button('About',key='-about-',button_color='gray'),
+            ],
+            [
+            pg.Button('read source files',key='-open-'),
             pg.Button('search',key='-search-',disabled=True),
             pg.Button('show PC element',key='-browse-',disabled=True),
             pg.Button('<= source',key='-source-',disabled=True),
             pg.Button('sink =>',key='-sink-',disabled=True),
-            pg.Button('compare folders <before/after>',key='-compare-'),
-            pg.Button('refresh',key='-clear-'),
             ],
-            # pg.Image(waitico,size=(64,64)),
-            ],
-
-            [pg.Button('Exit',key='-exit-',button_color='red'),
-            pg.Button('About',key='-about-',button_color='gray'),
-            ]]
-    inputs=[[pg.Input('',key='-searchtxt-',size=(115,0))]]
+            ]
+    inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
     labels=[[pg.Text('',key='-infotxt-',size=(100,0))]]
     mainlayout=[buttons,labels,inputs]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
