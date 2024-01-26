@@ -3,7 +3,7 @@ This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other
 	
 Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
 
-Once 'compare <before/after>' is pressed you will be asked to select the two directories contains source code you wish to compare.
+Once "compare <before/after>" button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare.
 
 A workbook will be output and saved in the 'after' directory.
 
