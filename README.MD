@@ -1,11 +1,15 @@
 	
-    
-    - Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
-	- This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. Possible comparisions (AAX<->AAX; AAX<->AA; BAX<->BAX; BA<->BAX)										
-	- Once 'Compare' is pressed you will be asked to select the two directories (before and after) you wish to compare. The default search location is the same location as this program.											
-	- A workbook will be output and saved in the 'after' directory.
-    - XLS file crated individually for each pair and contain two tabs
-    - if XLS file has *DIF*	in its name it means, descrepancies found and logged
+Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
+
+This program is used to compare pairs of .AAX .AA .BA or .BAX files, using other formats may result in runtime errors. Possible comparisions (AAX<->AAX; AAX<->AA; BAX<->BAX; BA<->BAX)										
+
+Once 'Compare' is pressed you will be asked to select the two directories (before and after) you wish to compare. The default search location is the same location as this program.											
+
+A workbook will be output and saved in the 'after' directory.
+
+XLS file crated individually for each pair and contain two tabs
+
+if XLS file has *DIF*	in its name it means, descrepancies found and logged
     										
 Requirements for people who are using source code instead of compiled version 
 Python3 required!
