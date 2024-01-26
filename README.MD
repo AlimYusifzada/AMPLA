@@ -4,7 +4,7 @@ Possible combinations (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->B
 	
 Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
 
-Once "compare <before/after>" button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare.
+Once **"compare <before/after>"** button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare.
 
 XLS files will be generated in the 'after' directory.
 
