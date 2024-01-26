@@ -5,6 +5,7 @@ Possible combinations (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->B
 >Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
 
 Once **"compare <before/after>"** (pusa version) button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare. XLS files will be generated in the 'after' directory.
+> dialog window caption will guide you wich directory it's asking for...
 
 XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
