@@ -28,7 +28,7 @@ Requirements for people who are using source code instead of compiled version
 
 **AMPL** Advant Master Piece Language is an ABB Ltd company product for AC400 series controllers 
 
-some examples to compare **AA** and **AAX** files shown below:
+python example to compare **.AA** and **.AAX** files shown below:
 
 > from ampla import *
 >
