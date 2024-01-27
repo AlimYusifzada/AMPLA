@@ -23,8 +23,7 @@ Requirements for people who are using source code instead of compiled version
 * *ampla.py* is a core file contains all functions for parsing and code compare.
 * External libs to install to run PUSA.PY: tkinter, xlwt, datetime, pysimplegui
 * Other files: netband.py, duapt.py (not revelant for comparison and can be used separately)
-
----------------------------------
+---
 **ampla.py** are **Python 3** functions set for **AMPL** code compare/analysis
 
 **AMPL** Advant Master Piece Language is an ABB Ltd company product for AC400 series controllers 
@@ -35,8 +34,7 @@ from ampla import *
 aa_before = AA('source_code_before.aa')
 aa_after = AAX('source_code_after.aax')
 print(aa_before.compare(aa_after))
-
----------------------------------
+---
 **netband.py** to calculate network bandwidth
 
 command below run from the terminal to collect data
@@ -48,8 +46,6 @@ mrimg files are images of the hosts collected at NAS and used to calculate netwo
 >file 1.lst contains date and time of the files were created
 
 >file 2.lst contains date and time of the files last time accessed(written)
-
----------------------------------
-**duapt.py** to create spreadsheet report from LG files
->LG files need to be created with ONB contains start and finish time of the dump
+---
+**duapt.py** to create spreadsheet report from LG files>LG files need to be created with ONB contains start and finish time of the dump
 
