@@ -30,11 +30,13 @@ Requirements for people who are using source code instead of compiled version
 
 some examples to compare **AA** and **AAX** files shown below:
 
-from ampla import *
-aa_before = AA('source_code_before.aa')
-aa_after = AAX('source_code_after.aax')
-print(aa_before.compare(aa_after))
+> from ampla import *
+> aa_before = AA('source_code_before.aa')
+> aa_after = AAX('source_code_after.aax')
+> print(aa_before.compare(aa_after))
+
 ---
+
 **netband.py** to calculate network bandwidth
 
 command below run from the terminal to collect data
