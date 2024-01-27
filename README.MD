@@ -10,7 +10,7 @@ Once **"compare <before/after>"** (pusa version) button is pressed (menu option 
 XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
 
->Comarison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
+> Comarison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
 
 The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 and D=0.0023 are the same and will not be detected as differnce
 
@@ -39,12 +39,12 @@ print(aa_before.compare(aa_after))
 
 command below run from the terminal to collect data
 >dir ...\*.mrimg /s /tc >1.lst
-
+>
 >dir ...\*.mrimg /s /tw >2.lst
 
 mrimg files are images of the hosts collected at NAS and used to calculate network broadband
 >file 1.lst contains date and time of the files were created
-
+>
 >file 2.lst contains date and time of the files last time accessed(written)
 ---
 **duapt.py** to create spreadsheet report from LG files>LG files need to be created with ONB contains start and finish time of the dump
