@@ -29,7 +29,7 @@ ftypes = [("AA/AAX files", "*.aa*"),
           ("AA/AAX files", "*.AA*"),
           ("BA/BAX files", "*.ba*"),
           ("BA/BAX files", "*.BA*"),
-          ("TXT files", "*.txt"), ("all files", "*.*")]
+          ]
 
 
 rowINFO = 0
@@ -378,7 +378,7 @@ class mainGUI:
                 if blk in fA.Blocks and pin not in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs, pin)
                     codepage_compare.write(
-                        lcnt, pinv_col+col_offs, 'PIN DISCONNECTED',headstyle)
+                        lcnt, pinv_col+col_offs, 'PIN NOT FOUND',headstyle)
                     codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
                 lcnt += 1
             lcnt += 2
