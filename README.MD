@@ -25,7 +25,9 @@ If XLS file name ends with *DIF* it means, descrepancies found and logged
 New revision (PUSA) has some experimental funtionality wich do not affect comparison tool
 
 Requirements for people who are using source code instead of compiled version 
-* use *Python3*. >py PUSA.py >python3 PUSA.py
+* use *Python3*. 
+>py PUSA.py 
+>python3 PUSA.py
 * *ampla.py* is a core file contains all functions for parsing and code compare.
 * run *PUSA.py* or *AC400LCT.py* for GUI. *ampla.py* do not have any user interface.
 * *PUSA.py* is a new version of *AC400LCT.py*, both are using same functions.
