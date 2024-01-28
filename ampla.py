@@ -740,8 +740,10 @@ class BAX(AAX):
                         PinValue = st
                     if ElementsCounter == 1:
                         PinValue = NONE  # empty pin
-                    self.Blocks[Address].AddPin(
-                        PinName, PinValue)  # last value for the pin
+                    
+                    if Address!='':
+                        self.Blocks[Address].AddPin(
+                            PinName, PinValue)  # last value for the pin
 
     def __cmp(self, other):
         '''

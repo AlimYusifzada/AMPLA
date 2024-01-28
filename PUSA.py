@@ -27,7 +27,7 @@ ftypes = [("AA/AAX files", "*.aa*"),
 
 project=Proj('dummy')
 line2line_status=False
-excel_max=65400
+excel_max=65530
 
 #----------------------------------XLS report----------------------------------
 def fcompare(win:pg.Window):
@@ -46,10 +46,10 @@ def fcompare(win:pg.Window):
                     bf=os.path.basename(dia)
                     afile=bf[:bf.index('.')] # get just file name (after)
                     if bfile.lower()==afile.lower(): # compare if files matched
-                        trd.Thread(name=bfile,target=genXLSreport(str(dib),str(dia))).start()
-                        win['-infotxt-'].update('\nplease wait, processing: %s'%bfile)
+                        win['-infotxt-'].update('\nPLEASE WAIT... processing: %s'%bfile)
                         win.Refresh()
-    win['-infotxt-'].update('check results at\n%s'%diafter)
+                        trd.Thread(name=bfile,target=genXLSreport(str(dib),str(dia))).start()
+    win['-infotxt-'].update('DONE! - check results at\n%s'%diafter)
 
 def genXLSreport(dir_before,dir_after):
     '''
@@ -98,6 +98,7 @@ def genXLSreport(dir_before,dir_after):
 
     cmppage = xlsreport.add_sheet(
             'report', cell_overwrite_ok=False)
+    
     if line2line_status:
         codepage_compare = xlsreport.add_sheet(
                 'line2line', cell_overwrite_ok=False)
@@ -113,6 +114,7 @@ def genXLSreport(dir_before,dir_after):
     desc_col = 0
 
     lcnt = 0
+# ------------------------- prepare -----------------------------------
     if line2line_status:
         codepage_compare.col(addr_col).width = 6000
         codepage_compare.col(pinv_col).width = 7500
@@ -137,7 +139,7 @@ def genXLSreport(dir_before,dir_after):
         codepage_compare.write(lcnt, pins_col+col_offs, 'Pin', headstyle)  # 1
         codepage_compare.write(lcnt, pinv_col+col_offs,
                                 'Value', headstyle)  # 2
-# --------------------------COMPARE SHEET-----------------------------------
+# -------------------------- compare -----------------------------------
     if line2line_status:
         lcnt = stat_line # lines counter
         for blk in fB.Blocks:  # check blocks in Before
@@ -166,14 +168,14 @@ def genXLSreport(dir_before,dir_after):
                     lcnt, extr_col+col_offs, 'STATEMENT NOT FOUND',headstyle)
                 codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
             lcnt += 1
-            if lcnt>excel_max: lcnt=excel_max
+            if lcnt>excel_max: break
                 #description line
             codepage_compare.write(lcnt, desc_col, fB.GetBlock(blk).Description)
             if blk in fA.Blocks: # check blk in After for Description 
                 codepage_compare.write(
                     lcnt, desc_col+col_offs, fA.GetBlock(blk).Description)
             lcnt += 1
-            if lcnt>excel_max: lcnt=excel_max
+            if lcnt>excel_max: break
                 # list PINs------------------------------------
 
             pins_before=fB.GetBlock(blk).GetPins()
@@ -200,9 +202,9 @@ def genXLSreport(dir_before,dir_after):
                         lcnt, pinv_col+col_offs, 'PIN NOT FOUND',headstyle)
                     codepage_compare.write(lcnt, stat_col, NEQ, diffstyle)
                 lcnt += 1
-                if lcnt>excel_max: lcnt=excel_max
+                if lcnt>excel_max: break
             lcnt += 2
-            if lcnt>excel_max: lcnt=excel_max
+            if lcnt>excel_max: break
 
         lcnt = stat_line
         for blk in fA.Blocks:  # check blocks in After
@@ -216,22 +218,24 @@ def genXLSreport(dir_before,dir_after):
                 codepage_compare.write(
                     lcnt, extr_col+col_offs*2, fA.GetBlock(blk).Extra,addrstyle)
                 lcnt += 1
-                if lcnt>excel_max: lcnt=excel_max
+                if lcnt>excel_max: break
                 codepage_compare.write(
                     lcnt, desc_col+col_offs*2, fA.GetBlock(blk).Description)
                 lcnt += 1
-                if lcnt>excel_max: lcnt=excel_max
+                if lcnt>excel_max: break
                 for pin in fA.GetBlock(blk).GetPins():
                     codepage_compare.write(lcnt, pins_col+col_offs*2, pin)
                     codepage_compare.write(
                         lcnt, pinv_col+col_offs*2, fA.GetBlock(blk).Pins[pin],pinstyle)
                     lcnt += 1
-                    if lcnt>excel_max: lcnt=excel_max
+                    if lcnt>excel_max: break
             else:  # alignment with existing code
                 lcnt+=max(len(fA.GetBlock(blk).GetPins()),len(fB.GetBlock(blk).GetPins()))+4
-                if lcnt>excel_max: lcnt=excel_max
-    report = fB.compare(fA)
-    # pg.ScrolledTextBox(report,icon=myico,title=fB.fName)
+                if lcnt>excel_max: break
+# ========================== l2l report done =============================   
+
+    report = fB.compare(fA) # simple text returned
+
     lcnt = stat_line
     wcnt = 0
     s = ''
@@ -246,7 +250,7 @@ def genXLSreport(dir_before,dir_after):
         if l == '\n':
             cmppage.write(lcnt, wcnt, s,style)
             lcnt += 1
-            if lcnt>excel_max: lcnt=excel_max
+            if lcnt>excel_max: break
             wcnt = 0
             s = ''
         elif l == '\t':
@@ -270,7 +274,7 @@ def MainWin()->pg.Window:
             pg.Button('select <before> and <after> directories...',key='-compare-'),
             pg.Checkbox('generate line2line',default=False,key='-line2line-'),
             ],
-            [pg.Text('- '*100)],
+            [pg.Text('.'*200)],
             [
             pg.Text('Search and tracing (experimental)'),
             pg.Button('read source files',key='-open-'),
@@ -279,15 +283,15 @@ def MainWin()->pg.Window:
             pg.Button('<= source',key='-source-',disabled=True),
             pg.Button('sink =>',key='-sink-',disabled=True),
             ],
-            [pg.Text('- '*100)],
+            [pg.Text('.'*200)],
             [
             pg.Button('refresh',key='-clear-',button_color='green'),
             pg.Button('about',key='-about-',button_color='gray'),  
             pg.Button('exit',key='-exit-',button_color='red'),
             ]
             ]
-    inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
-    labels=[[pg.Text(ampla_rev,key='-infotxt-',size=(100,0))]]
+    inputs=[[pg.Input('',key='-searchtxt-',size=(110,0))]]
+    labels=[[pg.Text('.'*200,key='-infotxt-',size=(100,0))]]
     mainlayout=[buttons,labels,inputs]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
 
@@ -298,7 +302,7 @@ def refreshGUI(W:pg.Window):
         for pc in project.SRCE.keys():
             pcs+=pc+', '
         pcs+=''
-        W['-infotxt-'].update(pcs)
+        W['-infotxt-'].update(pcs + str(line2line_status))
         if len(project.SRCE.keys())>0:
             W['-search-'].update(disabled=False)
             W['-browse-'].update(disabled=False)
@@ -316,6 +320,7 @@ mainwin=MainWin()   #main window event handler starts here
 
 while True:
     W,E,V=pg.read_all_windows()
+    line2line_status=W['-line2line-'].get()
     if E=='-source-':
         sinklist=W['-searchtxt-'].get().upper().split()
         sinks=[]
