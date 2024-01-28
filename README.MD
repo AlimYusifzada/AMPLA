@@ -9,14 +9,14 @@ Once **select before and after directories** button is pressed you will be asked
 >
 >check box "generate line2line" is off by default. if you set it on, excel report will be expanded with additional tab contains line to line code representation. this option is not recommended
 >
->program automatically detect BA/BAX/AA/AAX files
+>program automatically detects BA/BAX/AA/AAX files
 >
 >if database is splitted in several files they will be combined together. same option is true for logic files.
 
 XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
 
-> Comarison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
+> Comparison performed by logic blocks (not line to line), so AMPL code parsing performed before comapison.
 
 The program try to read and compare numeric constants as numbers, i.e. D=2.3e-3 and D=0.0023 are the same and will not be detected as differnce
 

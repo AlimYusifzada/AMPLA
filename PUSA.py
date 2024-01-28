@@ -15,11 +15,51 @@ about = '''
 
     This program is distributed in the hope 
     that it will be useful,but WITHOUT ANY WARRANTY.
+
+    Buttons color code: Blue - working function
+                        Orange - experimental
+
+    This program is used to compare pairs of 
+    .AAX .AA .BA or .BAX files, 
+    using other formats may result in runtime errors. 
+    Possible combinations:    AAX<->AAX; AAX<->AA; AA<->AA
+                            BAX<->BAX; BA<->BAX; BA<->BA
+
+    Code files can be from different source, 
+    i.e. can have one extracted from FCB and the other from ONB.
+
+    Once **select before and after directories** button is pressed 
+    you will be asked to select the directories 
+    contains source code you wish to compare. 
+    XLS files (reports) will be generated in the 'after' directory.
+
+    check box "generate line2line" is off by default. 
+    if you set it on, excel report will be expanded 
+    with additional tab contains line to line code representation. 
+    this option is not recommended
+
+    if database is splitted in several files 
+    they will be combined together. 
+    same option is true for logic files.
+
+    XLS files crated individually for each pair and contain two tabs. 
+    Comparison report and "line to line"
+    
+    Comparison performed by logic blocks (not line to line), 
+    so AMPL code parsing performed before comapison.
+
+    The program try to understand and compare 
+    some elements like numeric constants as numbers, 
+    i.e. D=2.3e-3 and D=0.0023 treated as no difference.
+    however you will be warned in the report
+
+    If XLS file name ends with *DIF* 
+    it means, descrepancies found and logged
 '''
 
 myico='aaxcmp.ico'
 waitico='aaxcmpwait.gif'
-rev = 'LCT'
+rev = 'pusa caspica'
 ftypes = [("AA/AAX files", "*.aa*"), 
           ("AA/AAX files", "*.AA*"),
           ("BA/BAX files", "*.ba*"),
@@ -35,7 +75,7 @@ def fcompare(win:pg.Window):
     '''
     dibefore = filedialog.askdirectory(title="select BEFORE source directory")
     diafter = filedialog.askdirectory(title="select AFTER source directory")
-    if diafter==dibefore:
+    if diafter==dibefore or dibefore=='' or diafter=='':
         return
     for dib in Path(dibefore).iterdir():
         if dib.is_file() and (str(dib)[-2:].upper()=="BX" or str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="BA" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
@@ -264,34 +304,34 @@ def genXLSreport(dir_before,dir_after):
         xlsreport.save(dir_after+'.xls') # no dif detected
 #===============================================================================
 
-#---------------------------------Windows---------------------------------------
+
 #===============================================================================
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
+    font10=('Areial',10)
     buttons=[
             [
-            pg.Text('Compare AA(AAX) or BA(BAX):'),
-            pg.Button('select <before> and <after> directories...',key='-compare-'),
-            pg.Checkbox('generate line2line',default=False,key='-line2line-'),
+            pg.Text('to compare AA(AAX) or BA(BAX)',font=font10),
+            pg.Button('select <before> and <after> directories...',key='-compare-',font=font10),
+            pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10),
             ],
-            [pg.Text('.'*200)],
+            
             [
-            pg.Text('Search and tracing (experimental)'),
-            pg.Button('read source files',key='-open-'),
-            pg.Button('search',key='-search-',disabled=True),
-            pg.Button('show PC element',key='-browse-',disabled=True),
-            pg.Button('<= source',key='-source-',disabled=True),
-            pg.Button('sink =>',key='-sink-',disabled=True),
+            #pg.Text('Search and tracing (experimental)'),
+            pg.Button('read source files',key='-open-',font=font10,button_color='orange'),
+            pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
+            pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
+            pg.Button('<= source',key='-source-',disabled=True,font=font10,button_color='orange'),
+            pg.Button('sink =>',key='-sink-',disabled=True,font=font10,button_color='orange'),
             ],
-            [pg.Text('.'*200)],
             [
-            pg.Button('refresh',key='-clear-',button_color='green'),
-            pg.Button('about',key='-about-',button_color='gray'),  
-            pg.Button('exit',key='-exit-',button_color='red'),
+            pg.Button('refresh',key='-clear-',button_color='gray',font=font10),
+            pg.Button('about',key='-about-',button_color='green',font=font10),  
+            pg.Button('exit',key='-exit-',button_color='red',font=font10),
             ]
             ]
     inputs=[[pg.Input('',key='-searchtxt-',size=(110,0))]]
-    labels=[[pg.Text('.'*200,key='-infotxt-',size=(100,0))]]
+    labels=[[pg.Text('',key='-infotxt-',size=(100,0))]]
     mainlayout=[buttons,labels,inputs]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
 
@@ -302,7 +342,6 @@ def refreshGUI(W:pg.Window):
         for pc in project.SRCE.keys():
             pcs+=pc+', '
         pcs+=''
-        W['-infotxt-'].update(pcs + str(line2line_status))
         if len(project.SRCE.keys())>0:
             W['-search-'].update(disabled=False)
             W['-browse-'].update(disabled=False)
