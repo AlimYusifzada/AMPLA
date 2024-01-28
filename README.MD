@@ -11,7 +11,7 @@ Once **select before and after directories** button is pressed you will be asked
 >
 >program automatically detect BA/BAX/AA/AAX files
 >
->if database source is splitted in several files they will be combined together. same option is true for logic source files.
+>if database is splitted in several files they will be combined together. same option is true for logic files.
 
 XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
