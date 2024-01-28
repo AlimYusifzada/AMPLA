@@ -26,7 +26,8 @@ New revision (PUSA) has some experimental funtionality wich do not affect compar
 
 Requirements for people who are using source code instead of compiled version 
 * use *Python3*. 
->py PUSA.py 
+>py PUSA.py
+>
 >python3 PUSA.py
 * *ampla.py* is a core file contains all functions for parsing and code compare.
 * run *PUSA.py* or *AC400LCT.py* for GUI. *ampla.py* do not have any user interface.
