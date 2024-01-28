@@ -8,6 +8,9 @@ Once **select before and after directories** button is pressed you will be asked
 >dialog window caption will guide you wich directory it's asking for
 >
 >check box "generate line2line" is off by default. if you set it on, excel report will be expanded with additional tab contains line to line code representation. this option is not recommended
+>program automatically detect BA/BAX/AA/AAX files
+>
+>if database source is splitted in several files they will be combined together. same option is true for logic source files.
 
 XLS files crated individually for each pair and contain two tabs. Comparison report and "line to line"
 Please note that "line to line" is not genue line to line due to... see next line.
