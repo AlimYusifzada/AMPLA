@@ -4,7 +4,7 @@ Possible combinations (AAX<->AAX; AAX<->AA; AA<->AA; BAX<->BAX; BA<->BAX; BA<->B
 	
 >Code files can be from different source, i.e. can have one extracted from FCB and the other from ONB.
 
-Once **select <before> and <after> directories** button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare. XLS files will be generated in the 'after' directory.
+Once **select before and after directories** button is pressed (menu option in old rev) you will be asked to select the two directories contains source code you wish to compare. XLS files will be generated in the 'after' directory.
 >dialog window caption will guide you wich directory it's asking for
 >
 >check box "generate line2line" is off by default. if you set it on, excel report will be expanded with additional tab contains line to line code representation. this option is not recommended
