@@ -32,8 +32,6 @@ Requirements for people who are using source code instead of compiled version
 ---
 **ampla.py** are **Python 3** functions set for **AMPL** code compare/analysis
 
-**AMPL** Advant Master Piece Language is an ABB Ltd company product for AC400 series controllers 
-
 python example to compare **.AA** and **.AAX** files shown below:
 
 >from ampla import *
