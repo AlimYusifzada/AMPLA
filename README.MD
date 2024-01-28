@@ -25,10 +25,11 @@ If XLS file name ends with *DIF* it means, descrepancies found and logged
 New revision (PUSA) has some experimental funtionality wich do not affect comparison tool
 
 Requirements for people who are using source code instead of compiled version 
-* use Python3.
-* run PUSA.py or AC400LCT.py for GUI. ampla.py do not have any user interface - it's a python module with functions
+* use *Python3*.
+* run *PUSA.py* or *AC400LCT.py* for GUI. *ampla.py* do not have any user interface - it's a python module with functions
+* *PUSA.py* is a new version of *AC400LCT.py*, both are using same functions. There are difference in reporting and GUI
 * *ampla.py* is a core file contains all functions for parsing and code compare.
-* External libs to install to run PUSA.PY: tkinter, xlwt, datetime, pysimplegui
+* External libs to install to run PUSA.PY: *tkinter*, *xlwt*, *datetime*, *pysimplegui*
 * Other files: netband.py, duapt.py (not revelant for comparison and can be used separately)
 ---
 **ampla.py** are **Python 3** functions set for **AMPL** code compare/analysis
