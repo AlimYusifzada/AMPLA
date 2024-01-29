@@ -309,6 +309,7 @@ def genXLSreport(dir_before,dir_after):
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
     font10=('Areial',10)
+
     buttons=[
             [
             pg.Text('to compare AA(AAX) or BA(BAX)',font=font10),
@@ -399,7 +400,7 @@ while True:
                 pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get().upper(),icon=myico)
             else:
                 W['-infotxt-'].update('found nothing')
-    if E=='-exit-'or E==pg.WIN_CLOSED:
+    if E=='-exit-' or E=='Exit' or E==pg.WIN_CLOSED:
         break
     if E=='-open-':
         path=filedialog.askdirectory(title='Select SRCE directory')
