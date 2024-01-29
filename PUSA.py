@@ -28,9 +28,8 @@ about = '''
     Code files can be from different source, 
     i.e. can have one extracted from FCB and the other from ONB.
 
-    Once **select before and after directories** button is pressed 
-    you will be asked to select the directories 
-    contains source code you wish to compare. 
+    Once **files** or **directories** button is pressed 
+    you will be asked to select the source code you wish to compare. 
     XLS files (reports) will be generated in the 'after' directory.
 
     check box "generate line2line" is off by default. 
@@ -71,7 +70,51 @@ excel_max=65530
 
 #----------------------------------XLS report----------------------------------
 def fcompare(win:pg.Window):
-    '''compare folders
+    '''
+    compare files
+    '''
+    fbefore=filedialog.askopenfilename(
+                            title="Select original file",
+                            filetypes=ftypes)
+    fafter=filedialog.askopenfilename(
+                            title="Select modified file",
+                            filetypes=ftypes)
+    if fbefore=='' or fafter=='':
+        return
+    extB = fbefore[-3:].upper()
+    extA = fafter[-3:].upper()
+
+    if extB == '.AA':
+        fB = AA(fbefore)
+    elif extB == 'AAX':
+        fB = AAX(fbefore)
+    elif extB == 'BAX':
+        fB = BAX(fbefore)
+    elif extB == '.BA':
+        fB = BA(fbefore)
+    else:
+        return
+
+    if extA == '.AA':
+        fA = AA(fbefore)
+    elif extA == 'AAX':
+        fA = AAX(fbefore)
+    elif extA == 'BAX':
+        fA = BAX(fbefore)
+    elif extA == '.BA':
+        fA = BA(fbefore)
+    else:
+        return
+    simple_report=fB.compare(fA)
+    pg.ScrolledTextBox(simple_report,
+                           title='compare report',
+                           icon=myico,
+                           no_sizegrip=True,
+                           no_titlebar=True)
+    pass
+
+def dcompare(win:pg.Window):
+    '''compare directories
     '''
     dibefore = filedialog.askdirectory(title="select BEFORE source directory")
     diafter = filedialog.askdirectory(title="select AFTER source directory")
@@ -119,7 +162,7 @@ def genXLSreport(dir_before,dir_after):
         fA = BA(dir_after)
     else:
         return
-
+    
     xlsreport = xlwt.Workbook(encoding='ascii')
 
     addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
@@ -313,11 +356,14 @@ def MainWin()->pg.Window:
 
     buttons=[
             [
-            pg.Text('to compare AA(AAX) or BA(BAX)',font=font10),
-            pg.Button('select <before> and <after> directories...',key='-compare-',font=font10),
+            pg.Text('Compare',font=font10),
+            pg.Button('files...',key='-fcmp-',font=font10),
+            pg.Text('or',font=font10),
+            pg.Button('directories...',key='-compare-',font=font10),
+            pg.Text('and'),
             pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10),
             ],
-            
+
             [
             #pg.Text('Search and tracing (experimental)'),
             pg.Button('read source files',key='-open-',font=font10,button_color='orange'),
@@ -390,6 +436,9 @@ while True:
                 s=str(project.SRCE[pcname].Blocks[pckey])
                 pg.ScrolledTextBox(s,title=pckey,icon=myico)      
     if E=='-compare-':
+        dcompare(W)
+        pass
+    if E=='-fcmp-':
         fcompare(W)
         pass
     if E=='-clear-':
