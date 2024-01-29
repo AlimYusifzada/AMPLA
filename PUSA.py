@@ -308,7 +308,7 @@ def genXLSreport(dir_before,dir_after):
 #===============================================================================
 #--------------------------------Main Window------------------------------------
 def MainWin()->pg.Window:
-    pg.theme('DarkBlue8')
+    # pg.theme('System1')
     font10=('Areial',10)
 
     buttons=[
