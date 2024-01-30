@@ -1,10 +1,14 @@
+'''
+deprecated - use PowerShell requests
+'''
+
 import re
 
 
 def get_logins(logsfilename='logins.txt'):
     '''
     run @ domain controller
-    wevtutil qe Security | find /i "4625</EventID" >logins.txt
+    wevtutil qe Security | find /i "<EventID>4625</EventID" >logins.txt
     '''
     timepattern = "\d+-\d+-\d+T\d+:\d+:\d+"
     namepattern = "'TargetUserName'>\w+"
