@@ -356,16 +356,16 @@ def MainWin()->pg.Window:
 
     buttons=[
             [
+                #code compare functions
             pg.Text('Compare',font=font10),
-            pg.Button('files...',key='-fcmp-',font=font10),
+            pg.Button('files',key='-fcmp-',font=font10),
             pg.Text('or',font=font10),
-            pg.Button('directories...',key='-compare-',font=font10),
+            pg.Button('directories',key='-compare-',font=font10),
             pg.Text('and'),
             pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10),
             ],
-
             [
-            #pg.Text('Search and tracing (experimental)'),
+                # experimental code tracing
             pg.Button('read source files',key='-open-',font=font10,button_color='orange'),
             pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
             pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
@@ -373,6 +373,10 @@ def MainWin()->pg.Window:
             pg.Button('sink =>',key='-sink-',disabled=True,font=font10,button_color='orange'),
             ],
             [
+                # healthcare functions?
+            ],
+            [
+                # general
             pg.Button('refresh',key='-clear-',button_color='gray',font=font10),
             pg.Button('about',key='-about-',button_color='green',font=font10),  
             pg.Button('exit',key='-exit-',button_color='red',font=font10),
