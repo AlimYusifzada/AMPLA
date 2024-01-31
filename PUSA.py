@@ -81,9 +81,9 @@ def fcompare(win:pg.Window):
                             filetypes=ftypes)
     if fbefore=='' or fafter=='':
         return
+    
     extB = fbefore[-3:].upper()
     extA = fafter[-3:].upper()
-
     if extB == '.AA':
         fB = AA(fbefore)
     elif extB == 'AAX':
@@ -94,23 +94,23 @@ def fcompare(win:pg.Window):
         fB = BA(fbefore)
     else:
         return
-
     if extA == '.AA':
-        fA = AA(fbefore)
+        fA = AA(fafter)
     elif extA == 'AAX':
-        fA = AAX(fbefore)
+        fA = AAX(fafter)
     elif extA == 'BAX':
-        fA = BAX(fbefore)
+        fA = BAX(fafter)
     elif extA == '.BA':
-        fA = BA(fbefore)
+        fA = BA(fafter)
     else:
         return
+
     simple_report=fB.compare(fA)
     pg.ScrolledTextBox(simple_report,
                            title='compare report',
                            icon=myico,
-                           no_sizegrip=True,
-                           no_titlebar=True)
+                           no_sizegrip=False,
+                           no_titlebar=False,size=(100,20))
     pass
 
 def dcompare(win:pg.Window):
@@ -415,7 +415,7 @@ while True:
             if project.is_pc_exist(get_addr_pin(item)[0]):
                 pcname=get_PC_name(item)
                 sinks.append(get_source(project.SRCE[pcname],[item,]))
-        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico)
+        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
         pass
     if E=='-sink-':
         sinklist=W['-searchtxt-'].get().upper().split()
@@ -424,7 +424,7 @@ while True:
             if project.is_pc_exist(get_addr_pin(item)[0]):
                 pcname=get_PC_name(item)
                 sinks.append(get_sink(project.SRCE[pcname],[item,]))
-        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico)
+        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
         pass
     if E=='-browse-':
         pckey=W['-searchtxt-'].get().upper()
@@ -434,7 +434,7 @@ while True:
         if pcname in project.SRCE.keys():
             if pckey in project.SRCE[pcname].Blocks.keys():
                 s=str(project.SRCE[pcname].Blocks[pckey])
-                pg.ScrolledTextBox(s,title=pckey,icon=myico)      
+                pg.ScrolledTextBox(s,title=pckey,icon=myico,size=(100,20))      
     if E=='-compare-':
         dcompare(W)
         pass
@@ -447,7 +447,7 @@ while True:
         if len(W['-searchtxt-'].get())>3:
             sr=project.Search(W['-searchtxt-'].get().upper())
             if len(sr)>0:
-                pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get().upper(),icon=myico)
+                pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get().upper(),icon=myico,size=(100,20))
             else:
                 W['-infotxt-'].update('found nothing')
     if E=='-exit-' or E=='Exit' or E==pg.WIN_CLOSED:
@@ -464,6 +464,6 @@ while True:
                            ,about,
                            title='about',
                            icon=myico,
-                           no_sizegrip=True,
-                           no_titlebar=True)
+                           no_sizegrip=False,
+                           no_titlebar=False,size=(100,20))
 mainwin.close()
