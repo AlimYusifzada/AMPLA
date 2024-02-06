@@ -433,7 +433,13 @@ def refreshGUI(W:pg.Window):
         W.Refresh() 
         
 #------------------------------------------------------------------------
+# remove comment for pyinstaller // spash screen close
+# import pyi_splash
+# pyi_splash.close()
+
 mainwin=MainWin()   #main window event handler starts here
+
+
 
 while True:
     W,E,V=pg.read_all_windows()
