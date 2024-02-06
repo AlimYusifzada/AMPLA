@@ -3,9 +3,9 @@ import os
 import threading as trd
 import xlwt
 import PySimpleGUI as pg
-from tkinter import filedialog
+# from tkinter import filedialog
 from ampla import *
-from pins_def import *
+# from pins_def import *
 
 about = '''
     AMPL Logic Compare Tool
@@ -28,9 +28,9 @@ about = '''
     Code files can be from different source, 
     i.e. can have one extracted from FCB and the other from ONB.
 
-    Once **files** or **directories** button is pressed 
-    you will be asked to select the source code you wish to compare. 
-    XLS files (reports) will be generated in the 'after' directory.
+    Once **compare** button is pressed, selected source code will compare. 
+    for directories XLS files (reports) will be generated in the 'after' directory
+    for sinle file comparison, results will be dispalyed in the text box.
 
     check box "generate line2line" is off by default. 
     if you set it on, excel report will be expanded 
@@ -41,7 +41,7 @@ about = '''
     they will be combined together. 
     same option is true for logic files.
 
-    XLS files crated individually for each pair and contain two tabs. 
+    XLS files created individually for each pair and contain two tabs. 
     Comparison report and "line to line"
     
     Comparison performed by logic blocks (not line to line), 
@@ -73,12 +73,16 @@ def fcompare(win:pg.Window):
     '''
     compare files
     '''
-    fbefore=filedialog.askopenfilename(
-                            title="Select original file",
-                            filetypes=ftypes)
-    fafter=filedialog.askopenfilename(
-                            title="Select modified file",
-                            filetypes=ftypes)
+
+    # fbefore=filedialog.askopenfilename(
+    #                         title="Select original file",
+    #                         filetypes=ftypes)
+    # fafter=filedialog.askopenfilename(
+    #                         title="Select modified file",
+    #                         filetypes=ftypes)
+    fbefore=win['-filebefore-'].get()
+    fafter=win['-fileafter-'].get()
+
     if fbefore=='' or fafter=='':
         return
     
@@ -116,11 +120,20 @@ def fcompare(win:pg.Window):
 def dcompare(win:pg.Window):
     '''compare directories
     '''
-    dibefore = filedialog.askdirectory(title="select BEFORE source directory")
-    diafter = filedialog.askdirectory(title="select AFTER source directory")
+    # dibefore = filedialog.askdirectory(title="select BEFORE source directory")
+    # diafter = filedialog.askdirectory(title="select AFTER source directory")
+    dibefore=win['-dirbefore-'].get()
+    diafter=win['-dirafter-'].get()
+    
     if diafter==dibefore or dibefore=='' or diafter=='':
         return
+    # calculate maxval for progress bar
+    maxval=0
+    for i in Path(dibefore).iterdir(): maxval+=1
+    cval=0
     for dib in Path(dibefore).iterdir():
+        cval+=1
+        win['-prgbar-'].update(cval*100/maxval)
         if dib.is_file() and (str(dib)[-2:].upper()=="BX" or str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="BA" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
             bf=os.path.basename(dib)
             bfile=bf[:bf.index('.')] # get just file name (before)
@@ -345,8 +358,6 @@ def genXLSreport(dir_before,dir_after):
         xlsreport.save(dir_after+'_DIF.xls') # diference found
     else:
         xlsreport.save(dir_after+'.xls') # no dif detected
-#===============================================================================
-
 
 #===============================================================================
 #--------------------------------Main Window------------------------------------
@@ -355,55 +366,70 @@ def MainWin()->pg.Window:
     font10=('Areial',10)
 
     buttons=[
-            [
                 #code compare functions
-            pg.Text('Compare',font=font10),
-            pg.Button('files',key='-fcmp-',font=font10),
-            pg.Text('or',font=font10),
-            pg.Button('directories',key='-compare-',font=font10),
-            pg.Text('and'),
-            pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10),
-            ],
             [
-                # experimental code tracing
-            pg.Button('read source files',key='-open-',font=font10,button_color='orange'),
-            pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
-            pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
-            pg.Button('<= source',key='-source-',disabled=True,font=font10,button_color='orange'),
-            pg.Button('sink =>',key='-sink-',disabled=True,font=font10,button_color='orange'),
+                [
+                pg.Text('',key='-filebefore-',size=(20),justification='right'),
+                    pg.FileBrowse('file before',file_types=ftypes,size=(10)),
+                pg.Text('',key='-dirbefore-',size=(20),justification='right'),
+                    pg.FolderBrowse('dir before',size=(10))
+                ],
+                [
+                pg.Text('',key='-fileafter-',size=(20),justification='right'),
+                    pg.FileBrowse('file after',file_types=ftypes,size=(10)),
+                pg.Text('',key='-dirafter-',size=(20),justification='right'),
+                    pg.FolderBrowse('dir after',size=(10)),
+                pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10)
+                ],
+            ],
+
+            [
+            #     # experimental code tracing
+            # pg.Button('read source files',key='-open-',font=font10,button_color='orange'),
+            # pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
+            # pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
+            # pg.Button('<= source',key='-source-',disabled=True,font=font10,button_color='orange'),
+            # pg.Button('sink =>',key='-sink-',disabled=True,font=font10,button_color='orange'),
             ],
             [
                 # healthcare functions?
             ],
             [
                 # general
-            pg.Button('refresh',key='-clear-',button_color='gray',font=font10),
+            pg.Button('compare',key='-compare-'),
+            pg.Button('clear',key='-clear-',button_color='gray',font=font10),
             pg.Button('about',key='-about-',button_color='green',font=font10),  
             pg.Button('exit',key='-exit-',button_color='red',font=font10),
             ]
             ]
-    inputs=[[pg.Input('',key='-searchtxt-',size=(110,0))]]
-    labels=[[pg.Text('',key='-infotxt-',size=(100,0))]]
-    mainlayout=[buttons,labels,inputs]
+    # inputs=[[pg.Input('',key='-searchtxt-',size=(110,0))]]
+    prgbar=[[pg.ProgressBar(100,orientation='h',key='-prgbar-',size=(60,5))]]
+    labels=[[pg.Text('',key='-infotxt-',size=(80,0))]]
+    mainlayout=[buttons,labels,prgbar]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
 
 def refreshGUI(W:pg.Window):
         pcs=''
+        W['-filebefore-'].update(pcs)
+        W['-fileafter-'].update(pcs)
+        W['-dirbefore-'].update(pcs)
+        W['-dirafter-'].update(pcs)
         W['-infotxt-'].update(pcs)
-        W.Refresh()
-        for pc in project.SRCE.keys():
-            pcs+=pc+', '
-        pcs+=''
-        if len(project.SRCE.keys())>0:
-            W['-search-'].update(disabled=False)
-            W['-browse-'].update(disabled=False)
-            W['-sink-'].update(disabled=False)
-            W['-source-'].update(disabled=False)
-        else:
-            W['-search-'].update(disabled=True)
-            W['-browse-'].update(disabled=True)
-            W['-sink-'].update(disabled=True)
-            W['-source-'].update(disabled=True)
+        W['-prgbar-'].update(0)
+        
+        # for pc in project.SRCE.keys():
+        #     pcs+=pc+', '
+        # pcs+=''
+        # if len(project.SRCE.keys())>0:
+        #     W['-search-'].update(disabled=False)
+        #     W['-browse-'].update(disabled=False)
+        #     W['-sink-'].update(disabled=False)
+        #     W['-source-'].update(disabled=False)
+        # else:
+        #     W['-search-'].update(disabled=True)
+        #     W['-browse-'].update(disabled=True)
+        #     W['-sink-'].update(disabled=True)
+        #     W['-source-'].update(disabled=True)
         W.Refresh() 
         
 #------------------------------------------------------------------------
@@ -411,58 +437,66 @@ mainwin=MainWin()   #main window event handler starts here
 
 while True:
     W,E,V=pg.read_all_windows()
+
     line2line_status=W['-line2line-'].get()
-    if E=='-source-':
-        sinklist=W['-searchtxt-'].get().upper().split()
-        sinks=[]
-        for item in sinklist:
-            if project.is_pc_exist(get_addr_pin(item)[0]):
-                pcname=get_PC_name(item)
-                sinks.append(get_source(project.SRCE[pcname],[item,]))
-        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
-        pass
-    if E=='-sink-':
-        sinklist=W['-searchtxt-'].get().upper().split()
-        sinks=[]
-        for item in sinklist:
-            if project.is_pc_exist(get_addr_pin(item)[0]):
-                pcname=get_PC_name(item)
-                sinks.append(get_sink(project.SRCE[pcname],[item,]))
-        pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
-        pass
-    if E=='-browse-':
-        pckey=W['-searchtxt-'].get().upper()
-        if pckey.find(':')>0:
-            pckey=pckey[:pckey.find(':')] #cutoff pin number
-        pcname=get_PC_name(pckey)
-        if pcname in project.SRCE.keys():
-            if pckey in project.SRCE[pcname].Blocks.keys():
-                s=str(project.SRCE[pcname].Blocks[pckey])
-                pg.ScrolledTextBox(s,title=pckey,icon=myico,size=(100,20))      
+
+    if E=='-fsel-':
+        print('\n\tstart')
+        W['-infotxt-'].update(V['-fsel-'])
+
+    # if E=='-source-':
+    #     sinklist=W['-searchtxt-'].get().upper().split()
+    #     sinks=[]
+    #     for item in sinklist:
+    #         if project.is_pc_exist(get_addr_pin(item)[0]):
+    #             pcname=get_PC_name(item)
+    #             sinks.append(get_source(project.SRCE[pcname],[item,]))
+    #     pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
+    #     pass
+    # if E=='-sink-':
+    #     sinklist=W['-searchtxt-'].get().upper().split()
+    #     sinks=[]
+    #     for item in sinklist:
+    #         if project.is_pc_exist(get_addr_pin(item)[0]):
+    #             pcname=get_PC_name(item)
+    #             sinks.append(get_sink(project.SRCE[pcname],[item,]))
+    #     pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
+    #     pass
+    # if E=='-browse-':
+    #     pckey=W['-searchtxt-'].get().upper()
+    #     if pckey.find(':')>0:
+    #         pckey=pckey[:pckey.find(':')] #cutoff pin number
+    #     pcname=get_PC_name(pckey)
+    #     if pcname in project.SRCE.keys():
+    #         if pckey in project.SRCE[pcname].Blocks.keys():
+    #             s=str(project.SRCE[pcname].Blocks[pckey])
+    #             pg.ScrolledTextBox(s,title=pckey,icon=myico,size=(100,20))      
+
     if E=='-compare-':
-        dcompare(W)
+        if W['-filebefore-'].get()!='' and W['-fileafter-'].get()!='':
+            fcompare(W)
+        if W['-dirbefore-'].get()!='' and W['-dirafter-'].get()!='':
+            dcompare(W)
         pass
-    if E=='-fcmp-':
-        fcompare(W)
-        pass
+
     if E=='-clear-':
         refreshGUI(W)
-    if E=='-search-':
-        if len(W['-searchtxt-'].get())>3:
-            sr=project.Search(W['-searchtxt-'].get().upper())
-            if len(sr)>0:
-                pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get().upper(),icon=myico,size=(100,20))
-            else:
-                W['-infotxt-'].update('found nothing')
+    # if E=='-search-':
+    #     if len(W['-searchtxt-'].get())>3:
+    #         sr=project.Search(W['-searchtxt-'].get().upper())
+    #         if len(sr)>0:
+    #             pg.ScrolledTextBox(sr,title=W['-searchtxt-'].get().upper(),icon=myico,size=(100,20))
+    #         else:
+    #             W['-infotxt-'].update('found nothing')
     if E=='-exit-' or E=='Exit' or E==pg.WIN_CLOSED:
         break
-    if E=='-open-':
-        path=filedialog.askdirectory(title='Select SRCE directory')
-        pcs=''
-        W['-infotxt-'].update('...AMPL source code downloading...')
-        W.Refresh()
-        project.Read(path)
-        refreshGUI(W)
+    # if E=='-open-':
+    #     path=filedialog.askdirectory(title='Select SRCE directory')
+    #     pcs=''
+    #     W['-infotxt-'].update('...AMPL source code downloading...')
+    #     W.Refresh()
+    #     project.Read(path)
+    #     refreshGUI(W)
     if E=='-about-':
         pg.ScrolledTextBox(rev+ampla_rev
                            ,about,
