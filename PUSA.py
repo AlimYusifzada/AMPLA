@@ -8,11 +8,8 @@ from pins_def import *
 
 try:
     import pyi_splash
-    if pyi_splash.is_alive():
-        pyi_splash.update_text("..loading, please wait..")
     pyi_splash.close()
 except ImportError:
-    print('pyinsataller splash window')
     pass
 
 about = '''
