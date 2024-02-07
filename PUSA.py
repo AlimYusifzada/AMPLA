@@ -3,9 +3,17 @@ import os
 import threading as trd
 import xlwt
 import PySimpleGUI as pg
-# from tkinter import filedialog
 from ampla import *
-# from pins_def import *
+from pins_def import *
+
+try:
+    import pyi_splash
+    if pyi_splash.is_alive():
+        pyi_splash.update_text("..loading, please wait..")
+    pyi_splash.close()
+except ImportError:
+    print('pyinsataller splash window')
+    pass
 
 about = '''
     AMPL Logic Compare Tool
@@ -375,11 +383,13 @@ def MainWin()->pg.Window:
                     pg.FolderBrowse('dir after',size=(10)),
                 pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10)
                 ],
-            ],
+            ],[pg.Button('compare',key='-compare-',size=(10)),pg.ProgressBar(100,orientation='h',key='-prgbar-',size=(55,5))],
 
             [
                 # experimental code tracing
-            pg.Button('read source files',key='-open-',font=font10,button_color='orange'),
+            pg.Text('',key='-projdir-',size=(20),justification='right'),
+                pg.FolderBrowse('...',size=(2)),
+            pg.Button('read',key='-open-',font=font10,button_color='orange'),
             pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
             pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
             pg.Button('<= source',key='-source-',disabled=True,font=font10,button_color='orange'),
@@ -390,16 +400,16 @@ def MainWin()->pg.Window:
             ],
             [
                 # general
-            pg.Button('compare',key='-compare-'),
+            
             pg.Button('clear',key='-clear-',button_color='gray',font=font10),
             pg.Button('about',key='-about-',button_color='green',font=font10),  
             pg.Button('exit',key='-exit-',button_color='red',font=font10),
             ]
             ]
-    inputs=[[pg.Input('',key='-searchtxt-',size=(90,0))]]
-    prgbar=[[pg.ProgressBar(100,orientation='h',key='-prgbar-',size=(60,5))]]
-    labels=[[pg.Text('',key='-infotxt-',size=(80,0))]]
-    mainlayout=[buttons,labels,inputs,prgbar]
+    inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
+    # prgbar=[[pg.ProgressBar(100,orientation='h',key='-prgbar-',size=(60,5))]]
+    labels=[[pg.Text('',key='-infotxt-',size=(90,0))]]
+    mainlayout=[buttons,inputs,labels]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
 
 def refreshGUI(W:pg.Window):
@@ -409,6 +419,7 @@ def refreshGUI(W:pg.Window):
         W['-dirbefore-'].update(pcs)
         W['-dirafter-'].update(pcs)
         W['-infotxt-'].update(pcs)
+        W['-projdir-'].update(pcs)
         W['-prgbar-'].update(0)
         
         for pc in project.SRCE.keys():
@@ -427,9 +438,8 @@ def refreshGUI(W:pg.Window):
         W.Refresh() 
         
 #------------------------------------------------------------------------
-# remove comment for pyinstaller // spash screen close
-# import pyi_splash
-# pyi_splash.close()
+
+
 
 mainwin=MainWin()   #main window event handler starts here
 
@@ -460,6 +470,7 @@ while True:
                 sinks.append(get_sink(project.SRCE[pcname],[item,]))
         pg.ScrolledTextBox(str(sinks),title='Sinks',icon=myico,size=(100,20))
         pass
+
     if E=='-browse-':
         pckey=W['-searchtxt-'].get().upper()
         if pckey.find(':')>0:
@@ -489,13 +500,14 @@ while True:
     if E=='-exit-' or E=='Exit' or E==pg.WIN_CLOSED:
         break
     if E=='-open-':
-
-        path='' #=filedialog.askdirectory(title='Select SRCE directory')
-        pcs=''
+        path=W['-projdir-'].get() #=filedialog.askdirectory(title='Select SRCE directory')
+        # pcs=''
+        # W['-infotxt-'].update('...AMPL source code downloading...')
+        # W.Refresh()
+        project.Read(path)
         W['-infotxt-'].update('...AMPL source code downloading...')
         W.Refresh()
-        project.Read(path)
-        refreshGUI(W)
+        # refreshGUI(W)
 
     if E=='-about-':
         pg.ScrolledTextBox(rev+ampla_rev
