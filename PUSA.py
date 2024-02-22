@@ -381,18 +381,18 @@ def MainWin()->pg.Window:
                     pg.FolderBrowse('dir after',size=(10)),
                 pg.Checkbox('generate line2line',default=False,key='-line2line-',font=font10)
                 ],
-            ],[pg.ProgressBar(100,orientation='h',key='-prgbar-',size=(55,3))],
+            ],[pg.Button('compare',key='-compare-',size=(10),font=font10),pg.ProgressBar(100,orientation='h',key='-prgbar-',size=(50,3))],
 
-            # [
-            #     # experimental code tracing
-            # pg.Text('',key='-projdir-',size=(20),justification='right'),
-            #     pg.FolderBrowse('...',size=(2)),
-            # pg.Button('read',key='-open-',font=font10,button_color='orange'),
-            # pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
-            # pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
-            # pg.Button('<= source',key='-source-',disabled=True,font=font10,button_color='orange'),
-            # pg.Button('sink =>',key='-sink-',disabled=True,font=font10,button_color='orange'),
-            # ],
+            [
+                # experimental code tracing
+            pg.Text('',key='-projdir-',size=(20),justification='right'),
+                pg.FolderBrowse('...',size=(2)),
+            pg.Button('read',key='-open-',font=font10,button_color='orange'),
+            pg.Button('search',key='-search-',disabled=True,font=font10,button_color='orange'),
+            pg.Button('show PC element',key='-browse-',disabled=True,font=font10,button_color='orange'),
+            pg.Button('<= source',key='-source-',disabled=True,font=font10,button_color='orange'),
+            pg.Button('sink =>',key='-sink-',disabled=True,font=font10,button_color='orange'),
+            ],
             [
                 # healthcare functions?
             ],
@@ -400,14 +400,13 @@ def MainWin()->pg.Window:
                 # general
             
             pg.Button('clear',key='-clear-',button_color='gray',font=font10),
-            pg.Button('compare',key='-compare-',size=(10),font=font10),
             pg.Button('about',key='-about-',button_color='green',font=font10),  
             pg.Button('exit',key='-exit-',button_color='red',font=font10),
             pg.Text('',key='-infotxt-',size=(60,0))
             ]
             ]
-    # inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
-    mainlayout=[buttons]
+    inputs=[[pg.Input('',key='-searchtxt-',size=(100,0))]]
+    mainlayout=[buttons,inputs]
     return pg.Window(title=rev+':'+ampla_rev,layout=mainlayout,resizable=False,finalize=True,icon=myico)
 
 def refreshGUI(W:pg.Window):
@@ -417,20 +416,20 @@ def refreshGUI(W:pg.Window):
         W['-dirbefore-'].update(pcs)
         W['-dirafter-'].update(pcs)
         W['-infotxt-'].update(pcs)
-        # W['-projdir-'].update(pcs)
-        # for pc in project.SRCE.keys():
-        #     pcs+=pc+', '
-        # pcs+=''
-        # if len(project.SRCE.keys())>0:
-        #     W['-search-'].update(disabled=False)
-        #     W['-browse-'].update(disabled=False)
-        #     W['-sink-'].update(disabled=False)
-        #     W['-source-'].update(disabled=False)
-        # else:
-        #     W['-search-'].update(disabled=True)
-        #     W['-browse-'].update(disabled=True)
-        #     W['-sink-'].update(disabled=True)
-        #     W['-source-'].update(disabled=True)
+        W['-projdir-'].update(pcs)
+        for pc in project.SRCE.keys():
+            pcs+=pc+', '
+        pcs+=''
+        if len(project.SRCE.keys())>0:
+            W['-search-'].update(disabled=False)
+            W['-browse-'].update(disabled=False)
+            W['-sink-'].update(disabled=False)
+            W['-source-'].update(disabled=False)
+        else:
+            W['-search-'].update(disabled=True)
+            W['-browse-'].update(disabled=True)
+            W['-sink-'].update(disabled=True)
+            W['-source-'].update(disabled=True)
         W.Refresh() 
         
 #------------------------------------------------------------------------
