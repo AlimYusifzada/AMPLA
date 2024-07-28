@@ -1,1 +1,1 @@
-pyinstaller PUSA.py -d all --onefile -i aaxcmp.ico -w --splash aaxcmp.png --hidden-import=pyi_splash
+pyinstaller amplscope.py -d all --onefile -i aaxcmp.ico -w --splash amplscope.png --hidden-import=pyi_splash
