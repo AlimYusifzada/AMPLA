@@ -171,14 +171,14 @@ There is a PC program without a revision number!!!''')
             self.MainWinOutput.insert(firstline,'''
 Please enter full path to the AMPL source files 
     at BEFORE and AFTER fields''')
-        fB=self.LoadABXFile(self.FileBefore.get())
+        fB=LoadABXFile(self.FileBefore.get())
         if fB==None:
             messagebox.showwarning("oops","BEFORE value is invalid")
             self.MainWinOutput.insert(firstline,'''
 BEFORE field must contain full path to the source file
     or file is invalid or not found''')
             return
-        fA=self.LoadABXFile(self.FileAfter.get())
+        fA=LoadABXFile(self.FileAfter.get())
         if fA==None:
             messagebox.showwarning("oops","AFTER value is invalid")
             self.MainWinOutput.insert(firstline,'''
@@ -254,8 +254,8 @@ excel file will have suffix _DIF in the name''')
 ENTRY field must have some data: tag name or PC address''')
             return
         if len(extB)>1 or len(extA)>1:
-            fB=self.LoadABXFile(self.FileBefore.get())
-            fA=self.LoadABXFile(self.FileAfter.get())
+            fB=LoadABXFile(self.FileBefore.get())
+            fA=LoadABXFile(self.FileAfter.get())
             for cradd in fB.xRef(pckey):
                 self.MainWinOutput.insert(firstline,str(fB.Blocks[cradd[:cradd.index(':')]]))
             for cradd in fA.xRef(pckey):
@@ -333,20 +333,20 @@ ENTRY field must contain data to search PC address''')
         self.MainWinOutput.delete("0.0","10000.0")
         pass
 
-    def LoadABXFile(self,fpath):
-        ''' get path to the file and return AA AAX BA BAX object
-            or None
-        '''
-        match fpath[-3:].upper():
-            case '.AA':
-                return AA(fpath)
-            case '.AAX':
-                return AAX(fpath)
-            case '.BA':
-                return BA(fpath)
-            case '.BAX':
-                return BAX(fpath)
-        return None
+    # def LoadABXFile(self,fpath):
+    #     ''' get path to the file and return AA AAX BA BAX object
+    #         or None
+    #     '''
+    #     match fpath[-3:].upper():
+    #         case '.AA':
+    #             return AA(fpath)
+    #         case '.AAX':
+    #             return AAX(fpath)
+    #         case '.BA':
+    #             return BA(fpath)
+    #         case '.BAX':
+    #             return BAX(fpath)
+    #     return None
 
     def ListNewLogicBlocks(self):
         self.CleanOutputWin()

@@ -874,6 +874,21 @@ class BA(BAX):
 
 
 #--------------------------------------- support function-----------------
+def LoadABXFile(fpath):
+    ''' get path to the file and return AA AAX BA BAX object
+        or None
+    '''
+    match fpath[-3:].upper():
+        case '.AA':
+            return AA(fpath)
+        case '.AAX':
+            return AAX(fpath)
+        case '.BA':
+            return BA(fpath)
+        case '.BAX':
+            return BAX(fpath)
+    return None
+    
 def is_dbinst(val)->bool:
     '''
     if the value of the pin is DB instance
@@ -1589,31 +1604,12 @@ try:
         '''
         generate XLS spreadsheet for file before vs file after
         '''
-        extB = code_before[-3:].upper()
-        extA = code_after[-3:].upper()
 
-        if extB == '.AA':
-            fB = AA(code_before)
-        elif extB == 'AAX':
-            fB = AAX(code_before)
-        elif extB == 'BAX':
-            fB = BAX(code_before)
-        elif extB == '.BA':
-            fB = BA(code_before)
-        else:
+        fB = LoadABXFile(code_before)
+        fA = LoadABXFile(code_after)
+        if fB==None or fA==None:
             return
 
-        if extA == '.AA':
-            fA = AA(code_after)
-        elif extA == 'AAX':
-            fA = AAX(code_after)
-        elif extA == 'BAX':
-            fA = BAX(code_after)
-        elif extA == '.BA':
-            fA = BA(code_after)
-        else:
-            return
-        
         xlsreport = xlwt.Workbook(encoding='ascii')
 
         addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
