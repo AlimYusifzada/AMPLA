@@ -27,7 +27,7 @@ NEok = ' <- OK -> '
 NEX = 'NOT EXIST'
 NONE = 'NOT ASSIGNED'
 RMVD = 'REMOVED'
-NCD = 'NEW CODE'
+NCD = 'NEW'
 TAB = 30
 nSPC = -20
 
@@ -40,7 +40,6 @@ HEADER = ('design_ch', 'tech_ref', 'resp_dept', 'date',
           'rev_ind', 'language')
 
 # ----------------------------------support functions--------------------------
-
 def trimD(txt):
     '''
     remove D= and return only numbers as a string
@@ -241,7 +240,7 @@ class block:
             warnings.warn('function operand must be a list or a tuple @__add__',stacklevel=2)
         return self
 
-    def __cmp(self, other)->str:
+    def Compare(self, other)->str:
         '''
         Compare self to other logic block, return difference report
         (block_obj1.compare(block_obj2))
@@ -341,11 +340,8 @@ class block:
             s = '\n'+self.Address+'\t'+self.Name+self.Extra+'\t' + \
                 self.Description+" line#"+str(self.LineNumber)+'\n'+s
         return s
-    compare = __cmp
-
 
 #-------------------------------------------------AAX class-----------
-
 class AAX:
 
     def __init__(self, fname):
@@ -449,7 +445,7 @@ class AAX:
 
                 # start of the logic block status=1 get address, name and params
                 if LineElements[0][:2] == 'PC' and LineElements[0][2:3].isdigit() and par_pos != 2:
-                    self.PCName=LineElements[0][0:3] #get PC name
+                    self.PCName=LineElements[0][0:4] #get PC name
                     Address = LineElements[0]  # get address
                     par_pos = 1  # block mark if position ==1 we are inside logic block
                     BlockName = ''
@@ -599,7 +595,7 @@ class AAX:
         else:
             return NEX
 
-    def __cmp(self, other)->str:
+    def Compare(self, other)->str:
         '''
         Compare AAX files and return text report
         print(AAX_obj1.compare(AAX_obj2))
@@ -636,7 +632,7 @@ class AAX:
                 if statement in other.Blocks.keys():
                     if self.Blocks[statement] != other.Blocks[statement]:
                         self.difstat=True
-                        s += str(self.Blocks[statement].compare(other.Blocks[statement]))
+                        s += str(self.Blocks[statement].Compare(other.Blocks[statement]))
                     if self.BlocksAround(statement) != other.BlocksAround(statement):
                         ksA, ksB = self.BlocksAround(statement)
                         koA, koB = other.BlocksAround(statement)
@@ -646,8 +642,7 @@ class AAX:
                 else:
                     # generate DS (Delete Statement ONB command)
                     self.difstat=True
-                    s += '\n'+RMVD+' %s not found in AFTER but exist in BEFORE\n' %statement \
-                        +str(self.Blocks[statement])
+                    s += '\n'+RMVD+' %s\n'%statement+str(self.Blocks[statement]) #not found in AFTER but exist in BEFORE
                     '''
                     call function to generate CF code
                     (delete statement DS)
@@ -656,8 +651,7 @@ class AAX:
                 if statement not in self.Blocks.keys():
                     # generate IS (Insert Statement ONB command)
                     self.difstat=True
-                    s += '\n'+NCD+' %s not found in BEFORE but exist in AFTER\n' %statement \
-                        +str(other.Blocks[statement])
+                    s += '\n'+NCD+' %s\n' %statement+str(other.Blocks[statement]) #not found in AFTER but exist in BEFORE
                     '''
                     call function to generate CF code
                     (insert statement IS)
@@ -665,10 +659,8 @@ class AAX:
         else:
             warnings.warn("type mismatch @__cmp(%s,%s)"%(type(self),type(other)),stacklevel=2)        
         return s
-    compare = __cmp
 
 #--------------------------------------------------BAX class----------
-
 class BAX(AAX):
 
     def __init__(self, fname):
@@ -735,7 +727,7 @@ class BAX(AAX):
                         self.Blocks[Address].AddPin(
                             PinName, PinValue)  # last value for the pin
 
-    def __cmp(self, other)->str:
+    def Compare(self, other)->str:
         '''
         Compare BAX files and return text report
         '''
@@ -761,7 +753,7 @@ class BAX(AAX):
             for key in self.Blocks.keys():
                 if key in other.Blocks.keys():
                     if self.Blocks[key] != other.Blocks[key]:
-                        s += str(self.Blocks[key].compare(other.Blocks[key]))
+                        s += str(self.Blocks[key].Compare(other.Blocks[key]))
                     if self.BlocksAround(key) != other.BlocksAround(key):
                         ksA, ksB = self.BlocksAround(key)
                         koA, koB = other.BlocksAround(key)
@@ -770,19 +762,14 @@ class BAX(AAX):
                 else:
                     # generate MDB command to spare the instance (do not delete)
                     # topup.bax
-                    s += '\ninstance %s NOT FOUND at (AFTER)..%s but EXIST at (BEFORE)..%s\n' % \
-                        (key, other.fName[nSPC:],
-                         self.fName[nSPC:])+str(self.Blocks[key])
+                    s += '\n'+RMVD+' instance %s\n'%key+str(self.Blocks[key])
             for key in other.Blocks.keys():
                 if key not in self.Blocks.keys():
                     # generate command to create new DB instance
-                    s += '\ninstance %s NOT FOUND at (BEFORE)..%s but EXIST at (AFTER)..%s\n' % \
-                        (key, self.fName[nSPC:],
-                         other.fName[nSPC:])+str(other.Blocks[key])
+                    s += '\n'+NCD+' instance %s\n'%key+str(other.Blocks[key])
         else:
             warnings.warn("type mismatch @__cmp(%s,%s)"%(type(self),type(other)),stacklevel=2)
         return s
-    compare = __cmp
 
 #----------------------------------------------------AA class----------
 class AA(AAX):
@@ -872,7 +859,6 @@ class BA(BAX):
             return      
         self.Parse()
 
-
 #--------------------------------------- support function-----------------
 def LoadABXFile(fpath):
     ''' get path to the file and return AA AAX BA BAX object
@@ -881,11 +867,11 @@ def LoadABXFile(fpath):
     match fpath[-3:].upper():
         case '.AA':
             return AA(fpath)
-        case '.AAX':
+        case 'AAX':
             return AAX(fpath)
         case '.BA':
             return BA(fpath)
-        case '.BAX':
+        case 'BAX':
             return BAX(fpath)
     return None
     
@@ -949,7 +935,7 @@ def is_loop(blk,pin)->bool:
         warnings.warn("incorrect type @is_loop(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
     return False
 
-def get_PC_name_from_file(path)->str:
+def get_PC_name(path)->str:
     '''
     return PC## based on the file name
     '''
@@ -1029,7 +1015,7 @@ class Proj():
     
     def is_pc_exist(self,path)->bool:
         if is_address(path):
-            pcn=get_PC_name_from_file(path)
+            pcn=get_PC_name(path)
             if pcn in self.SRCE.keys():
                 if path in self.SRCE[pcn].Blocks.keys():
                     return True
@@ -1085,11 +1071,11 @@ class Proj():
         return output
 
 # list of sink/source
-Sources=[] # upstrean connections
-Sinks=[] # downstream connections
-Items=[] # database entries or other non-adress items
-DeadSources=[] # untraceble sources, dead end
-DeadSinks=[] # untraceble sinks, dead end
+# Sources=[] # upstrean connections
+# Sinks=[] # downstream connections
+# Items=[] # database entries or other non-adress items
+# DeadSources=[] # untraceble sources, dead end
+# DeadSinks=[] # untraceble sinks, dead end
 
 def is_input(blk,pin)->bool:
     '''
@@ -1615,7 +1601,7 @@ try:
         addrstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
                                     'font: colour black, bold False;')
         diffstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
-                                    'font: colour black, bold False, italic True;')
+                                    'font: colour red, bold False;')
         headstyle = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;'
                                     'font: colour black, bold True;')
         pinstyle = xlwt.easyxf('pattern: pattern solid, fore_colour white;'
@@ -1769,7 +1755,7 @@ try:
                     if lcnt>excel_max: break
     # ========================== l2l report done =============================   
 
-        report = fB.compare(fA) # simple text returned
+        report = fB.Compare(fA) # simple text returned
 
         lcnt = stat_line
         wcnt = 0
