@@ -88,7 +88,7 @@ class MainGUI:
         self.MMenu.add_cascade(label=" options ", menu=self.TMenu)
 
 #-----------------------------------------------------------------------
-        root.title('LCT rev:%s AMPLA rev:%s' % (rev, ampla_rev))
+        root.title('GUI:%s; ampla rev:%s' % (rev, ampla_rev))
         root.config(menu=self.MMenu)
 
 # LABELS PICTURES BUTTONS and other widgets
@@ -326,27 +326,12 @@ ENTRY field must contain data to search PC address''')
 
     def About(self):
         self.CleanOutputWin()
-        self.MainWinOutput.insert(firstline,'\n'+Disclaimer)
+        self.MainWinOutput.insert(firstline,'\n'+responsibility)
         pass
 
     def CleanOutputWin(self):
         self.MainWinOutput.delete("0.0","10000.0")
         pass
-
-    # def LoadABXFile(self,fpath):
-    #     ''' get path to the file and return AA AAX BA BAX object
-    #         or None
-    #     '''
-    #     match fpath[-3:].upper():
-    #         case '.AA':
-    #             return AA(fpath)
-    #         case '.AAX':
-    #             return AAX(fpath)
-    #         case '.BA':
-    #             return BA(fpath)
-    #         case '.BAX':
-    #             return BAX(fpath)
-    #     return None
 
     def ListNewLogicBlocks(self):
         self.CleanOutputWin()
@@ -363,7 +348,7 @@ ENTRY field must contain data to search PC address''')
         pass
 # ------------------------------------------------------------------------------
 
-Disclaimer = '''
+responsibility = '''
     amplscope - AMPL source code change detector
     (c) 2020-2024, Alim Yusifzada
     reddit: u/Crazy1Dunmer
@@ -386,7 +371,7 @@ ABBlogo='''
 '''
 
 print(ABBlogo)
-print(Disclaimer)
+print(responsibility)
 
 mainwin = Tk()
 MainGUI(mainwin)
