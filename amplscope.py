@@ -88,7 +88,7 @@ class MainGUI:
         self.MMenu.add_cascade(label=" options ", menu=self.TMenu)
 
 #-----------------------------------------------------------------------
-        root.title('LCT rev:%s AMPLA rev:%s' % (rev, ampla_rev))
+        root.title('GUI rev:%s AMPLA rev:%s' % (rev, ampla_rev))
         root.config(menu=self.MMenu)
 
 # LABELS PICTURES BUTTONS and other widgets
@@ -360,7 +360,6 @@ about_txt = '''
     reddit: u/Crazy1Dunmer
     gmail: yusifzaj@gmail.com
     Special thanks to Stewart Redman and Baku ABB team.
-
 '''
 ABBlogo='''             
                 ]@@@ ]@@@L        @@@@@@@  @@@@@m    ]@@@@@@L [@@@@b            
