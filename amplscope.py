@@ -157,6 +157,7 @@ There is a PC program without a revision number!!!''')
     def SelectAndCompare(self):
         '''menu callout to select files before/after and compare
         '''
+        self.CleanOutputWin()
         self.SelectFileBefore()
         self.SelectFileAfter()
         self.CompareSelectedFiles()
@@ -165,6 +166,7 @@ There is a PC program without a revision number!!!''')
         '''
         menu callout function to compare selected files 
         '''
+        self.CleanOutputWin();
         if len(self.FileBefore.get())==0 or len(self.FileAfter.get())==0:
             messagebox.showwarning("oops",
                 "BEFORE and AFTER should not be empty!\nUse menu compare->files...\nOr manually enter path to the code")
@@ -186,12 +188,13 @@ AFTER field must contain full path to the source file
     of file not found or invalid''')
             return
         OutputWin(
-            str(fB.compare(fA)),
+            str(fB.Compare(fA)),
             '\n\tsource BEFORE\n%s\n\n\tsource AFTER\n%s\n' % (fB.fName, fA.fName))
 
     def CompareDirectories(self):
         '''compare directories and report to xls file
         '''
+        self.CleanOutputWin()
         self.MainWinOutput.insert(firstline,'''
 Comparing directories and excel reporting 
 might take some time at the old computers.
@@ -219,6 +222,7 @@ excel file will have suffix _DIF in the name''')
     def OpenAndConverToTxt(self):
         '''unpack AA/BA files to txt 
         '''
+        self.CleanOutputWin()
         afile = filedialog.askopenfilename(initialdir="~",
                                            title="Select AA or BA file",
                                            filetypes=ftypes)
@@ -256,15 +260,17 @@ ENTRY field must have some data: tag name or PC address''')
         if len(extB)>1 or len(extA)>1:
             fB=LoadABXFile(self.FileBefore.get())
             fA=LoadABXFile(self.FileAfter.get())
+            self.MainWinOutput.insert(firstline,'\n Searching at %s BEFORE\n'%fB.PCName)
             for cradd in fB.xRef(pckey):
                 self.MainWinOutput.insert(firstline,str(fB.Blocks[cradd[:cradd.index(':')]]))
+            self.MainWinOutput.insert(firstline,'\n Searching at %s AFTER\n'%fA.PCName)
             for cradd in fA.xRef(pckey):
                 self.MainWinOutput.insert(firstline,str(fA.Blocks[cradd[:cradd.index(':')]]))
             output_updated=True
         if len(project.SRCE.keys())>1:
             if pckey.find(':')>0:
                 pckey=pckey[:pckey.find(':')] #cutoff pin number
-            pcname=get_PC_name_from_file(pckey)
+            pcname=get_PC_name(pckey)
             if pcname in project.SRCE.keys():
                 if pckey in project.SRCE[pcname].Blocks.keys():
                     s=str(project.SRCE[pcname].Blocks[pckey])
@@ -295,7 +301,7 @@ ENTRY field must contain data to search PC address''')
         sources=[]
         for item in sourceslist:
             if project.is_pc_exist(get_addr_pin(item)[0]): 
-                pcname=get_PC_name_from_file(item)
+                pcname=get_PC_name(item)
                 sources.append(get_sources(project.SRCE[pcname],[item,])) # get SOURCE
         for item in sources[0]:
             self.MainWinOutput.insert(firstline,'\n'+str(item)+'\n')
@@ -317,7 +323,7 @@ ENTRY field must contain data to search PC address''')
         sinks=[]
         for item in sinklist:
             if project.is_pc_exist(get_addr_pin(item)[0]):
-                pcname=get_PC_name_from_file(item)
+                pcname=get_PC_name(item)
                 sinks.append(get_sinks(project.SRCE[pcname],[item,])) # get SINK
         for item in sinks[0]:
             self.MainWinOutput.insert(firstline,'\n'+str(item)+'\n')
@@ -354,7 +360,6 @@ responsibility = '''
     reddit: u/Crazy1Dunmer
     gmail: yusifzaj@gmail.com
     Special thanks to Stewart Redman and Baku ABB team.
-
 '''
 ABBlogo='''             
                 ]@@@ ]@@@L        @@@@@@@  @@@@@m    ]@@@@@@L [@@@@b            
