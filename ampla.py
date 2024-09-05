@@ -874,7 +874,19 @@ def LoadABXFile(fpath):
         case 'BAX':
             return BAX(fpath)
     return None
-    
+
+def is_label(val)->bool:
+    '''
+    return true if the value is label
+    starts with N=
+    '''
+    if type(val) is str:
+        if val[:2]=='N=':
+            return True
+    else:
+        warnings.warn("incorrect type @is_label",stacklevel=2)
+    return False
+
 def is_dbinst(val)->bool:
     '''
     if the value of the pin is DB instance
@@ -1327,7 +1339,7 @@ def get_sinks(aax,sinklst:list)->list:
                 if snkadr not in deadsinks:
                     deadsinks.append(snkadr)  
         else:
-            if snkadr not in deadsinks:
+            if snkadr not in deadsinks and not is_label(snkadr):
                 deadsinks.append(snkadr)
    
     while len(sinklst)>0:
