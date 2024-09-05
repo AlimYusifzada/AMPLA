@@ -88,7 +88,7 @@ class MainGUI:
         self.MMenu.add_cascade(label=" options ", menu=self.TMenu)
 
 #-----------------------------------------------------------------------
-        root.title('GUI rev:%s AMPLA rev:%s' % (rev, ampla_rev))
+        root.title('GUI:%s; ampla rev:%s' % (rev, ampla_rev))
         root.config(menu=self.MMenu)
 
 # LABELS PICTURES BUTTONS and other widgets
@@ -332,7 +332,7 @@ ENTRY field must contain data to search PC address''')
 
     def About(self):
         self.CleanOutputWin()
-        self.MainWinOutput.insert(firstline,'\n'+about_txt)
+        self.MainWinOutput.insert(firstline,'\n'+responsibility)
         pass
 
     def CleanOutputWin(self):
@@ -354,7 +354,7 @@ ENTRY field must contain data to search PC address''')
         pass
 # ------------------------------------------------------------------------------
 
-about_txt = '''
+responsibility = '''
     amplscope - AMPL source code change detector
     (c) 2020-2024, Alim Yusifzada
     reddit: u/Crazy1Dunmer
@@ -376,7 +376,7 @@ ABBlogo='''
 '''
 
 print(ABBlogo)
-print(about_txt)
+print(responsibility)
 
 mainwin = Tk()
 MainGUI(mainwin)
