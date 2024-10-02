@@ -35,6 +35,13 @@ rowOutput = 5
 firstline='0.0'
 project=Proj('dummy') # create empty project
 
+class SettingsWin:
+    def __init__(self) -> None:
+        SetWin=Tk()
+        SetWin.title('settings')
+        pass
+    
+
 class OutputWin:
     def __init__(self,text_data='',MWtitle='---') -> None:
         MW=Tk()
@@ -59,8 +66,8 @@ class MainGUI:
 
 # before<>after menu config
         self.FMenu.add_command(label=" before<->after ", command=self.CompareSelectedFiles)
-        self.FMenu.add_command(label=" files.. ", command=self.SelectAndCompare)
-        self.FMenu.add_command(label=" directories.. ",command=self.CompareDirectories)
+        self.FMenu.add_command(label=" files... ", command=self.SelectAndCompare)
+        self.FMenu.add_command(label=" directories... ",command=self.CompareDirectories)
 
 # Proj menu config
         self.PMenu.add_command(label=" load project... ",command=self.OpenProject) # read project files (AA/AAX)
@@ -72,19 +79,19 @@ class MainGUI:
 # tools menu config
     #--------------------------------------------------------------
         self.TMenu.add_command(
-            label="unpack AA or BA file...", command=self.OpenAndConverToTxt)
+            label="open AA or BA file... ", command=self.OpenAndConverToTxt)
         self.TMenu.add_command(
-            label="erase output",command=self.CleanOutputWin)
+            label="clear screen",command=self.CleanOutputWin)
     #--------------------------------------------------------------
         self.TMenu.add_command(
             label="list uncknown blocks",command=self.ListNewLogicBlocks)
         self.TMenu.add_command(
-            label="settings",command=messagebox.showerror)
+            label="settings... ",command=self.CallSettings)
         self.TMenu.add_command(label="who is responsible?", command=self.About)
 
 # main menu config
         self.MMenu.add_cascade(label=" compare ", menu=self.FMenu)
-        self.MMenu.add_cascade(label=" search ",menu=self.PMenu)
+        self.MMenu.add_cascade(label=" search/trace ",menu=self.PMenu)
         self.MMenu.add_cascade(label=" options ", menu=self.TMenu)
 
 #-----------------------------------------------------------------------
@@ -99,7 +106,7 @@ class MainGUI:
         Button(text=" ... ",command=self.SelectFileBefore).grid(column=6,row=rowBefore,sticky='W'+'E')
         Button(text=" ... ",command=self.SelectFileAfter).grid(column=6,row=rowAfter,sticky='W'+'E')
         Button(text=" search ",command=self.Search).grid(column=1,row=rowEntry,sticky='W'+'E')
-        Button(text=" cls ",command=self.CleanOutputWin).grid(column=6,row=rowEntry,sticky='W'+'E')
+        Button(text=" CLS ",command=self.CleanOutputWin).grid(column=6,row=rowEntry,sticky='W'+'E')
         Button(text="<-",command=self.TraceSources).grid(column=0,row=rowEntry,sticky='W'+'E')
         Button(text="->",command=self.TraceSinks).grid(column=2,row=rowEntry,sticky='w'+'E')
         Button(text=" before<->after ",command=self.CompareSelectedFiles).grid(column=0,row=rowBefore,sticky='W'+'E',columnspan=4)
@@ -127,6 +134,11 @@ class MainGUI:
                                                          title="Select modified file",
                                                          filetypes=ftypes))
         
+    def CallSettings(self):
+        messagebox.showwarning('warn','Settings window is not functional yet')
+        SettingsWin()
+        pass
+    
     def ListProjectCode(self):
         self.CleanOutputWin()
         self.MainWinOutput.insert(firstline,'\n')
@@ -137,7 +149,7 @@ class MainGUI:
         except:
             messagebox.showwarning('warning','revision number not defined')
             self.MainWinOutput.insert(firstline,'''
-There is a PC program without a revision number!!!''')
+                There is a PC program without a revision number!!!''')
         pass
 
     def SelectFileBefore(self):
@@ -171,21 +183,21 @@ There is a PC program without a revision number!!!''')
             messagebox.showwarning("oops",
                 "BEFORE and AFTER should not be empty!\nUse menu compare->files...\nOr manually enter path to the code")
             self.MainWinOutput.insert(firstline,'''
-Please enter full path to the AMPL source files 
-    at BEFORE and AFTER fields''')
+                Please enter full path to the AMPL source files 
+                    at BEFORE and AFTER fields''')
         fB=LoadABXFile(self.FileBefore.get())
         if fB==None:
             messagebox.showwarning("oops","BEFORE value is invalid")
             self.MainWinOutput.insert(firstline,'''
-BEFORE field must contain full path to the source file
-    or file is invalid or not found''')
+                BEFORE field must contain full path to the source file
+                    or file is invalid or not found''')
             return
         fA=LoadABXFile(self.FileAfter.get())
         if fA==None:
             messagebox.showwarning("oops","AFTER value is invalid")
             self.MainWinOutput.insert(firstline,'''
-AFTER field must contain full path to the source file
-    of file not found or invalid''')
+                AFTER field must contain full path to the source file
+                    of file not found or invalid''')
             return
         OutputWin(
             str(fB.Compare(fA)),
@@ -196,13 +208,13 @@ AFTER field must contain full path to the source file
         '''
         self.CleanOutputWin()
         self.MainWinOutput.insert(firstline,'''
-Comparing directories and excel reporting 
-might take some time at the old computers.
+            Comparing directories and excel reporting 
+            might take some time.
 
-Please look for excel files at the AFTER directory
-                                  
-If the difference(s) in source code found, 
-excel file will have suffix _DIF in the name''')
+            Please look for excel files in the AFTER directory
+                                            
+            If the difference(s) in source code found, 
+            excel file will have suffix _DIF in the name''')
         dibefore = filedialog.askdirectory(title="select directory with code BEFORE")
         diafter = filedialog.askdirectory(title="select directory with code AFTER")
         for dib in Path(dibefore).iterdir():
@@ -255,7 +267,7 @@ excel file will have suffix _DIF in the name''')
         if len(pckey)<1:
             messagebox.showwarning("warning","Search request empty\nENTRY: should have something")
             self.MainWinOutput.insert(firstline,'''
-ENTRY field must have some data: tag name or PC address''')
+                ENTRY field must have some data: tag name or PC address''')
             return
         if len(extB)>1 or len(extA)>1:
             fB=LoadABXFile(self.FileBefore.get())
@@ -282,21 +294,21 @@ ENTRY field must have some data: tag name or PC address''')
                 output_updated=True
         if not output_updated:
             self.MainWinOutput.insert(firstline,'''
-    Nothing was found!
-    Make sure your search request was correct!''')
+                Nothing was found!
+                Make sure your search request was correct!''')
 
     def TraceSources(self):
         self.CleanOutputWin()
         if len(project.SRCE.keys())<1:
             messagebox.showwarning('warning','code is not loaded\nProject->load project code')
             self.MainWinOutput.insert(firstline,'''
-To search through the project source files they should be loaded''')
+                To search through the project source files they should be loaded''')
             return
         sourceslist=self.SearchEntry.get().upper().split()
         if len(sourceslist)<1:
             messagebox.showwarning("warning","search request empty\nENTRY: should have an address")
             self.MainWinOutput.insert(firstline,'''
-ENTRY field must contain data to search PC address''')
+                ENTRY field must contain data to search PC address''')
             return
         sources=[]
         for item in sourceslist:
@@ -312,13 +324,13 @@ ENTRY field must contain data to search PC address''')
         if len(project.SRCE.keys())<1:
             messagebox.showwarning('warning','code is not loaded\nProject->load project code')
             self.MainWinOutput.insert(firstline,'''
-Project source code is not loaded''')
+                Project source code is not loaded''')
             return
         sinklist=self.SearchEntry.get().upper().split()
         if len(sinklist)<1:
             messagebox.showwarning("warning","search request empty\nENTRY: should have an address")
             self.MainWinOutput.insert(firstline,'''
-ENTRY field must contain data to search PC address''')
+                ENTRY field must contain data to search PC address''')
             return
         sinks=[]
         for item in sinklist:
@@ -352,14 +364,14 @@ ENTRY field must contain data to search PC address''')
         for b in newb.keys():
             self.MainWinOutput.insert(firstline,'\t'+str(b)+'\n')
         pass
-# ------------------------------------------------------------------------------
+# --------------------------------------------------------------MainGUI end-----
 
 responsibility = '''
     amplscope - AMPL source code change detector
     (c) 2020-2024, Alim Yusifzada
     reddit: u/Crazy1Dunmer
     gmail: yusifzaj@gmail.com
-    Special thanks to Stewart Redman and Baku ABB team.
+    Special thanks to Baku ABB team.
 '''
 ABBlogo='''             
                 ]@@@ ]@@@L        @@@@@@@  @@@@@m    ]@@@@@@L [@@@@b            
