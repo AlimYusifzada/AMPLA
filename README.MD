@@ -34,7 +34,9 @@ For users who are using the source code instead of the compiled version, please 
 * External package requirements: **tkinter**, **xlwt**, **datetime**.
 
 To compile the python code to exe use pyinstaller
-pip install pyinstaller
+* pip install pyinstaller
+Then run compile.bat or:
+* pyinstaller amplscope.py -d all --onefile -i aaxcmp.ico -w --splash amplscope.png --hidden-import=pyi_splash
 
 ---
 
