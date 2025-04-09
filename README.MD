@@ -39,11 +39,6 @@ To compile the python code to exe use pyinstaller
 pip install pyinstaller
 pyinstaller amplscope.py -d all --onefile -i aaxcmp.ico -w --splash amplscope.png --hidden-import=pyi_splash
 ```
----
-
-## **ampla.py**: Python 3 Functions for AMPL Code Compare/Analysis
-
----
 
 ## Python Example to Compare .AA and .AAX Files
 
