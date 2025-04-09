@@ -38,7 +38,7 @@ To compile the python code to exe use pyinstaller
 ```bash
 pip install pyinstaller
 pyinstaller amplscope.py -d all --onefile -i aaxcmp.ico -w --splash amplscope.png --hidden-import=pyi_splash
-
+```
 ---
 
 ## **ampla.py**: Python 3 Functions for AMPL Code Compare/Analysis
