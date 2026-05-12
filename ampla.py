@@ -5,7 +5,7 @@ import warnings
 import threading as trd
 from pathlib import Path
 import typing
-from typing import List, Any, Union, Optional, Dict, Type, Iterable, Union, Tuple, Set, Deque
+from typing import List, Any, Union, Optional, Dict, Type, Iterable, Tuple, Set, Deque
 from collections import deque, defaultdict
 from operator import itemgetter
 
@@ -308,103 +308,6 @@ class block:
 
         header = f"\n{self.Address}\t{self.Name}{self.Extra}\t{self.Description} line#{self.LineNumber}\n"
         return header + "".join(diff_lines)
-
-    # def Compare(self, other) -> str:
-    #     """
-    #     Compare self to another logic block and return a difference report.
-    #     """
-    #     if not isinstance(other, self.__class__):
-    #         return ""
-
-    #     if self == other:
-    #         return ""
-
-    #     diff_lines = []
-    #     has_difference = False
-
-    #     def format_diff_line(label, val1, val2, operator=NEQ, indent_level=1):
-    #         padding = " " * TAB
-    #         prefix = "\t" * indent_level + padding
-    #         return f"{prefix}{str(label).ljust(TAB)}{str(val1).ljust(TAB)}{operator}{str(val2).rjust(TAB)}\n"
-
-    #     # Compare basic attributes
-    #     if self.Name != other.Name:
-    #         diff_lines.append(format_diff_line("", self.Name, other.Name))
-    #         has_difference = True
-
-    #     if self.Extra != other.Extra:
-    #         diff_lines.append(format_diff_line("", self.Extra, other.Extra))
-    #         has_difference = True
-
-    #     if self.Description != other.Description:
-    #         diff_lines.append(format_diff_line("", self.Description, other.Description, operator=NEok))
-    #         has_difference = True
-
-    #     # Compare pins
-    #     s_pins = self.Pins
-    #     o_pins = other.Pins
-    #     all_pin_keys = sorted(set(s_pins.keys()) | set(o_pins.keys()))
-
-    #     for k in all_pin_keys:
-    #         in_self = k in s_pins
-    #         in_other = k in o_pins
-
-    #         if in_self and in_other:
-    #             val_s = s_pins[k]
-    #             val_o = o_pins[k]
-
-    #             if val_s == val_o:
-    #                 continue
-
-    #             # Numeric comparison logic
-    #             try:
-    #                 if isNum(val_s) and isNum(val_o):
-    #                     if float(trimD(val_s)) == float(trimD(val_o)):
-    #                         continue
-    #             except (ValueError, TypeError):
-    #                 pass
-
-    #             has_difference = True
-    #             zip_results = ziPins(val_s, val_o)
-
-    #             if zip_results:
-    #                 # If ziPins provides a breakdown, process each element
-    #                 pin_header = f"\t{str(k).ljust(TAB)}"
-    #                 diff_lines.append(pin_header)
-                    
-    #                 for i, (z_s, z_o) in enumerate(zip_results):
-    #                     op = NEQ if z_s != z_o else NEok
-    #                     # First element of zip doesn't need leading tabs if we lstrip later, 
-    #                     # but to match original logic we build it line by line
-    #                     line = format_diff_line(z_s, "", z_o, operator=op, indent_level=1)
-    #                     if i == 0:
-    #                         diff_lines.append(line.lstrip())
-    #                     else:
-    #                         diff_lines.append(line)
-    #             else:
-    #                 # Standard pin mismatch
-    #                 diff_lines.append(format_diff_line(k, val_s, val_o))
-
-    #         elif in_self:
-    #             # Pin exists in self but not in other
-    #             if s_pins[k] != NONE:
-    #                 has_difference = True
-    #                 diff_lines.append(format_diff_line(k, s_pins[k], NEX))
-
-    #         elif in_other:
-    #             # Pin exists in other but not in self
-    #             if o_pins[k] != NONE:
-    #                 has_difference = True
-    #                 diff_lines.append(format_diff_line(k, NEX, o_pins[k]))
-
-    #     if not has_difference:
-    #         return ""
-
-    #     header = (
-    #         f"\n{self.Address}\t{self.Name}{self.Extra}\t"
-    #         f"{self.Description} line#{self.LineNumber}\n"
-    #     )
-    #     return header + "".join(diff_lines)
 
 #------------------------------------------------------------AAX class-----------
 # Batch Refactored 5/12/2026, 11:39:20 AM
@@ -894,48 +797,6 @@ class AA(AAX):
         self.Parse()
 
 #-------------------------------------------------------------BA class-----------
-# class BA(BAX):
-#     '''
-#     read BA files and parse using BAX class
-#     '''
-#     def __init__(self, fname):
-#         super().__init__(fname)
-
-#     def Read(self):
-#         try:
-#             self.Lines=[]
-#             lpath=self.fName
-#             while os.path.isfile(lpath):
-#                 llines=[]
-#                 llines= readA(lpath)
-#                 # with open(lpath, 'r') as file:
-#                 #     llines=[] # temp list of lines (current file)
-#                 #     llines = file.readlines()  # read aax file to Lines
-#                 '''
-#                 check if the last line END PC##
-#                 if yes we have done with reading the code
-#                 if not search for the next file nnPCMMxx.AAX
-#                 nn-Node number
-#                 MM-PC number
-#                 xx-file number 01, 02... (first file 01)
-#                 '''
-#                 self.Lines+=llines
-
-#                 if "END" in self.Lines[-1]:
-#                     break #read everything and quit from while loop
-#                 else:
-#                     file_num_pos=lpath.find(".AA")
-#                     if file_num_pos<0:
-#                         file_num_pos=lpath.find(".BA")
-#                         if file_num_pos<0:
-#                             #cant find file num
-#                             break
-#                     file_num=int(lpath[file_num_pos-2:file_num_pos])+1
-#                     lpath=lpath[:file_num_pos-2]+format(file_num,'#02')+lpath[file_num_pos:]
-#         except Exception as err:
-#             warnings.warn('error reading file %s @Read\nerror:%s'%(self.fName,err),stacklevel=2)
-#             return      
-#         self.Parse()
 # Batch Refactored 5/12/2026, 2:26:52 PM
 # --- Refactored CLASS: BA ---
 class BA(BAX):
