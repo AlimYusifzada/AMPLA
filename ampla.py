@@ -1,8 +1,14 @@
 import sys
+import os
 import os.path
 import warnings
-from pathlib import Path
 import threading as trd
+from pathlib import Path
+import typing
+from typing import List, Any, Union, Optional, Dict, Type, Iterable, Union, Tuple, Set, Deque
+from collections import deque, defaultdict
+from operator import itemgetter
+
 
 amplahelp = '''
   Set of functions to compare AA/AAX and BA/BAX files
@@ -13,7 +19,7 @@ amplahelp = '''
   importing sys; os.path; warnings; pathlib import Path; threading as trd
  '''
 
-ampla_rev = ' 0.1.220724 '
+ampla_rev = ' 0.2.3 '
 if sys.version_info[0] < 3:
     warnings.warn('Please use Python version 3.*',stacklevel=0)
     sys.exit()
@@ -39,107 +45,99 @@ HEADER = ('design_ch', 'tech_ref', 'resp_dept', 'date',
           'l_text4', 'r_text4',
           'rev_ind', 'language')
 
-# ----------------------------------support functions--------------------------
+# ------------------------------------support functions--------------------------
+# Refactored on 23/04/2026 17:57
+
 def trimD(txt):
-    '''
-    remove D= and return only numbers as a string
-    '''
-    if txt[:2].upper() == 'D=':
+    """Remove D= and return only numbers as a string."""
+    if txt.upper().startswith("D="):
         return txt[2:]
     return txt
 
 def trimIO(txt):
-    '''
-    replace =DO. or =DI. with =
-    '''
-    vio=("=DO.","=DI.","=AI.","=AO.")
-    vEQ="="
-    for p in vio:
-        txt=txt.upper().replace(p,vEQ)
+    """Replace =DO. or =DI. with =."""
+    prefixes = ("=DO.", "=DI.", "=AI.", "=AO.")
+    txt = txt.upper()
+    for prefix in prefixes:
+        txt = txt.replace(prefix, "=")
     return txt
 
 def isNum(txt):
-    '''
-    check if argument is a number
-    '''
+    """Check if argument is a number."""
     try:
         float(trimD(txt))
         return True
-    except:
-        warnings.warn("cant read number @isNum(%s)"%txt,stacklevel=2)
+    except (ValueError, TypeError):
+        warnings.warn(f"cant read number @isNum({txt})", stacklevel=2)
         return False
 
 def ziPins(pinAval, pinBval):
-    '''
-    compare two lists
-    shortes append with NEX(not exist) values till they become equal length
-    sort them and return as zip
-    '''
-    flag = False  # revert flag set if A/B values reverted
-    # use to keep output A-first B-second
-    if type(pinAval) != list and type(pinBval) != list:
-        warnings.warn("incorrect type @ziPins(%s,%s)"%(type(pinAval),type(pinBval)),stacklevel=2)
-        return None
-    if type(pinAval) != list:
-        pinAval = [pinAval, ]
-    if type(pinBval) != list:
-        pinBval = [pinBval, ]
+    """
+    Compare two lists.
+    Shortest append with NEX (not exist) values till they become equal length.
+    Sort them and return as zip.
+    """
+    is_a_list = isinstance(pinAval, list)
+    is_b_list = isinstance(pinBval, list)
 
-    if max(len(pinAval), len(pinBval)) == len(pinAval):
-        # select longest and shortest
-        xList = pinAval  # longest
-        mList = pinBval  # shortest
+    if not is_a_list and not is_b_list:
+        warnings.warn(
+            f"incorrect type @ziPins({type(pinAval)},{type(pinBval)})",
+            stacklevel=2
+        )
+        return None
+
+    if not is_a_list:
+        pinAval = [pinAval]
+    if not is_b_list:
+        pinBval = [pinBval]
+
+    flag = False
+    if len(pinAval) >= len(pinBval):
+        x_list = pinAval  # longest
+        m_list = pinBval  # shortest
     else:
-        xList = pinBval  # longest
-        mList = pinAval  # shortest
+        x_list = pinBval  # longest
+        m_list = pinAval  # shortest
         flag = True
 
-    yList = []
-    for rec in xList:
-        if rec in mList:
-            yList.append(rec)
+    y_list = []
+    for rec in x_list:
+        if rec in m_list:
+            y_list.append(rec)
         else:
-            yList.append(NEX)
-    for rec in mList:
-        if rec not in xList:
-            xList.append(NEX)
-            yList.append(rec)
+            y_list.append(NEX)
+
+    for rec in m_list:
+        if rec not in x_list:
+            x_list.append(NEX)
+            y_list.append(rec)
+
     if flag:
-        return zip(yList, xList)
-    else:
-        return zip(xList, yList)
+        return zip(y_list, x_list)
+    return zip(x_list, y_list)
 
 def readA(fName):
-    '''
-    read/unpack AA or BA file to Lines
-    '''
-    Lines = []
-    tmpline = ''
-    SPC = 0x80
-    with open(fName, 'rb') as aafile:
-        b = aafile.read(1)
-        bip = 0x00  # hold previous bit int value
-        while b:
-            bi = int.from_bytes(b, 'big')  # convert byte to int
-            if bi > SPC:  # check if it is compacted spaces
-                # add spaces?
-                nofSPC = bi-SPC  # calculate number of the spaces
-                tmpline += ' '*nofSPC  # add spaces to the line
-                pass
-            if bi >= 0x20 and bi <= 0x7F and bip != 0x00:  # ASCII symbol, add as it is
-                tmpline += b.decode()
-                pass
-            # if bi<0x20 and bip==0x00:
-            #    pass
-            if bi == 0x00 and bip > 0x00:
-                # new line add
-                # append self.Lines
-                Lines.append(tmpline)
-                tmpline = ''
-                pass
-            bip = bi
-            b = aafile.read(1)
-    return Lines
+    """Read/unpack AA or BA file to lines."""
+    lines = []
+    tmpline = []
+    spc = 0x80
+    bip = 0x00
+
+    with open(fName, "rb") as aafile:
+        content = aafile.read()
+
+    for bi in content:
+        if bi > spc:
+            tmpline.append(" " * (bi - spc))
+        if 0x20 <= bi <= 0x7F and bip != 0x00:
+            tmpline.append(chr(bi))
+        if bi == 0x00 and bip > 0x00:
+            lines.append("".join(tmpline))
+            tmpline.clear()
+        bip = bi
+
+    return lines
 
 #------------------------------------------------------------Block class---------
 class block:
@@ -173,175 +171,243 @@ class block:
         else:
             return NEX # Not EXisting pin
 
+ # Refactored on 23/04/2026 18:01
     def AddPin(self, pin, value):
-        '''
+        """
         Create a pin with a value
-        block_obj.AddPin('pin',pin_value)
-        '''
-        dPatn="D="
-        hcFlag=False
-        hcValue=.0
-
-        if pin in self.Pins.keys():
-            warnings.warn('pin %s already exist @AddPins' % pin,stacklevel=2)
+        block_obj.AddPin('pin', pin_value)
+        """
+        if pin in self.Pins:
+            warnings.warn(f"pin {pin} already exist @AddPins", stacklevel=2)
             return False
-        # analise the values and change if required.
-        # hardcoded values MD,D,CD..
-        if dPatn in value:# if dPatn in st get it's position
-            dPos=value.index(dPatn)+2
+
+        d_patn = "D="
+        hc_flag = False
+        hc_value = 0.0
+
+        # Analyze the values and change if required.
+        # Hardcoded values MD, D, CD..
+        if d_patn in value:
+            d_pos = value.index(d_patn) + 2
             try:
-                hcValue=float(value[dPos:])
-                hcFlag=True
-            except: hcFlag=False
-        if hcFlag: self.Pins[pin]=str("D=%.6f"%hcValue)
-        else: self.Pins[pin] = value
+                hc_value = float(value[d_pos:])
+                hc_flag = True
+            except Exception:
+                hc_flag = False
+
+        if hc_flag:
+            self.Pins[pin] = f"D={hc_value:.6f}"
+        else:
+            self.Pins[pin] = value
+
         return True
 
-    def __str__(self)->str:
-        '''
+    def __str__(self) -> str:
+        """
         Text representation of the Block
         print(block_obj) or str(block_obj)
-        '''
-        s = self.Address+'\t'+self.Name+self.Extra+'\t' + \
-            self.Description+" line#"+str(self.LineNumber)+'\n'
-        for k in self.Pins.keys():
-            s += '\t'+str(k).ljust(TAB)+self.GetPin(k)+'\n'
-        return s
+        """
+        parts = [f"{self.Address}\t{self.Name}{self.Extra}\t{self.Description} line#{self.LineNumber}\n"]
+        for k in self.Pins:
+            parts.append(f"\t{str(k).ljust(TAB)}{self.GetPin(k)}\n")
+        return "".join(parts)
 
-    def __eq__(self, other)->bool:
-        '''
+    def __eq__(self, other) -> bool:
+        """
         Compare blocks, return True or False
         block_obj1==block_obj2
-        '''
-        if isinstance(other, block):
-            if other.Address == self.Address:
-                if other.Name == self.Name:
-                    if other.Extra == self.Extra:
-                        if other.Pins == self.Pins:
-                            if other.Description == self.Description:
-                                return True
-        return False
+        """
+        if not isinstance(other, block):
+            return False
+
+        return (
+            self.Address == other.Address and
+            self.Name == other.Name and
+            self.Extra == other.Extra and
+            self.Pins == other.Pins and
+            self.Description == other.Description
+        )
 
     def __add__(self, values):
-        '''
-        "Add new pin with values, first element is pin NAME
+        """
+        Add new pin with values, first element is pin NAME
         rest of the elements added as list or tuple
         block_obj+=('pin',pin_value)
         block_obj=block_obj+('pin',pin_value)
         block_obj+=('pin',(pin_value1,pin_value2,..))
-        '''
-        if isinstance(values, tuple) or isinstance(values, list):
+        """
+        if isinstance(values, (list, tuple)):
             if len(values) > 3:
-                tmp = values[1:]
-                self.AddPin(values[0], tmp)
-            if len(values) == 2:
+                self.AddPin(values[0], values[1:])
+            elif len(values) == 2:
                 self.AddPin(values[0], values[1])
         else:
-            warnings.warn('function operand must be a list or a tuple @__add__',stacklevel=2)
+            warnings.warn("function operand must be a list or a tuple @__add__", stacklevel=2)
+            
         return self
 
-    def Compare(self, other)->str:
-        '''
-        Compare self to other logic block, return difference report
-        (block_obj1.compare(block_obj2))
-        '''
-        flag = False  # used to switch comparision logic - if set difference found
-        s = ''  # difference will be asembled here
-        if isinstance(other, block):
-            if self == other:
-                return s
-        sPinsList = list(self.Pins.keys())  # self Pins list
-        oPinsList = list(other.Pins.keys()) # other Pins list
+ # Refactored 4/23/2026, 6:22:49 PM
+    def Compare(self, other: object) -> str:
+        """
+        Compare self to another logic block and return a difference report.
+        """
+        if not isinstance(other, self.__class__) or self == other:
+            return ""
 
+        diff_lines: list[str] = []
+        s_pins: dict = self.Pins
+        o_pins: dict = other.Pins
+        tab_pad: str = " " * TAB
+
+        def format_diff(label: object, v1: object, v2: object, op: str = NEQ, indent: int = 1) -> str:
+            return f"{'\t' * indent}{tab_pad}{str(label).ljust(TAB)}{str(v1).ljust(TAB)}{op}{str(v2).rjust(TAB)}\n"
+
+        # Compare basic attributes
         if self.Name != other.Name:
-            # Logic block names are different (replaced or moved)
-            s += '\t'+' '*TAB + \
-                self.Name.ljust(TAB)+NEQ+other.Name.rjust(TAB)+'\n'
-            flag = True
-            '''
-            it is possible that logic block was replaced or moved
-            old old block need to be deleted
-            '''
+            diff_lines.append(format_diff("", self.Name, other.Name))
 
         if self.Extra != other.Extra:
-            # Configuartion parameters of the blocks are ifferent
-            s += '\t'+' '*TAB + \
-                self.Extra.ljust(TAB)+NEQ+other.Extra.rjust(TAB)+'\n'
-            flag = True
-            '''
-            configuration paramenters changed
-            it is possible that new change affect the parameters only
-            if so the block need to be recreated
-            '''
+            diff_lines.append(format_diff("", self.Extra, other.Extra))
 
         if self.Description != other.Description:
-            # Non critical difference in description found
-            s += '\t'+' '*TAB + \
-                self.Description.ljust(TAB)+NEok + \
-                other.Description.rjust(TAB)+'\n'
-            flag = True
-            '''
-            the description change and could be changed harmlessly
-            '''
+            diff_lines.append(format_diff("", self.Description, other.Description, op=NEok))
 
-      # compare pins of the blocks
-        for k in sPinsList:
-            if k in oPinsList:
-                # pin defined in both logic blocks
-                if self.Pins[k] != other.Pins[k]:
-                    # pin 'k' are not equal
-                    flag = True
-                    if isNum(self.Pins[k]) and isNum(other.Pins[k]):
-                        if float(trimD(self.Pins[k])) == float(trimD(other.Pins[k])):
-                            continue
-                    zipns = ziPins(self.Pins[k], other.Pins[k])
-                    stmp = str(self.Pins[k]).ljust(TAB) + \
-                        NEQ+str(other.Pins[k]).rjust(TAB)+'\n'
-                    if zipns != None:
-                        stmp = ''
-                        for z in zipns:
-                            if z[0] != z[1]:
-                                stmp += '\t'+' '*TAB+str(z[0]).ljust(TAB)+NEQ + \
-                                    str(z[1]).rjust(TAB)+'\n'
-                                '''
-                                pin values dont match
-                                '''
-                            else:
-                                stmp += '\t'+' '*TAB+str(z[0]).ljust(TAB)+NEok + \
-                                    str(z[1]).rjust(TAB)+'\n'
-                    s += '\t'+str(k).ljust(TAB)+stmp.lstrip()
-                    '''
-                    call function to add CF code
-                    reconnect pins
-                    '''
+        # Compare pins using a single sorted pass
+        for k in sorted(set(s_pins) | set(o_pins)):
+            v_s = s_pins.get(k, NONE)
+            v_o = o_pins.get(k, NONE)
 
-            else:  # pin is not in other block, probably the extra parameters changed
-                if self.Pins[k] != NONE:
-                    flag = True
-                    s += '\t'+str(k).ljust(TAB) + \
-                        str(self.Pins[k]).ljust(TAB) + \
-                        NEQ+NEX.rjust(TAB)+'\n'
-                    '''
-                    call function to add CF code
-                    recreate(replace) statement with new extra parameters
-                    '''
+            if v_s == v_o:
+                continue
 
-        for k in oPinsList:
-            if k not in sPinsList:
-                if other.Pins[k] != NONE:
-                    flag = True
-                    s += '\t'+str(k).ljust(TAB) + \
-                        NEX.ljust(TAB) + \
-                        NEQ+str(other.Pins[k]).rjust(TAB) + '\n'
-                    '''
-                    call function to generate CF code
-                    '''
-        if flag:
-            s = '\n'+self.Address+'\t'+self.Name+self.Extra+'\t' + \
-                self.Description+" line#"+str(self.LineNumber)+'\n'+s
-        return s
+            # Numeric comparison logic
+            try:
+                if isNum(v_s) and isNum(v_o) and float(trimD(v_s)) == float(trimD(v_o)):
+                    continue
+            except (ValueError, TypeError):
+                pass
 
-#-------------------------------------------------AAX class-----------
+            if v_s != NONE and v_o != NONE:
+                z_res = ziPins(v_s, v_o)
+                if z_res:
+                    # If ziPins provides a breakdown, process each element
+                    diff_lines.append(f"\t{str(k).ljust(TAB)}")
+                    for i, (zs, zo) in enumerate(z_res):
+                        op = NEQ if zs != zo else NEok
+                        line = format_diff(zs, "", zo, op=op)
+                        diff_lines.append(line.lstrip() if i == 0 else line)
+                else:
+                    diff_lines.append(format_diff(k, v_s, v_o))
+            elif v_s != NONE:
+                diff_lines.append(format_diff(k, v_s, NEX))
+            elif v_o != NONE:
+                diff_lines.append(format_diff(k, NEX, v_o))
+
+        if not diff_lines:
+            return ""
+
+        header = f"\n{self.Address}\t{self.Name}{self.Extra}\t{self.Description} line#{self.LineNumber}\n"
+        return header + "".join(diff_lines)
+
+    # def Compare(self, other) -> str:
+    #     """
+    #     Compare self to another logic block and return a difference report.
+    #     """
+    #     if not isinstance(other, self.__class__):
+    #         return ""
+
+    #     if self == other:
+    #         return ""
+
+    #     diff_lines = []
+    #     has_difference = False
+
+    #     def format_diff_line(label, val1, val2, operator=NEQ, indent_level=1):
+    #         padding = " " * TAB
+    #         prefix = "\t" * indent_level + padding
+    #         return f"{prefix}{str(label).ljust(TAB)}{str(val1).ljust(TAB)}{operator}{str(val2).rjust(TAB)}\n"
+
+    #     # Compare basic attributes
+    #     if self.Name != other.Name:
+    #         diff_lines.append(format_diff_line("", self.Name, other.Name))
+    #         has_difference = True
+
+    #     if self.Extra != other.Extra:
+    #         diff_lines.append(format_diff_line("", self.Extra, other.Extra))
+    #         has_difference = True
+
+    #     if self.Description != other.Description:
+    #         diff_lines.append(format_diff_line("", self.Description, other.Description, operator=NEok))
+    #         has_difference = True
+
+    #     # Compare pins
+    #     s_pins = self.Pins
+    #     o_pins = other.Pins
+    #     all_pin_keys = sorted(set(s_pins.keys()) | set(o_pins.keys()))
+
+    #     for k in all_pin_keys:
+    #         in_self = k in s_pins
+    #         in_other = k in o_pins
+
+    #         if in_self and in_other:
+    #             val_s = s_pins[k]
+    #             val_o = o_pins[k]
+
+    #             if val_s == val_o:
+    #                 continue
+
+    #             # Numeric comparison logic
+    #             try:
+    #                 if isNum(val_s) and isNum(val_o):
+    #                     if float(trimD(val_s)) == float(trimD(val_o)):
+    #                         continue
+    #             except (ValueError, TypeError):
+    #                 pass
+
+    #             has_difference = True
+    #             zip_results = ziPins(val_s, val_o)
+
+    #             if zip_results:
+    #                 # If ziPins provides a breakdown, process each element
+    #                 pin_header = f"\t{str(k).ljust(TAB)}"
+    #                 diff_lines.append(pin_header)
+                    
+    #                 for i, (z_s, z_o) in enumerate(zip_results):
+    #                     op = NEQ if z_s != z_o else NEok
+    #                     # First element of zip doesn't need leading tabs if we lstrip later, 
+    #                     # but to match original logic we build it line by line
+    #                     line = format_diff_line(z_s, "", z_o, operator=op, indent_level=1)
+    #                     if i == 0:
+    #                         diff_lines.append(line.lstrip())
+    #                     else:
+    #                         diff_lines.append(line)
+    #             else:
+    #                 # Standard pin mismatch
+    #                 diff_lines.append(format_diff_line(k, val_s, val_o))
+
+    #         elif in_self:
+    #             # Pin exists in self but not in other
+    #             if s_pins[k] != NONE:
+    #                 has_difference = True
+    #                 diff_lines.append(format_diff_line(k, s_pins[k], NEX))
+
+    #         elif in_other:
+    #             # Pin exists in other but not in self
+    #             if o_pins[k] != NONE:
+    #                 has_difference = True
+    #                 diff_lines.append(format_diff_line(k, NEX, o_pins[k]))
+
+    #     if not has_difference:
+    #         return ""
+
+    #     header = (
+    #         f"\n{self.Address}\t{self.Name}{self.Extra}\t"
+    #         f"{self.Description} line#{self.LineNumber}\n"
+    #     )
+    #     return header + "".join(diff_lines)
+
+#------------------------------------------------------------AAX class-----------
+# Batch Refactored 5/12/2026, 11:39:20 AM
 class AAX:
 
     def __init__(self, fname):
@@ -362,726 +428,845 @@ class AAX:
         self.Read()
         self.Parse()
         self.difstat=False
+
+# --- Refactored FUNCTION: Read ---
+
+    def Read(self: Any) -> None:
+        """
+        Read AA/AAX/BA/BAX files into buffer self.Lines.
+        """
+        self.Lines: List[str] = []
+        lpath: str = self.fName
         
-    def Read(self):
-        '''
-        read AA/AAX/BA/BAX to buffer self.Lines
-        '''
         try:
-            self.Lines=[]
-            lpath=self.fName
             while os.path.isfile(lpath):
                 with open(lpath, 'r') as file:
-                    llines=[] # temp list of lines (current file)
-                    llines = file.readlines()  # read aax file to Lines
-                '''
-                check if the last line END PC##
-                if yes we have done with reading the code
-                if not search for the next file nnPCMMxx.AAX
-                nn-Node number
-                MM-PC number
-                xx-file number 01, 02... (first file 01)
-                '''
-                self.Lines+=llines
-                if "END" in self.Lines[-1]:
-                    break #read everything and quit from while loop
-                else:
-                    file_num_pos=lpath.find(".AA")
-                    if file_num_pos<0:
-                        file_num_pos=lpath.find(".BA")
-                        if file_num_pos<0:
-                            #cant find file num
-                            break
-                    file_num=int(lpath[file_num_pos-2:file_num_pos])+1
-                    lpath=lpath[:file_num_pos-2]+format(file_num,'#02')+lpath[file_num_pos:]
+                    llines: List[str] = file.readlines()
+                
+                if not llines:
+                    break
+                
+                self.Lines.extend(llines)
+                
+                # Check if the last line of the current file contains "END"
+                if "END" in llines[-1]:
+                    break
+                
+                # Locate the extension to find the 2-digit sequence number position
+                # rfind is used to ensure we get the extension even if the path contains dots
+                idx: int = lpath.rfind(".AA")
+                if idx == -1:
+                    idx = lpath.rfind(".BA")
+                
+                # If extension not found or no room for 2-digit sequence, stop
+                if idx < 2:
+                    break
+                
+                # Increment the file sequence number (e.g., '01' -> '02')
+                # ValueError will be caught by the outer try-except block
+                file_num: int = int(lpath[idx - 2:idx]) + 1
+                lpath = f"{lpath[:idx - 2]}{file_num:02d}{lpath[idx:]}"
+                
         except Exception as err:
-            warnings.warn("error reading file: @Read(%s)\nerror:%s"%(self.fName,err),stacklevel=2)
+            warnings.warn(f"error reading file: @Read({self.fName})\nerror:{err}", stacklevel=2)
             return
 
-    def Write(self):
+    # --- Refactored FUNCTION: Write ---
+    def Write(self) -> None:
+        filename: str = f"{self.fName}.txt"
         try:
-            with open(self.fName+'.txt', 'w') as file:
-                for l in self.Lines:
-                    file.write(l+'\n')
-        except Exception as err:
-            warnings.warn("error writing file: @Write(%s.txt)\nerror:%s" %(self.fName,err),stacklevel=2)
+            with open(filename, mode='w', encoding='utf-8') as file:
+                file.writelines(f"{line}\n" for line in self.Lines)
+        except Exception as error:
+            warnings.warn(
+                f"error writing file: @Write({filename})\nerror:{error}",
+                stacklevel=2
+            )
+# Batch Refactored 5/12/2026, 1:28:16 PM
+    # --- Refactored FUNCTION: Parse ---
+    def Parse(self) -> None:
+        """
+        AMPL parsing logic refactored for performance and PEP 8 compliance.
+        """
+        par_pos: int = 0  # 0: outside, 1: inside block, 2: multi-line pin
+        address: str = ""
+        block_name: str = ""
+        pin_name: str = ""
+        extra: str = ""
+        pin_value: str = ""
+        pin_mul_values: list[str] = []
 
-    def Parse(self):
-        '''
-        AMPL parsing
-        '''
-        par_pos = 0  # used for parsing
-        linecounter = 0
-        '''
-        =0 ouside logic block
-        =1 inside logic block
-        =2 inside block the pin has several connections assignment 
-        '''
-        Address = ''  # address of the block
-        BlockName = ''  # NAME of the block  or  pin
-        PinName = ''
-        Extra = ''
-        PinValue = ''
-        PinMulValues = []  # list of the values for multiple connected PINS
-        ElementsCounter = 0  # number of elements in the line
+        # Local references for faster attribute lookup
+        blocks = self.Blocks
+        header = self.Header
+        lines = self.Lines
 
-        # AMPLE parsing logic from here
-        for currentLine in self.Lines:
-            linecounter += 1
-            LineElements = currentLine.split()  # read line and split by spaces
-            # count the elements in the line
-            ElementsCounter = len(LineElements)
-            if ElementsCounter > 0:
-                # reading text from aax file header
-                if LineElements[0].lower() in HEADER:
-                    ss = ''
-                    i = 0
-                    for s in LineElements:
-                        if i > 0:
-                            ss = ss+s+' '
-                        i += 1
-                    self.Header[LineElements[0].lower()] = ss
+        for line_idx, current_line in enumerate(lines, 1):
+            line_elements = current_line.split()
+            elements_count = len(line_elements)
+
+            if elements_count == 0:
+                continue
+
+            first_elem = line_elements[0]
+            first_elem_lower = first_elem.lower()
+
+            # Header parsing
+            if first_elem_lower in HEADER:
+                header[first_elem_lower] = " ".join(line_elements[1:]) + " " if elements_count > 1 else ""
+                continue
+
+            # Logic block start (PC + digit)
+            if par_pos != 2 and first_elem.startswith("PC") and first_elem[2:3].isdigit():
+                self.PCName = first_elem[:4]
+                address = first_elem
+                par_pos = 1
+                block_name = line_elements[1] if elements_count > 1 else ""
+                extra = ""
+
+                if elements_count > 2:
+                    extra = line_elements[2]
+                elif "(" in block_name:
+                    split_idx = block_name.find("(")
+                    extra = block_name[split_idx:]
+                    block_name = block_name[:split_idx]
+
+                # Create block instance
+                new_block = block(address, block_name, extra)
+                new_block.LineNumber = line_idx
+                blocks[address] = new_block
+                continue
+
+            # Inside logic block
+            if par_pos == 1:
+                # Block description
+                if first_elem == "INAME":
+                    if elements_count > 1:
+                        blocks[address].Description = "".join(line_elements[1:])
                     continue
 
-                # start of the logic block status=1 get address, name and params
-                if LineElements[0][:2] == 'PC' and LineElements[0][2:3].isdigit() and par_pos != 2:
-                    self.PCName=LineElements[0][0:4] #get PC name
-                    Address = LineElements[0]  # get address
-                    par_pos = 1  # block mark if position ==1 we are inside logic block
-                    BlockName = ''
-                    Extra = ''
-                    if ElementsCounter > 1:
-                        BlockName = LineElements[1]  # get blok NAME
-                    if ElementsCounter > 2:
-                        Extra = LineElements[2]  # get extra params
+                # Pin detection
+                if first_elem.startswith(":"):
+                    pin_name = first_elem
+                    if elements_count == 1:
+                        pin_value = NONE
+                        continue
+
+                    # Join elements to handle spaces in pin values
+                    pin_value = trimIO("".join(line_elements[1:]))
+                    
+                    if pin_value.endswith(","):
+                        par_pos = 2
+                        pin_mul_values.append(pin_value[:-1])
                     else:
-                        if '(' in BlockName:  # no space between block name and extra
-                            Extra = BlockName[BlockName.find('('):]
-                            BlockName = BlockName[:BlockName.find('(')]
-                    # create dbinstance block obj
-                    self.Blocks[Address] = block(Address, BlockName, Extra)
-                    self.Blocks[Address].LineNumber = linecounter
-                    continue  # next line
+                        blocks[address].AddPin(pin_name, pin_value)
+                    continue
 
-                # inside block reading block name and other parts
-                if par_pos == 1 and LineElements[0] == 'INAME':
-                    if ElementsCounter > 1:
-                        st = ''
-                        for e in LineElements[1:]:
-                            st += e
-                        self.Blocks[Address].Description = st
-                    continue  # go to the next line
+            # Multi-line pin assignment
+            if par_pos == 2:
+                pin_value = trimIO("".join(line_elements))
+                
+                if pin_value.endswith(","):
+                    pin_mul_values.append(pin_value[:-1])
+                else:
+                    pin_mul_values.append(pin_value)
+                    pin_mul_values.sort()
+                    blocks[address].AddPin(pin_name, pin_mul_values)
+                    pin_mul_values = []
+                    par_pos = 1
+                continue
 
-                # inside block reading pins
-                if par_pos == 1 and LineElements[0][:1] == ':':  # pin found
-                    PinName = LineElements[0]  # get pin NAME
-                    if ElementsCounter == 1:  # empty pin
-                        PinValue = NONE
-                        continue  # go to the next line
-                    if ElementsCounter >= 2:  # if there are spaces in the pin value
-                        st = ''
-                        for e in LineElements[1:]:
-                            st += e+''  # put all back in to one string
-                        PinValue = trimIO(st)
-                    if PinValue[-1:] == ',':  # another value at the next line
-                        par_pos = 2  # pin values occupy several lines
-                        PinMulValues.append(PinValue[:-1])
-                        continue  # go to the next line
-                    else:
-                        self.Blocks[Address].AddPin(
-                            PinName, PinValue)  # last value for the pin
-                        par_pos = 1
-                        continue  # go to the next line
+    # Batch Refactored 5/12/2026, 1:35:22 PM
 
-                # pin has several values (multiple lines assignement)
-                if par_pos == 2:  # one of the values for the pin - add it to the list
 
-                    if ElementsCounter > 1:  # if there are spaces in the pin value
-                        st = ''
-                        for e in LineElements:
-                            st += e+''  # put all back in to one string
-                        PinValue = trimIO(st)
-                    else:
-                        PinValue = trimIO(LineElements[0])
-
-                    if PinValue[-1:] == ',':  # there are still another value at the next line
-                        PinMulValues.append(PinValue[:-1])
-                    else:  # this is a last value for the pin
-                        PinMulValues.append(PinValue)
-                        PinMulValues.sort()
-                        self.Blocks[Address].AddPin(
-                            PinName, PinMulValues)  # add list to the pin
-                        PinMulValues = []
-                        par_pos = 1  # finish of multiple values reading
-
-    def GetLabels(self)->dict:
-        '''
+    # --- Refactored FUNCTION: GetLabels ---
+    def GetLabels(self) -> dict:
+        """
         Populate dictionary 'self.Labels'
         with addresses and labels, then return it as result
-        '''
-        def getlabel(vx)->str:
-            if vx[0:2] == 'N=':  # label found
-                return str(addr)+str(pinname)
-            else:
-                warnings.warn("cant find label @getlabel",stacklevel=2)
-                return ''
+        """
+        import warnings
 
-        for addr in self.Blocks:  # start for each logic block
-            for pinname in self.Blocks[addr].Pins:  # for all PINS
-                pinval = self.Blocks[addr].Pins[pinname]  # ger pin val
-                if type(pinval) == list or type(pinval) == tuple:  # several connections
-                    for val in pinval:
-                        if type(val) == str:
-                            if len(getlabel(val)) > 2:
-                                self.Labels[getlabel(val)] = val[2:]
-                elif type(pinval) == str:
-                    if len(getlabel(pinval)) > 2:
-                        self.Labels[getlabel(pinval)] = pinval[2:]
-        return self.Labels
+        labels: dict = self.Labels
+        # Optimization: Use items() for faster iteration and cache dictionary references
+        for addr, block in self.Blocks.items():
+            for pin_name, pin_val in block.Pins.items():
+                # Normalize pin_val to a sequence to unify processing logic
+                if isinstance(pin_val, (list, tuple)):
+                    candidates = pin_val
+                elif isinstance(pin_val, str):
+                    candidates = (pin_val,)
+                else:
+                    continue
 
-    def BlocksAround(self, key)->tuple:
-        '''
-        return tuple of the previous block and next block
-        '''
-        keys = tuple(self.Blocks.keys())
-        key_ind = keys.index(key)
-        if key_ind == 0:
-            k1 = 0
-            k2 = keys[key_ind+1]
-        elif key_ind == len(keys)-1:
-            k1 = keys[key_ind-1]
-            k2 = 0
-        else:
-            k1 = keys[key_ind-1]
-            k2 = keys[key_ind+1]
-        return (k1, k2)
+                for val in candidates:
+                    if isinstance(val, str):
+                        if val.startswith('N='):
+                            # Optimization: Use f-string for faster string concatenation
+                            label_key: str = f"{addr}{pin_name}"
+                            # Preserve original logic: only store if combined key length > 2
+                            if len(label_key) > 2:
+                                labels[label_key] = val[2:]
+                        else:
+                            warnings.warn("cant find label @getlabel", stacklevel=2)
+        return labels
 
-    def xRef(self, tag='dummy')->tuple:
-        '''
-        Cross referense search for the tag_name
-        return tuple of addresses where it was found.
-        Use cref(NONE) to search for unconnected pins
-        To print all blocks out use as shown below
-        for a in f.cref('tag_name'):
+    # --- Refactored FUNCTION: BlocksAround ---
+    def BlocksAround(self, key: typing.Any) -> typing.Tuple[typing.Any, typing.Any]:
+        """
+        Return a tuple of the previous block and next block.
+        """
+        keys: list = list(self.Blocks)
+        idx: int = keys.index(key)
+        size: int = len(keys)
+
+        prev_k: typing.Any = keys[idx - 1] if idx > 0 else 0
+        next_k: typing.Any = keys[idx + 1] if idx < size - 1 else 0
+
+        return (prev_k, next_k)
+
+    # --- Refactored FUNCTION: xRef ---
+    def xRef(self, tag: str = 'dummy') -> tuple[str, ...]:
+        """
+        Cross reference search for the tag_name.
+        Returns a tuple of addresses where it was found.
+        Use xRef(NONE) to search for unconnected pins.
+        To print all blocks out use as shown below:
+        for a in f.xRef('tag_name'):
             print(f.Blocks[a[:a.index(':')]])
-        '''
-        out = ()
-        for addr in self.Blocks:
-            for pin in self.Blocks[addr].Pins:
-                pinval = self.Blocks[addr].GetPin(pin)
-                if tag in pinval:
-                    out += (str(addr)+str(pin),)
-        return out
+        """
+        return tuple([
+            f"{addr}{pin}"
+            for addr, block in self.Blocks.items()
+            for pin in block.Pins
+            if tag in block.GetPin(pin)
+        ])
 
-    def GetBlock(self, blkey='')->block: # safely return block
-        '''
-        Return block by address
-        dbinst=BAX_obj.getblock('DIC101')
-        pcinst=AAX_obj.getblock('PC23.12.1.3')
-        '''
-        if blkey in self.Blocks.keys():
+    # --- Refactored FUNCTION: GetBlock ---
+    def GetBlock(self, blkey: str = "") -> block:
+        """
+        Return block by address.
+
+        Example:
+            dbinst = BAX_obj.GetBlock('DIC101')
+            pcinst = AAX_obj.GetBlock('PC23.12.1.3')
+        """
+        try:
             return self.Blocks[blkey]
-        else:
-            warnings.warn("cant find block %s in Blocks @GetBlock"%blkey,stacklevel=2)
+        except KeyError:
+            warnings.warn(f"cant find block {blkey} in Blocks @GetBlock", stacklevel=2)
             return NONE
 
-    def GetRevision(self)-> str:
-        '''
-        Return revision string or NEX
-        '''
-        k = 'rev_ind'
-        if k in self.Header.keys():
-            return self.Header[k].strip()
-        else:
-            return NEX
+    # --- Refactored FUNCTION: GetRevision ---
+    def GetRevision(self) -> str:
+        """
+        Return revision string or NEX.
+        """
+        revision: str | None = self.Header.get('rev_ind')
+        return revision.strip() if revision is not None else NEX
 
-    def Compare(self, other)->str:
-        '''
-        Compare AAX files and return text report
-        print(AAX_obj1.compare(AAX_obj2))
+    # --- Refactored FUNCTION: Compare ---
+    def Compare(self, other: "AAX") -> str:
+        self.difstat: bool = False
+        if not isinstance(other, AAX):
+            warnings.warn(f"type mismatch @__cmp({type(self)},{type(other)})", stacklevel=2)
+            return ""
 
-        future version will have option to generate CF file
-        '''
-        self.difstat=False
-        s = ''
-        if isinstance(other, AAX):
-            selfBlocks = self.Blocks.keys()
-            otherBlocks = other.Blocks.keys()
-            s += "\n HEADER INSPECTION\n"+'='*30
-            if self.Header != other.Header:
-                self.difstat=True
-                for k in HEADER:
-                    if k in other.Header and k in self.Header:
-                        if self.Header[k] != other.Header[k]:
-                            s += '\n\t'+str(k).ljust(TAB) + \
-                                str(self.Header[k]).ljust(TAB)+NEok + \
-                                str(other.Header[k]).rjust(TAB)
-                '''
-                Put warning to change header manually
-                MDT command          
-                '''
-            s += "\n\n CODE INSPECTION\n"+'='*30
-            if len(selfBlocks) != len(otherBlocks):
-                self.difstat=True
-                s += '\nnumber of logic blocks are different!\n \
-                    at ..%s =%d\n \
-                    at ..%s =%d\n' % \
-                    (self.fName[nSPC:], len(self.Blocks.keys()),
-                     other.fName[nSPC:], len(other.Blocks.keys()))
-            for statement in self.Blocks.keys():
-                if statement in other.Blocks.keys():
-                    if self.Blocks[statement] != other.Blocks[statement]:
-                        self.difstat=True
-                        s += str(self.Blocks[statement].Compare(other.Blocks[statement]))
-                    if self.BlocksAround(statement) != other.BlocksAround(statement):
-                        ksA, ksB = self.BlocksAround(statement)
-                        koA, koB = other.BlocksAround(statement)
-                        if ksA != koA and ksB != koB:
-                            self.difstat=True
-                            s += str("\nDANGLING CODE: %s\n" % statement)
-                else:
-                    # generate DS (Delete Statement ONB command)
-                    self.difstat=True
-                    s += '\n'+RMVD+' %s\n'%statement+str(self.Blocks[statement]) #not found in AFTER but exist in BEFORE
-                    '''
-                    call function to generate CF code
-                    (delete statement DS)
-                    '''
-            for statement in other.Blocks.keys():
-                if statement not in self.Blocks.keys():
-                    # generate IS (Insert Statement ONB command)
-                    self.difstat=True
-                    s += '\n'+NCD+' %s\n' %statement+str(other.Blocks[statement]) #not found in AFTER but exist in BEFORE
-                    '''
-                    call function to generate CF code
-                    (insert statement IS)
-                    '''
-        else:
-            warnings.warn("type mismatch @__cmp(%s,%s)"%(type(self),type(other)),stacklevel=2)        
-        return s
+        report: list[str] = []
+        report.append("\n HEADER INSPECTION\n" + "=" * 30)
 
-#--------------------------------------------------BAX class----------
+        s_header = self.Header
+        o_header = other.Header
+
+        if s_header != o_header:
+            for k in HEADER:
+                v_self = s_header.get(k)
+                v_other = o_header.get(k)
+                if v_self is not None and v_other is not None and v_self != v_other:
+                    self.difstat = True
+                    report.append(
+                        f"\n\t{str(k).ljust(TAB)}{str(v_self).ljust(TAB)}{NEok}{str(v_other).rjust(TAB)}"
+                    )
+
+        report.append("\n\n CODE INSPECTION\n" + "=" * 30)
+        s_blocks = self.Blocks
+        o_blocks = other.Blocks
+        
+        len_s = len(s_blocks)
+        len_o = len(o_blocks)
+
+        if len_s != len_o:
+            self.difstat = True
+            report.append(
+                f"\nnumber of logic blocks are different!\n"
+                f"                     at ..{self.fName[nSPC:]} ={len_s}\n"
+                f"                     at ..{other.fName[nSPC:]} ={len_o}\n"
+            )
+
+        for statement, block_self in s_blocks.items():
+            if statement in o_blocks:
+                block_other = o_blocks[statement]
+                if block_self != block_other:
+                    self.difstat = True
+                    report.append(str(block_self.Compare(block_other)))
+
+                s_around = self.BlocksAround(statement)
+                o_around = other.BlocksAround(statement)
+                if s_around[0] != o_around[0] and s_around[1] != o_around[1]:
+                    self.difstat = True
+                    report.append(f"\nDANGLING CODE: {statement}\n")
+            else:
+                self.difstat = True
+                report.append(f"\n{RMVD} {statement}\n{block_self}")
+
+        for statement, block_other in o_blocks.items():
+            if statement not in s_blocks:
+                self.difstat = True
+                report.append(f"\n{NCD} {statement}\n{block_other}")
+
+        return "".join(report)
+
+#-------------------------------------------------------------BAX class----------
+# Batch Refactored 5/12/2026, 2:06:03 PM
+# --- Refactored CLASS: BAX ---
 class BAX(AAX):
-
-    def __init__(self, fname):
-        '''
+    def __init__(self, fname: str) -> None:
+        """
         Constructor, create BAX file instance, parse AMPL logic
         Blocks: contains all instances from BAX file
         fName: full path to AMPL bax file including file name
         Lines: text lines from AMPL file
         Header: AMPL code header
         Labels: all labels with addresses in the AMPL code
-        '''
+        """
         super().__init__(fname)
 
-    def Parse(self):
-        Address = ''  # database instance unique value
-        BlockName = ''  # type of the block  or  pin name
-        PinName = ''
-        # Extra = '' # not in use for BAX
-        PinValue = ''
-        # lpinval = []  # list of the values for multiple connected PINS
-        ElementsCounter = 0  # number of elements in the line
-        linecounter = 0
+    def Parse(self) -> None:
+        """
+        AMPL parsing logic for BAX files.
+        Optimized for string processing and memory efficiency.
+        """
+        address: str = ''
+        
+        for line_num, current_line in enumerate(self.Lines, 1):
+            words = current_line.split()
+            if not words:
+                continue
 
-        # AMPLE parsing logic from here
-        for currentLine in self.Lines:
-            linecounter+=1
-            lineWords = currentLine.split()  # read line and split by spaces
-            ElementsCounter = len(lineWords)  # count the elements in the line
-            if ElementsCounter > 0:
-                # reading text from aax file header
-                if lineWords[0].lower() in HEADER:
-                    ss = ''
-                    i = 0
-                    for s in lineWords:
-                        if i != 0:
-                            ss = ss+s+' '
-                        i += 1
-                    self.Header[lineWords[0].lower()] = ss
-                    continue
-                # get address, name and params
-                if lineWords[0][:1] != ':' and \
-                        lineWords[0] != 'BEGIN' and lineWords[0] != 'END' and lineWords[0] != '(':
-                    Address = lineWords[0]  # get address (Instance name)
-                    if len(lineWords) >= 2:
-                        BlockName = ''
-                        for w in lineWords[1:]:
-                            BlockName = BlockName+w
-                    self.Blocks[Address] = block(
-                        Address, BlockName, extra='')  # create logic block obj
-                    self.Blocks[Address].LineNumber=linecounter
-                    continue
-                # read pins
-                if lineWords[0][:1] == ':':  # start of the pin definition
-                    PinName = lineWords[0]  # get pin NAME
-                    if ElementsCounter >= 2:  # if there are spaces in the pin value
-                        st = ''
-                        for e in lineWords[1:]:
-                            st += e+''  # put all back in to one string
-                        PinValue = st
-                    if ElementsCounter == 1:
-                        PinValue = NONE  # empty pin
-                    
-                    if Address!='':
-                        self.Blocks[Address].AddPin(
-                            PinName, PinValue)  # last value for the pin
+            first_word = words[0]
+            first_word_lower = first_word.lower()
 
-    def Compare(self, other)->str:
-        '''
-        Compare BAX files and return text report
-        '''
-        s = ''
-        if isinstance(other, BAX):
-            skeys = self.Blocks.keys()
-            okeys = other.Blocks.keys()
-            s += "\n HEADER INSPECTION\n"+'='*30
-            if self.Header != other.Header:
-                for k in HEADER:
-                    if k in other.Header and k in self.Header:
-                        if self.Header[k] != other.Header[k]:
-                            s += '\n\t'+str(k).ljust(TAB) + \
-                                str(self.Header[k]).ljust(TAB)+NEok + \
-                                str(other.Header[k]).rjust(TAB)
-            s += "\n\n DATABASE INSPECTION\n"+'='*30
-            if len(skeys) != len(okeys):
-                s += '\nNumers of db instances are different\n \
-                at ..%s =%d\n \
-                at ..%s =%d\n' % \
-                    (self.fName[nSPC:], len(self.Blocks.keys()),
-                     other.fName[nSPC:], len(other.Blocks.keys()))
-            for key in self.Blocks.keys():
-                if key in other.Blocks.keys():
-                    if self.Blocks[key] != other.Blocks[key]:
-                        s += str(self.Blocks[key].Compare(other.Blocks[key]))
-                    if self.BlocksAround(key) != other.BlocksAround(key):
-                        ksA, ksB = self.BlocksAround(key)
-                        koA, koB = other.BlocksAround(key)
-                        if ksA != koA and ksB != koB:
-                            s += str("\nMisplaced db instance %s\n" % key)
-                else:
-                    # generate MDB command to spare the instance (do not delete)
-                    # topup.bax
-                    s += '\n'+RMVD+' instance %s\n'%key+str(self.Blocks[key])
-            for key in other.Blocks.keys():
-                if key not in self.Blocks.keys():
-                    # generate command to create new DB instance
-                    s += '\n'+NCD+' instance %s\n'%key+str(other.Blocks[key])
-        else:
-            warnings.warn("type mismatch @__cmp(%s,%s)"%(type(self),type(other)),stacklevel=2)
-        return s
+            # Header parsing
+            if first_word_lower in HEADER:
+                # Reconstruct header string with trailing space as per original logic
+                self.Header[first_word_lower] = " ".join(words[1:]) + " "
+                continue
 
-#----------------------------------------------------AA class----------
+            # Block instance parsing
+            # Logic: Not a pin (:), not a keyword (BEGIN/END/()
+            if not first_word.startswith(':') and first_word not in ('BEGIN', 'END', '('):
+                address = first_word
+                # Concatenate all subsequent words without spaces for BlockName
+                block_name = "".join(words[1:])
+                
+                new_block = block(address, block_name, extra='')
+                new_block.LineNumber = line_num
+                self.Blocks[address] = new_block
+                continue
+
+            # Pin parsing
+            if first_word.startswith(':'):
+                if address:
+                    # Concatenate all subsequent words without spaces for PinValue
+                    pin_value = "".join(words[1:]) if len(words) > 1 else NONE
+                    self.Blocks[address].AddPin(first_word, pin_value)
+
+    def Compare(self, other: 'BAX') -> str:
+        """
+        Compare BAX files and return text report.
+        Optimized using list joining for string building.
+        """
+        if not isinstance(other, BAX):
+            warnings.warn(f"type mismatch @__cmp({type(self)},{type(other)})", stacklevel=2)
+            return ""
+
+        report = []
+        report.append(f"\n HEADER INSPECTION\n{'='*30}")
+        
+        if self.Header != other.Header:
+            for k in HEADER:
+                val_self = self.Header.get(k)
+                val_other = other.Header.get(k)
+                if val_self is not None and val_other is not None and val_self != val_other:
+                    report.append(
+                        f"\n\t{str(k).ljust(TAB)}{str(val_self).ljust(TAB)}"
+                        f"{NEok}{str(val_other).rjust(TAB)}"
+                    )
+
+        report.append(f"\n\n DATABASE INSPECTION\n{'='*30}")
+        
+        s_blocks = self.Blocks
+        o_blocks = other.Blocks
+        s_keys = s_blocks.keys()
+        o_keys = o_blocks.keys()
+
+        if len(s_keys) != len(o_keys):
+            report.append(
+                f'\nNumers of db instances are different\n'
+                f'                at ..{self.fName[nSPC:]} ={len(s_keys)}\n'
+                f'                at ..{other.fName[nSPC:]} ={len(o_keys)}\n'
+            )
+
+        for key, b_obj in s_blocks.items():
+            if key in o_blocks:
+                other_b = o_blocks[key]
+                if b_obj != other_b:
+                    report.append(str(b_obj.Compare(other_b)))
+                
+                # Check surrounding context
+                if self.BlocksAround(key) != other.BlocksAround(key):
+                    (ksA, ksB) = self.BlocksAround(key)
+                    (koA, koB) = other.BlocksAround(key)
+                    if ksA != koA and ksB != koB:
+                        report.append(f"\nMisplaced db instance {key}\n")
+            else:
+                # Instance removed in 'other'
+                report.append(f'\n{RMVD} instance {key}\n{b_obj}')
+
+        for key, b_obj in o_blocks.items():
+            if key not in s_blocks:
+                # Instance added in 'other'
+                report.append(f'\n{NCD} instance {key}\n{b_obj}')
+
+        return "".join(report)
+
+#--------------------------------------------------------------AA class----------
+# Batch Refactored 5/12/2026, 2:21:15 PM
+# --- Refactored CLASS: AA ---
 class AA(AAX):
-    '''
-    read (decode) AA file to self.Lines
-    '''
-    def __init__(self, fname):
+    """
+    Read (decode) AA file to self.Lines.
+    """
+
+    def __init__(self, fname: str) -> None:
         super().__init__(fname)
 
-    def Read(self):
+    def Read(self) -> None:
         try:
-            self.Lines=[]
-            lpath=self.fName
-            while os.path.isfile(lpath):
-                llines=[]
-                llines= readA(lpath)
-                # with open(lpath, 'r') as file:
-                #     llines=[] # temp list of lines (current file)
-                #     llines = file.readlines()  # read aax file to Lines
-                '''
-                check if the last line END PC##
-                if yes we have done with reading the code
-                if not search for the next file nnPCMMxx.AAX
-                nn-Node number
-                MM-PC number
-                xx-file number 01, 02... (first file 01)
-                '''
-                self.Lines+=llines
+            self.Lines: list[str] = []
+            lpath: str = self.fName
 
-                if "END" in self.Lines[-1]:
-                    break #read everything and quit from while loop
-                else:
-                    file_num_pos=lpath.find(".AA")
-                    if file_num_pos<0:
-                        file_num_pos=lpath.find(".BA")
-                        if file_num_pos<0:
-                            #cant find file num
-                            break
-                    file_num=int(lpath[file_num_pos-2:file_num_pos])+1
-                    lpath=lpath[:file_num_pos-2]+format(file_num,'#02')+lpath[file_num_pos:]
+            while os.path.isfile(lpath):
+                llines: list[str] = readA(lpath)
+                if not llines:
+                    break
+
+                self.Lines.extend(llines)
+
+                # Check if the last line contains "END" to terminate reading
+                if self.Lines and "END" in self.Lines[-1]:
+                    break
+
+                # Search for the file number position (xx in ...xx.AAX)
+                # Using rfind for robustness against directory names containing ".AA"
+                file_num_pos: int = lpath.rfind(".AA")
+                if file_num_pos < 0:
+                    file_num_pos = lpath.rfind(".BA")
+
+                if file_num_pos < 2:
+                    # Cannot find a 2-digit file number prefix
+                    break
+
+                try:
+                    # Extract 2-digit file number, increment, and format back to 0-padded string
+                    file_num: int = int(lpath[file_num_pos - 2 : file_num_pos]) + 1
+                    lpath = f"{lpath[:file_num_pos - 2]}{file_num:02d}{lpath[file_num_pos:]}"
+                except ValueError:
+                    # Occurs if the characters at the expected position are not digits
+                    break
+
         except Exception as err:
-            warnings.warn('error reading file %s @Read\nerror:%s'%(self.fName,err),stacklevel=2)
+            warnings.warn(
+                f"error reading file {self.fName} @Read\nerror:{err}", stacklevel=2
+            )
             return
+
         self.Parse()
 
-#----------------------------------------------------BA class-----------
+#-------------------------------------------------------------BA class-----------
+# class BA(BAX):
+#     '''
+#     read BA files and parse using BAX class
+#     '''
+#     def __init__(self, fname):
+#         super().__init__(fname)
+
+#     def Read(self):
+#         try:
+#             self.Lines=[]
+#             lpath=self.fName
+#             while os.path.isfile(lpath):
+#                 llines=[]
+#                 llines= readA(lpath)
+#                 # with open(lpath, 'r') as file:
+#                 #     llines=[] # temp list of lines (current file)
+#                 #     llines = file.readlines()  # read aax file to Lines
+#                 '''
+#                 check if the last line END PC##
+#                 if yes we have done with reading the code
+#                 if not search for the next file nnPCMMxx.AAX
+#                 nn-Node number
+#                 MM-PC number
+#                 xx-file number 01, 02... (first file 01)
+#                 '''
+#                 self.Lines+=llines
+
+#                 if "END" in self.Lines[-1]:
+#                     break #read everything and quit from while loop
+#                 else:
+#                     file_num_pos=lpath.find(".AA")
+#                     if file_num_pos<0:
+#                         file_num_pos=lpath.find(".BA")
+#                         if file_num_pos<0:
+#                             #cant find file num
+#                             break
+#                     file_num=int(lpath[file_num_pos-2:file_num_pos])+1
+#                     lpath=lpath[:file_num_pos-2]+format(file_num,'#02')+lpath[file_num_pos:]
+#         except Exception as err:
+#             warnings.warn('error reading file %s @Read\nerror:%s'%(self.fName,err),stacklevel=2)
+#             return      
+#         self.Parse()
+# Batch Refactored 5/12/2026, 2:26:52 PM
+# --- Refactored CLASS: BA ---
 class BA(BAX):
-    '''
-    read BA files and parse using BAX class
-    '''
-    def __init__(self, fname):
+    """
+    Read BA files and parse using BAX class.
+    """
+
+    def __init__(self, fname: str) -> None:
         super().__init__(fname)
 
-    def Read(self):
+    def Read(self) -> None:
+        """
+        Reads multi-part BA/AA files sequentially and triggers parsing.
+        """
+        lines_accumulator: list[str] = []
+        current_path: str = self.fName
+        
         try:
-            self.Lines=[]
-            lpath=self.fName
-            while os.path.isfile(lpath):
-                llines=[]
-                llines= readA(lpath)
-                # with open(lpath, 'r') as file:
-                #     llines=[] # temp list of lines (current file)
-                #     llines = file.readlines()  # read aax file to Lines
-                '''
-                check if the last line END PC##
-                if yes we have done with reading the code
-                if not search for the next file nnPCMMxx.AAX
-                nn-Node number
-                MM-PC number
-                xx-file number 01, 02... (first file 01)
-                '''
-                self.Lines+=llines
+            while os.path.isfile(current_path):
+                # readA is an external utility function assumed to be in scope
+                lines_chunk: list[str] = readA(current_path)
+                if not lines_chunk:
+                    break
+                
+                lines_accumulator.extend(lines_chunk)
 
-                if "END" in self.Lines[-1]:
-                    break #read everything and quit from while loop
-                else:
-                    file_num_pos=lpath.find(".AA")
-                    if file_num_pos<0:
-                        file_num_pos=lpath.find(".BA")
-                        if file_num_pos<0:
-                            #cant find file num
-                            break
-                    file_num=int(lpath[file_num_pos-2:file_num_pos])+1
-                    lpath=lpath[:file_num_pos-2]+format(file_num,'#02')+lpath[file_num_pos:]
+                # Check if the last line contains "END", signaling completion
+                if lines_accumulator and "END" in lines_accumulator[-1]:
+                    break 
+
+                # Identify the position of the file extension to find the sequence number
+                dot_pos: int = current_path.find(".AA")
+                if dot_pos < 0:
+                    dot_pos = current_path.find(".BA")
+                
+                # If sequence number position is invalid, stop reading
+                if dot_pos < 2:
+                    break
+                
+                try:
+                    # Increment the file number (e.g., '01' -> '02')
+                    # Logic assumes the two characters before the extension are digits
+                    file_num: int = int(current_path[dot_pos - 2:dot_pos]) + 1
+                    current_path = f"{current_path[:dot_pos - 2]}{file_num:02d}{current_path[dot_pos:]}"
+                except ValueError:
+                    # Occurs if the characters are not numeric
+                    break
+            
+            self.Lines = lines_accumulator
+            
         except Exception as err:
-            warnings.warn('error reading file %s @Read\nerror:%s'%(self.fName,err),stacklevel=2)
+            self.Lines = lines_accumulator
+            warnings.warn(
+                f"error reading file {self.fName} @Read\nerror:{err}", 
+                stacklevel=2
+            )
             return      
+            
         self.Parse()
 
-#--------------------------------------- support function-----------------
-def LoadABXFile(fpath):
-    ''' get path to the file and return AA AAX BA BAX object
-        or None
-    '''
-    match fpath[-3:].upper():
-        case '.AA':
-            return AA(fpath)
-        case 'AAX':
-            return AAX(fpath)
-        case '.BA':
-            return BA(fpath)
-        case 'BAX':
-            return BAX(fpath)
-    return None
+#-----------------------------------------------support function-----------------
+# Batch Refactored 5/12/2026, 2:33:12 PM
+# --- Refactored FUNCTION: LoadABXFile ---
+_ABX_MAP: Dict[str, Type[Union["AA", "AAX", "BA", "BAX"]]] = {
+    ".AA": AA,
+    "AAX": AAX,
+    ".BA": BA,
+    "BAX": BAX,
+}
 
-def is_label(val)->bool:
-    '''
-    return true if the value is label
-    starts with N=
-    '''
-    if type(val) is str:
-        if val[:2]=='N=':
-            return True
-    else:
-        warnings.warn("incorrect type @is_label",stacklevel=2)
+def LoadABXFile(fpath: str) -> Optional[Union["AA", "AAX", "BA", "BAX"]]:
+    """
+    Get path to the file and return AA, AAX, BA, or BAX object, or None.
+    """
+    cls = _ABX_MAP.get(fpath[-3:].upper())
+    return cls(fpath) if cls is not None else None
+
+# --- Refactored FUNCTION: is_label ---
+def is_label(val: object) -> bool:
+    """
+    Return True if the value is a label (starts with 'N=').
+    """
+    if isinstance(val, str):
+        return val.startswith("N=")
+    warnings.warn("incorrect type @is_label", stacklevel=2)
     return False
 
-def is_dbinst(val)->bool:
-    '''
-    if the value of the pin is DB instance
-    '''
-    if type(val) is str:
-        if val[:1]=='=' or val[:2]=='-=':
-            return True
-    else:
-        warnings.warn("incorrect type @is_dbinst",stacklevel=2)
+# --- Refactored FUNCTION: is_dbinst ---
+def is_dbinst(val: Any) -> bool:
+    """
+    Checks if the value of the pin is a DB instance.
+    """
+    if isinstance(val, str):
+        return val.startswith(('=', '-='))
+    
+    warnings.warn("incorrect type @is_dbinst", stacklevel=2)
     return False
 
-def is_inverted(val)->bool:
-    '''
-    if the value is inverted
-    '''
-    if type(val) is str:
-        if val[0]=='-':
-            return True
-    else:
-        warnings.warn("incorrect type @is_inverted(%s)"%type(val),stacklevel=2)
+# --- Refactored FUNCTION: is_inverted ---
+def is_inverted(val: Any) -> bool:
+    """
+    Check if the string value is inverted (starts with a minus sign).
+    """
+    if isinstance(val, str):
+        return val.startswith("-")
+    
+    warnings.warn(f"incorrect type @is_inverted({type(val)})", stacklevel=2)
     return False
 
-def is_address(val)->bool:
-    '''
-    check if the val is an address (starts with PC..)
-    '''
-    if type(val) is str:
-        if len(val)>=3:
-            if val[:2]=='PC'or val[:3]=='-PC':
+# --- Refactored FUNCTION: is_address ---
+def is_address(val: Any) -> bool:
+    """
+    Check if the val is an address (starts with PC..).
+    """
+    if isinstance(val, str):
+        return len(val) >= 3 and val.startswith(('PC', '-PC'))
+    
+    warnings.warn(f"incorrect type @is_address({type(val)})", stacklevel=2)
+    return False
+
+# --- Refactored FUNCTION: is_pointer ---
+def is_pointer(val: Any) -> bool:
+    """
+    Check if the val is an address and pointing to a pin.
+    """
+    if isinstance(val, str):
+        return ":" in val and is_address(val)
+    
+    warnings.warn(f"incorrect type @is_pointer({type(val)})", stacklevel=2)
+    return False
+
+# --- Refactored FUNCTION: is_loop ---
+def is_loop(blk: 'block', pin: str) -> bool:
+    """
+    Check if the block has a pin connected to itself.
+    """
+    if not isinstance(blk, block) or not isinstance(pin, str):
+        warnings.warn(
+            f"incorrect type @is_loop({type(blk)},{type(pin)})",
+            stacklevel=2
+        )
+        return False
+
+    # Cache the address to avoid repeated attribute lookups in the loop
+    target_address: Any = blk.Address
+    pin_values: Iterable[Any] = get_pin_value(blk, pin)
+
+    for value in pin_values:
+        if is_address(value):
+            # Accessing index 0 once per valid address
+            if get_addr_pin(value)[0] == target_address:
                 return True
-    else:
-        warnings.warn("incorrect type @is_address(%s)"%type(val),stacklevel=2)
+
     return False
 
-def is_pointer(val)->bool:
-    '''
-    check if the val is an address and pointing to a pin
-    '''
-    if type(val) is str:
-        if is_address(val):
-            if ':' in val:
-                return True
-    else:
-        warnings.warn("incorrect type @is_pointer(%s)"%type(val),stacklevel=2)
-    return False
+# --- Refactored FUNCTION: get_PC_name ---
+def get_PC_name(path: str) -> str:
+    """
+    Return PC## based on the file name.
+    """
+    if is_address(path):
+        dot_idx: int = path.find(".")
+        name: str = path.removeprefix("-")
+        return name[:dot_idx] if dot_idx > 0 else name
 
-def is_loop(blk,pin)->bool:
-    '''
-    check if the block has pin connected to itself
-    '''
-    if type(blk) is block and type(pin) is str:
-        pval=get_pin_value(blk,pin)
-        for v in pval:
-            if is_address(v):
-                if get_addr_pin(v)[0]==blk.Address:
-                    return True
-    else:
-        warnings.warn("incorrect type @is_loop(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
-    return False
-
-def get_PC_name(path)->str:
-    '''
-    return PC## based on the file name
-    '''
-    adrchk=is_address(path)
-    if adrchk and path.find('.')>0:
-        return str.removeprefix(path,'-')[:path.find('.')]
-    elif adrchk:
-        return str.removeprefix(path,'-')
-    else:
-        warnings.warn("incorrect type @GetPCName(%s)"%type(path))
+    warnings.warn(f"incorrect type @GetPCName({type(path)})")
     return path
 
-def get_block_name(aax,path)->str:
-    '''
-    return block name at the path
-    '''
-    if (type(aax) is AAX or type(aax) is AA) and type(path) is str:
-        if get_addr_pin(path)[0] in aax.Blocks:
-            return aax.Blocks[get_addr_pin(path)[0]].Name
+# --- Refactored FUNCTION: get_block_name ---
+def get_block_name(aax: Union['AAX', 'AA'], path: str) -> str:
+    """
+    Return block name at the path.
+    """
+    if isinstance(aax, (AAX, AA)) and isinstance(path, str):
+        # Performance: Cache the address and use a single dictionary lookup
+        addr = get_addr_pin(path)[0]
+        block = aax.Blocks.get(addr)
+        if block is not None:
+            return str(block.Name)
     else:
-        warnings.warn("incorrect type @GetBlockName(%s,%s)"%(type(aax),type(path)))
+        warnings.warn(f"incorrect type @GetBlockName({type(aax)}, {type(path)})")
     return ''
 
-def get_block(aax,path)->block:
-    '''
-    return block by address or path from aax
-    '''
-    checked=type(aax) is AAX or type(aax) is AA
-    if path[0]=='-': # dont need inversion.
-        path=path[1:] 
-    if checked and is_pointer(path):
-        return aax.Blocks[get_addr_pin(path)[0]]
-    if checked and is_address(path):
-        return aax.Blocks[path]
-    warnings.warn("incorrect type @GetBlock(%s,%s)"%(type(aax),type(path)))
+# --- Refactored FUNCTION: get_block ---
+def get_block(aax: Union[AAX, AA], path: str) -> Optional[block]:
+    """
+    Return block by address or path from aax.
+    """
+    # Remove inversion prefix if present; check for empty string to avoid IndexError
+    if path and path[0] == '-':
+        path = path[1:]
+
+    # Use isinstance with a tuple for faster type checking and PEP 8 compliance
+    if isinstance(aax, (AAX, AA)):
+        blocks = aax.Blocks
+        if is_pointer(path):
+            # Accessing index 0 from get_addr_pin as per original logic
+            return blocks[get_addr_pin(path)[0]]
+        if is_address(path):
+            return blocks[path]
+
+    # Use f-string for better performance and readability in warning messages
+    warnings.warn(f"incorrect type @GetBlock({type(aax)}, {type(path)})")
     return None
 
-def get_addr_pin(path)->tuple:
-    '''
-    return tuple (address, pin) // (str,str)
-    '''
-    if type(path) is str:
+# --- Refactored FUNCTION: get_addr_pin ---
+def get_addr_pin(path: Any) -> Tuple[str, ...]:
+    """
+    return tuple (address, pin) // (str, str)
+    """
+    if isinstance(path, str):
         if is_pointer(path):
-            return (path[:path.find(':')],path[path.find(':'):])
+            idx = path.find(':')
+            return path[:idx], path[idx:]
         if is_address(path):
             return (path,)
     else:
-        warnings.warn("incorrect type @GetAddrPin(%s)"%type(path))
+        warnings.warn(f"incorrect type @GetAddrPin({type(path)})")
     return ()
 
-def get_pin_value(blk,pin)->tuple:
-    '''
-    return tuple or list of the <path> PC##.##.##:pin
+# --- Refactored FUNCTION: get_pin_value ---
+def get_pin_value(blk: 'block', pin: str) -> Tuple[Any, ...]:
+    """
+    Return tuple of the <path> PC##.##.##:pin
     <aax> logic blocks container
-    '''
-    if type(blk) is block and type(pin) is str:
-        if pin in blk.Pins:
-            tp=type(blk.Pins[pin])
-            if (tp is list) or (tp is tuple):
-                return blk.Pins[pin]
-            else:
-                return (blk.Pins[pin],)
+    """
+    if isinstance(blk, block) and isinstance(pin, str):
+        pins = blk.Pins
+        if pin in pins:
+            val = pins[pin]
+            if isinstance(val, tuple):
+                return val
+            if isinstance(val, list):
+                return tuple(val)
+            return (val,)
     else:
-        warnings.warn("incorrect type @GetPinValue(%s,%s)"%(type(blk),type(pin)))
+        warnings.warn(f"incorrect type @GetPinValue({type(blk)},{type(pin)})")
     return ()
 
-#---------------------------------------Proj class------------------------
-class Proj():
 
-    def __init__(self,path) -> None:
-        '''
-        constructor
-        '''
-        self.SRCE={} # dict for PC programs pc program name is a key
+#-----------------------------------------------Proj class------------------------
+# Batch Refactored 5/12/2026, 2:52:30 PM
+# --- Refactored CLASS: Proj ---
+class Proj:
+    def __init__(self, path: str) -> None:
+        """
+        Constructor to initialize the Proj instance and read source files.
+        """
+        self.SRCE: Dict[str, Any] = {}
         self.Read(path)
-        pass
-    
-    def is_pc_exist(self,path)->bool:
+
+    def is_pc_exist(self, path: str) -> bool:
+        """
+        Checks if a PC program exists at the given path.
+        """
         if is_address(path):
-            pcn=get_PC_name(path)
-            if pcn in self.SRCE.keys():
-                if path in self.SRCE[pcn].Blocks.keys():
+            pcn: str = get_PC_name(path)
+            if pcn in self.SRCE:
+                if path in self.SRCE[pcn].Blocks:
                     return True
         return False
-    
-    def Read(self,path):
-        '''
-        read all PC programs source code from the path
-        and populate srlf.SRCE dictionary
-        initiate parsing as different thread for each file
-        '''
-        dib=""
+
+    def Read(self, path: str) -> None:
+        """
+        Reads all PC programs source code from the path and populates self.SRCE.
+        Initiates parsing as a separate thread for each file for performance.
+        """
         self.SRCE.clear()
-        if type(path) is not str:
-            warnings.warn("incorrect type @ReadSRCE(%s)"%type(path),stacklevel=2)
+        if not isinstance(path, str):
+            warnings.warn(f"incorrect type @ReadSRCE({type(path)})", stacklevel=2)
             return
 
-        def read_source(dib):
-            bn=os.path.basename(dib)
-            is_AAX=str(dib)[-2:].upper()=="AX"
-            is_AA=str(dib)[-2:].upper()=="AA"
-            srcfile=str(dib) #get the filename (full path)
-            if is_AAX:
-                pc=AAX(srcfile)
-            elif is_AA:
-                pc=AA(srcfile)
-            else:
-                warnings.warn("uncknown source @read_source(%s)"%dib,stacklevel=2)
-                return
-            pcnm=bn[:bn.index('.')][2:6]
-            if pcnm[2]=='0': pcnm=pcnm.replace('0','')
-            self.SRCE[pcnm]=pc
+        def read_source(dib: Path) -> None:
+            bn: str = dib.name
+            path_str: str = str(dib)
+            # Check extension using the last two characters as per original logic
+            is_aax: bool = path_str[-2:].upper() == "AX"
+            is_aa: bool = path_str[-2:].upper() == "AA"
             
+            if is_aax:
+                pc = AAX(path_str)
+            elif is_aa:
+                pc = AA(path_str)
+            else:
+                warnings.warn(f"unknown source @read_source({dib})", stacklevel=2)
+                return
+            
+            try:
+                # Extract PC name from filename before the dot, indices 2 to 6
+                dot_idx: int = bn.index('.')
+                pcnm: str = bn[:dot_idx][2:6]
+                if len(pcnm) > 2 and pcnm[2] == '0':
+                    pcnm = pcnm.replace('0', '')
+                self.SRCE[pcnm] = pc
+            except (ValueError, IndexError):
+                pass
+
+        threads: List[trd.Thread] = []
+        current_dib: Union[Path, str] = "initialization"
         try:
             for dib in Path(path).iterdir():
                 if dib.is_file():
-                    trd.Thread(target=read_source(dib)).start()
-        except:
-            warnings.warn("cant read file @read_source(%s)"%(dib),stacklevel=2)
-        pass
+                    current_dib = dib
+                    # Corrected thread target to pass the function reference, not the result
+                    t = trd.Thread(target=read_source, args=(dib,))
+                    t.start()
+                    threads.append(t)
+            
+            # Ensure all threads complete before returning
+            for t in threads:
+                t.join()
+        except Exception:
+            warnings.warn(f"cant read file @read_source({current_dib})", stacklevel=2)
 
-    def Search(self,item)->tuple:
-        '''
-        search item between PC programs
-        return tuple with addresses where item was found
-        '''
-        output=()
-        if type(item) is str:
-            for pc in self.SRCE:
-                output=output+self.SRCE[pc].xRef(item)
-        else:
-            warnings.warn("incorrect type @SearchSRCE(%s)"%type(item),stacklevel=2)
-        return output
+    def Search(self, item: str) -> Tuple[Any, ...]:
+        """
+        Searches for an item across all PC programs.
+        Returns a tuple of addresses where the item was found.
+        """
+        if not isinstance(item, str):
+            warnings.warn(f"incorrect type @SearchSRCE({type(item)})", stacklevel=2)
+            return ()
+        
+        # Using a list for accumulation is O(N) vs O(N^2) for tuple concatenation
+        output_list: List[Any] = []
+        for pc_obj in self.SRCE.values():
+            output_list.extend(pc_obj.xRef(item))
+            
+        return tuple(output_list)
 
+#---------------------------------------------------------------------------------
 # list of sink/source
 # Sources=[] # upstrean connections
 # Sinks=[] # downstream connections
@@ -1089,118 +1274,94 @@ class Proj():
 # DeadSources=[] # untraceble sources, dead end
 # DeadSinks=[] # untraceble sinks, dead end
 
-def is_input(blk,pin)->bool:
-    '''
-    check if pin is input
-    need InputPins dictionary
-    '''
-    if type(blk) is block and type(pin) is str:
-        if blk.Name in InputPins:
-            for p in InputPins[blk.Name]:
-                if p==pin:
-                    return True
-    else:
-        warnings.warn("incorrect type @is_input(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
+# Batch Refactored 5/12/2026, 3:20:42 PM
+def is_input(blk: "block", pin: str) -> bool:
+    """
+    Check if pin is input.
+    Requires InputPins dictionary.
+    """
+    if isinstance(blk, block) and isinstance(pin, str):
+        # Optimized membership check using a single dictionary lookup
+        return pin in InputPins.get(blk.Name, ())
+
+    warnings.warn(f"incorrect type @is_input({type(blk)},{type(pin)})", stacklevel=2)
     return False
 
-def is_output(blk,pin)->bool:
-    '''
-    check if pin is output
-    need OutputPins dictionary
-    '''
-    if type(blk) is block and type(pin) is str:
-        if blk.Name in OutputPins:
-            for p in OutputPins[blk.Name]:
-                if p==pin:
-                    return True
-    else:
-        warnings.warn("incorrect type @is_output(%s,%s)"%(type(blk),type(pin)),stacklevel=2)
+# Batch Refactored 5/12/2026, 3:23:04 PM
+def is_output(blk: block, pin: str) -> bool:
+    """
+    Check if pin is output.
+    Requires OutputPins dictionary.
+    """
+    if isinstance(blk, block) and isinstance(pin, str):
+        return pin in OutputPins.get(blk.Name, ())
+
+    warnings.warn(
+        f"incorrect type @is_output({type(blk)}, {type(pin)})",
+        stacklevel=2
+    )
     return False
 
-def gen_pins(start=1,stop=2,mode='1')->tuple:
-    '''
-    generate series of pins names
-    
+# Batch Refactored 5/12/2026, 3:24:34 PM
+def gen_pins(start: int = 1, stop: int = 2, mode: str = '1') -> tuple[str, ...]:
+    """
+    Generate series of pins names.
+
     mode=1 gen pins in series between start and stop (1,2,3,...)
+    mode=SW-C_in gen pins from 11 till stop (11,12,21,22,31,32)
+    mode=SW-C_out gen pins from 13 till stop+3 (13,23,33,43)
+    mode=SW_in generate inputs (11,21,31,41)
+    mode=SW_out generate outputs (12,22,32,42)
+    mode="CONV-IB_out" generate outputs (O1,O2,...Ox)
+    mode="MUX-N_in" generate inputs A1..A19 IA1..IA19
+    """
+    if stop <= start:
+        stop = start
+        start = 1
+
+    pins: list[str] = []
     
-    mode=SW-C_in gen pins from 11 till stop
-    in case stop = 30
-    generate (11,12,21,22,31,32)
-
-    mode=SW-C_out gen pins from 13 till stop+3 where stop is deciaml
-    in case stop = 40
-    generate (13,23,33,43)
-
-    mode=SW_in
-    generate inputs (11,21,31,41)
-
-    mode=SW_out
-    generate outputs (12,22,32,42)
-
-    mode="CONV-IB_out"
-    generate outputs (O1,O2,...Ox) s=stop
-
-    mode="MUX-N_in"
-    generate inputs A1..A19 IA1..IA19
-
-    '''
-    T=()
-    if stop<=start:
-        stop=start
-        start=1
     match mode:
-        case '1': 
-            for i in range(start,stop+1):
-                T=T+(':'+str(i),)
-        case "SW-C_in": #SW-C inputs
-            # pin in
-            for i in range(1,int(stop+1)):
-                T=T+(':'+str(i*10+1),':'+str(i*10+2))
-        case "SW-C_out": #SW-C outputs
-            for i in range(1,int(stop+1)):
-                T=T+(':'+str(i*10+3),)
+        case '1':
+            pins = [f":{i}" for i in range(start, stop + 1)]
+        case "SW-C_in":
+            for i in range(1, stop + 1):
+                pins.extend((f":{i * 10 + 1}", f":{i * 10 + 2}"))
+        case "SW-C_out":
+            pins = [f":{i * 10 + 3}" for i in range(1, stop + 1)]
         case "SW_in":
-            for i in range(1,int(stop+1)):
-                T=T+(':'+str(i*10+1),)
+            pins = [f":{i * 10 + 1}" for i in range(1, stop + 1)]
         case "SW_out":
-            for i in range(1,int(stop+1)):
-                T=T+(":"+str(i*10+2),)
+            pins = [f":{i * 10 + 2}" for i in range(1, stop + 1)]
         case "CONV-IB_out":
-            for i in range(1,int(stop+1)):
-                T=T+(":O"+str(i),)
+            pins = [f":O{i}" for i in range(1, stop + 1)]
         case "MUX-N_in":
-            for i in range(1,stop+1):
-                sn=str(i)
-                T=T+(":A"+sn,":IA"+sn,)
+            for i in range(1, stop + 1):
+                pins.extend((f":A{i}", f":IA{i}"))
         case "MUXA-I":
-            for i in range(1,stop+1):
-                T=T+(":IA"+str(i),)
+            pins = [f":IA{i}" for i in range(1, stop + 1)]
         case "CONV-BI_in":
-            for i in range(1,stop+1):
-                T=T+(":I"+str(i),)
+            pins = [f":I{i}" for i in range(1, stop + 1)]
         case "PB-DIAG_out":
-            for i in range(1,stop+1):
-                T=T+(":VALUE_"+str(i),)
+            pins = [f":VALUE_{i}" for i in range(1, stop + 1)]
         case "LIM-N":
-            for i in range(1,stop+1):
-                sn=str(i)
-                T=T+(":A"+sn,":HLA"+sn,":LLA"+sn,)
+            for i in range(1, stop + 1):
+                pins.extend((f":A{i}", f":HLA{i}", f":LLA{i}"))
         case "STEP":
-            for i in range(1,stop+1):
-                sn=str(i)
-                T=T+(":JCOND"+sn,":JPOS"+sn,
-                     ":RL"+str(i),":RH"+sn,":ACTTXT"+sn,":ACTSTA"+sn,
-                     ":CONDTXT"+sn,":CONDSTA"+sn,":JTXT"+sn,)
+            for i in range(1, stop + 1):
+                pins.extend((
+                    f":JCOND{i}", f":JPOS{i}", f":RL{i}", f":RH{i}",
+                    f":ACTTXT{i}", f":ACTSTA{i}", f":CONDTXT{i}",
+                    f":CONDSTA{i}", f":JTXT{i}"
+                ))
         case "COMP-R_in":
-            for i in range(1,stop+1):
-                sn=str(i)
-                T=T+(":H"+sn,":L"+str(sn))
+            for i in range(1, stop + 1):
+                pins.extend((f":H{i}", f":L{i}"))
         case "COMP-R_out":
-            for i in range(1,stop+1):
-                sn=str(i)
-                T=T+(":I<H"+sn,":I>=H"+str(sn),":I>L"+str(sn),":I<=L"+str(sn))
+            for i in range(1, stop + 1):
+                pins.extend((f":I<H{i}", f":I>=H{i}", f":I>L{i}", f":I<=L{i}"))
 
-    return T
+    return tuple(pins)
 
 def get_output_for(blk,pin)->tuple:
     '''
@@ -1263,135 +1424,168 @@ def get_input_for(blk,pin)->tuple:
     # warnings.warn("block type:%s not found @GetInput"%blk.Name)
     return ()
 
-def get_sources(aax,sourcelst:list)->list:
-    '''
-    iterate trough the initial addresses list for the AAX(PC program)
-    return list of sources
-    '''
-    # if type(aax) is not AAX or type(aax) is not AA:
-    #     warnings.warn("incorrect type @ProcessSources(%s)"%type(aax))
-    #     return
-    deadsources=[] # name
-    processed=[]
-    def innerfunc(sources,srcadr):
+# Batch Refactored 5/12/2026, 3:46:05 PM
+# --- Refactored FUNCTION: get_sources ---
+def get_sources(aax: Any, sourcelst: List[str]) -> List[str]:
+    """
+    Iterate through the initial addresses list for the AAX (PC program).
+    Returns a list of sources.
+    """
+    deadsources: List[str] = []
+    deadsources_set: Set[str] = set()
+    processed: Set[str] = set()
+    queue: Deque[str] = deque(sourcelst)
+
+    while queue:
+        src: str = queue.popleft()
+        if src in processed:
+            continue
+        processed.add(src)
+
+        srcadr: str = src
         if is_inverted(srcadr):
-            srcadr=srcadr[1:] # remove inversion
-        if is_pointer(srcadr): # check if it is address with pin (pointer)
-            blk=get_block(aax,srcadr) #get block object
-            pin=get_addr_pin(srcadr)[1] #getpin name
-            if is_loop(blk,pin): #if it's link to itself - just warn
-                warnings.warn("loop detected @%s"%srcadr) 
-            elif is_input(blk,pin): #check if the pin is input for the block
-                for v in get_pin_value(blk,pin): #it should be only one value but...
-                    if v[:2]=='D=' or isNum(v[:2]): # passing by hardcoded values
-                        continue
-                    sources.append(v)
-            elif is_output(blk,pin):
-                for v in get_input_for(blk,pin):
-                    sources.append(v)
+            srcadr = srcadr[1:]
+
+        if is_pointer(srcadr):
+            blk = get_block(aax, srcadr)
+            pin = get_addr_pin(srcadr)[1]
+
+            if is_loop(blk, pin):
+                warnings.warn(f"loop detected @{srcadr}")
+            elif is_input(blk, pin):
+                for v in get_pin_value(blk, pin):
+                    # Passing by hardcoded values
+                    if not (v.startswith('D=') or isNum(v[:2])):
+                        queue.append(v)
+            elif is_output(blk, pin):
+                for v in get_input_for(blk, pin):
+                    queue.append(v)
             else:
-                if srcadr not in deadsources: #deadsources.keys()
-                    if srcadr[:2]!='D=':
-                        deadsources.append(srcadr)
+                if not srcadr.startswith('D=') and srcadr not in deadsources_set:
+                    deadsources.append(srcadr)
+                    deadsources_set.add(srcadr)
         else:
-            if srcadr not in deadsources: #check if it's already there
-                if srcadr[:2]!='D=':
-                    blk=get_block(aax,srcadr)
-                    deadsources.append(srcadr) #add to the deads list
-    
-    while len(sourcelst)>0:
-        src=sourcelst.pop(0) # get the first element
-        if src not in processed:
-            processed.append(src)
-            trd.Thread(target=innerfunc(sourcelst,src),name=src)
+            if not srcadr.startswith('D=') and srcadr not in deadsources_set:
+                get_block(aax, srcadr)
+                deadsources.append(srcadr)
+                deadsources_set.add(srcadr)
+
     return deadsources
-                   
-def get_sinks(aax,sinklst:list)->list:
-    '''
-    iterate trough the Sink list
-    multythreading!!!
-    '''
-    # if (type(aax) is not AAX) or (type(aax) is not AA):
-    #     warnings.warn("incorrect type @ProcessSinks(%s)"%type(aax))
-    #     return
-    deadsinks=[]
-    processed=[]
-    def innerfunc(sinks,snkadr):
-        if is_inverted(snkadr):
-            snkadr=snkadr[1:] # remove invertion
-        if is_pointer(snkadr): # check not database
-            blk=get_block(aax,snkadr) # shell check if block exist?
-            pin=get_addr_pin(snkadr)[1] # extract pin name
-            if is_output(blk,pin): # check if the pin is output
-                xrefpin=aax.xRef(snkadr) # search usage of the pin
-                for v in xrefpin:
-                    if not is_loop(blk,pin):
-                        sinks.append(v) #add usage points to Sinks
-                val=get_pin_value(blk,pin)
-                for v in val:
-                    if not is_loop(blk,pin):
-                        sinks.append(v)
-            elif is_input(blk,pin):
-                for v in get_output_for(blk,pin):
-                    if not is_loop(blk,pin):
-                        sinks.append(v) # push at the end
+# --- Refactored FUNCTION: get_sinks ---
+def get_sinks(aax: Any, sinklst: List[str]) -> List[str]:
+    """
+    Iterate through the Sink list to identify dead sinks using an optimized BFS approach.
+    """
+    deadsinks: List[str] = []
+    deadsinks_set: Set[str] = set()
+    processed: Set[str] = set()
+    queue: deque[str] = deque(sinklst)
+
+    while queue:
+        snk: str = queue.popleft()
+        if snk in processed:
+            continue
+        processed.add(snk)
+
+        # Handle inversion prefix
+        snkadr: str = snk[1:] if is_inverted(snk) else snk
+
+        if is_pointer(snkadr):
+            blk: Any = get_block(aax, snkadr)
+            # Extract pin name from address
+            pin: Any = get_addr_pin(snkadr)[1]
+
+            if is_output(blk, pin):
+                if not is_loop(blk, pin):
+                    # Add usage points and pin values to the queue
+                    queue.extend(aax.xRef(snkadr))
+                    queue.extend(get_pin_value(blk, pin))
+            elif is_input(blk, pin):
+                if not is_loop(blk, pin):
+                    # Add related outputs to the queue
+                    queue.extend(get_output_for(blk, pin))
             else:
-                if snkadr not in deadsinks:
-                    deadsinks.append(snkadr)  
+                # Not an input or output pin
+                if snkadr not in deadsinks_set:
+                    deadsinks.append(snkadr)
+                    deadsinks_set.add(snkadr)
         else:
-            if snkadr not in deadsinks and not is_label(snkadr):
+            # Not a pointer and not a label
+            if not is_label(snkadr) and snkadr not in deadsinks_set:
                 deadsinks.append(snkadr)
-   
-    while len(sinklst)>0:
-        snk=sinklst.pop(0)
-        if snk not in processed:
-            processed.append(snk)
-            trd.Thread(target=innerfunc(sinklst,snk),name=snk)
+                deadsinks_set.add(snkadr)
+
     return deadsinks
 
-def check_block_dict():
+# Batch Refactored 5/12/2026, 5:28:58 PM
+# --- Refactored FUNCTION: check_block_dict ---
+
+def check_block_dict() -> None:
+    """
+    Performs a symmetric difference check between InputPins and OutputPins keys
+    to identify and warn about mismatched pin configurations.
+    """
+    # dict_keys views support set operations in Python 3, providing O(n) performance
+    # by leveraging highly optimized C-level set logic.
+    input_keys = InputPins.keys()
+    output_keys = OutputPins.keys()
     
-    for ky in InputPins.keys():
-        if ky in OutputPins.keys():
-            pass
-        else:
-            warnings.warn("%s\t/-> OutputPins"%ky)
-   
-    for ky in OutputPins.keys():
-        if ky in InputPins.keys():
-            pass
-        else:
-            warnings.warn("%s\t/-> InputPins"%ky)
+    # Cache the warn function to minimize attribute lookups in the loop
+    warn = warnings.warn
 
-def get_max(stat)->tuple:
-    max=('dummy',0)
-    for k in stat:
-        if stat[k]>max[1]:
-            max=(k,stat[k])
-    return max
+    for key in input_keys - output_keys:
+        warn(f"{key}\t/-> OutputPins")
 
-def get_sorted(stat)->tuple:
-    res=()
-    while len(stat)>0:
-        i=get_max(stat)
-        res+=(i,)
-        stat.pop(i[0])
+    for key in output_keys - input_keys:
+        warn(f"{key}\t/-> InputPins")
+
+# --- Refactored FUNCTION: get_max ---
+def get_max(stat: Dict[Any, Any]) -> Tuple[Any, Any]:
+    max_key, max_val = 'dummy', 0
+    for key, value in stat.items():
+        if value > max_val:
+            max_key, max_val = key, value
+    return max_key, max_val
+
+# --- Refactored FUNCTION: get_sorted ---
+def get_sorted(stat: Dict[Any, Any]) -> Tuple[Any, ...]:
+    """
+    Refactored get_sorted for optimal performance using Timsort (O(N log N)).
+    Replaces the O(N^2) selection sort loop and O(N^2) tuple concatenation.
+    """
+    # Standard sorted() is significantly faster than manual selection sort.
+    # itemgetter(1) is faster than a lambda for extracting the value.
+    # We use a list comprehension to preserve the [key, value] list structure 
+    # returned by the original get_max logic.
+    sorted_items = sorted(stat.items(), key=itemgetter(1), reverse=True)
+    res = tuple([k, v] for k, v in sorted_items)
+    
+    # The original function empties the input dictionary via pop().
+    # clear() is the most performant way to maintain this side-effect.
+    stat.clear()
+    
     return res
 
-def get_stat(prj)->dict:
-    '''
-    statistical data
-    logic blocks frequency
-    '''
-    stat={}
-    for aax in prj.SRCE.keys():
-        for blk in prj.SRCE[aax].Blocks.keys():
-            blknme=get_block_name(prj.SRCE[aax],blk)
-            if blknme in stat.keys():
-                stat[blknme]+=1
-            else:
-                stat[blknme]=1
-    return stat
+# --- Refactored FUNCTION: get_stat ---
+def get_stat(prj: Any) -> Dict[str, int]:
+    """
+    Calculates the frequency of logic blocks within the project.
+    
+    Optimized to reduce dictionary lookups and attribute access overhead.
+    """
+    stat: Dict[str, int] = defaultdict(int)
+    
+    # Iterate directly over values to avoid repeated key-based lookups
+    for source in prj.SRCE.values():
+        # Cache reference to Blocks to optimize inner loop performance
+        blocks = source.Blocks
+        for blk_id in blocks:
+            # get_block_name is called with the source object and block identifier
+            block_name: str = get_block_name(source, blk_id)
+            stat[block_name] += 1
+            
+    return dict(stat)
+
 
 '''
 dictionary of BLOCKs and PINs, 

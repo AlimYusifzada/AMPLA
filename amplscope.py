@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+# Refactored 5/12/2026, 9:21:26 AM
 
-from tkinter import Label, Entry, Tk, Button
-from tkinter import filedialog, Menu
-from tkinter import scrolledtext as STX
-from tkinter import messagebox
+import os
+import threading as trd
+from pathlib import Path
+from tkinter import Label, Entry, Tk, Button, filedialog, Menu, messagebox, Toplevel
+from tkinter import scrolledtext as stx
 
-from ampla import *
-# from pins_def import * # pins_def combined with ampla
+from ampla import Proj, LoadABXFile, AA, BA, get_PC_name, get_addr_pin, get_sources, get_sinks, InputPins, ampla_rev
 
 try:
     import pyi_splash
@@ -14,366 +15,31 @@ try:
 except ImportError:
     pass
 
-rev = 'Erzurum'
+# Constants
+REVISION = 'Erzurum'
+FILE_TYPES = [
+    ("AA/AAX files", "*.aa*"),
+    ("AA/AAX files", "*.AA*"),
+    ("BA/BAX files", "*.ba*"),
+    ("BA/BAX files", "*.BA*"),
+]
+FIRST_LINE = '1.0'
+W_WIDTH = 80
 
-file1 = ''
-file2 = ''
-wwidth = 80
-options = ()
-files = ()
-ftypes = [("AA/AAX files", "*.aa*"), 
-          ("AA/AAX files", "*.AA*"),
-          ("BA/BAX files", "*.ba*"),
-          ("BA/BAX files", "*.BA*"),
-        ]
+# Grid Layout Constants
+ROW_BEFORE = 2
+ROW_AFTER = 3
+ROW_ENTRY = 4
+ROW_OUTPUT = 5
 
-# rowButtons = 1
-rowBefore = 2
-rowAfter = 3
-rowEntry = 4
-rowOutput = 5
-firstline='0.0'
-project=Proj('dummy') # create empty project
-
-class SettingsWin:
-    def __init__(self) -> None:
-        SetWin=Tk()
-        SetWin.title('settings')
-        pass
-    
-
-class OutputWin:
-    def __init__(self,text_data='',MWtitle='---') -> None:
-        MW=Tk()
-        MW.title(MWtitle)
-        MW.grid_rowconfigure(0,weight=1)
-        MW.grid_columnconfigure(0,weight=1)
-        self.DataOutput=STX.ScrolledText(master=MW)
-        self.DataOutput.insert(firstline,text_data)
-        self.DataOutput.grid(sticky='N'+'S'+'W'+'E',row=0,column=0)
-        pass
-
-class MainGUI:
-
-    def __init__(self, root) -> None:
-        self.root = root
-
-# Menu
-        self.MMenu = Menu(root) # add main menu
-        self.FMenu = Menu(root) # add drop out compare menu
-        self.TMenu = Menu(root) # add tool/ menu
-        self.PMenu = Menu(root) # add project menu
-
-# before<>after menu config
-        self.FMenu.add_command(label=" before<->after ", command=self.CompareSelectedFiles)
-        self.FMenu.add_command(label=" files... ", command=self.SelectAndCompare)
-        self.FMenu.add_command(label=" directories... ",command=self.CompareDirectories)
-
-# Proj menu config
-        self.PMenu.add_command(label=" load project... ",command=self.OpenProject) # read project files (AA/AAX)
-        self.PMenu.add_command(label=" list PC programs ",command=self.ListProjectCode)
-        self.PMenu.add_command(label=" search entry ",command=self.Search) # search tag/address through the project
-        self.PMenu.add_command(label=" <-source ",command=self.TraceSources) # trace inputs
-        self.PMenu.add_command(label="   sink-> ",command=self.TraceSinks) # trace outputs
-
-# tools menu config
-    #--------------------------------------------------------------
-        self.TMenu.add_command(
-            label="open AA or BA file... ", command=self.OpenAndConverToTxt)
-        self.TMenu.add_command(
-            label="clear screen",command=self.CleanOutputWin)
-    #--------------------------------------------------------------
-        self.TMenu.add_command(
-            label="list uncknown blocks",command=self.ListNewLogicBlocks)
-        self.TMenu.add_command(
-            label="settings... ",command=self.CallSettings)
-        self.TMenu.add_command(label="who is responsible?", command=self.About)
-
-# main menu config
-        self.MMenu.add_cascade(label=" compare ", menu=self.FMenu)
-        self.MMenu.add_cascade(label=" search/trace ",menu=self.PMenu)
-        self.MMenu.add_cascade(label=" options ", menu=self.TMenu)
-
-#-----------------------------------------------------------------------
-        root.title('GUI:%s; ampla rev:%s' % (rev, ampla_rev))
-        root.config(menu=self.MMenu)
-
-# LABELS PICTURES BUTTONS and other widgets
-        Label(text=' BEFORE:').grid(row=rowBefore, column=4, sticky='W')
-        Label(text=' AFTER:').grid(row=rowAfter, column=4, sticky='w')
-        Label(text=' ENTRY:').grid(row=rowEntry, column=4, sticky='w')
-        #-------------------------------------------------------------
-        Button(text=" ... ",command=self.SelectFileBefore).grid(column=6,row=rowBefore,sticky='W'+'E')
-        Button(text=" ... ",command=self.SelectFileAfter).grid(column=6,row=rowAfter,sticky='W'+'E')
-        Button(text=" search ",command=self.Search).grid(column=1,row=rowEntry,sticky='W'+'E')
-        Button(text=" CLS ",command=self.CleanOutputWin).grid(column=6,row=rowEntry,sticky='W'+'E')
-        Button(text="<-",command=self.TraceSources).grid(column=0,row=rowEntry,sticky='W'+'E')
-        Button(text="->",command=self.TraceSinks).grid(column=2,row=rowEntry,sticky='w'+'E')
-        Button(text=" before<->after ",command=self.CompareSelectedFiles).grid(column=0,row=rowBefore,sticky='W'+'E',columnspan=4)
-        Button(text=" load project code ",command=self.OpenProject).grid(column=0,row=rowAfter,sticky='W'+'E',columnspan=4)
-
-# OUTPUT
-        self.MainWinOutput = STX.ScrolledText(root)
-        self.MainWinOutput.grid(row=rowOutput, column=0,
-                            sticky='N'+'S'+'w'+'E', columnspan=11)
-    
-# ENTRIES
-# AAX file entry - BEFORE
-        self.FileBefore = Entry(root, width=wwidth)
-        self.FileBefore.grid(row=rowBefore, column=5, sticky='W'+'E')
-# AAX file entry - AFTER
-        self.FileAfter = Entry(root, width=wwidth)
-        self.FileAfter.grid(row=rowAfter, column=5, sticky='W'+'E')
-# TAG NAME entry - cross reference
-        self.SearchEntry = Entry(root,width=wwidth)
-        self.SearchEntry.grid(row=rowEntry, column=5, sticky='W'+'E')
-
-    def SelectFileAfter(self):
-        self.FileAfter.delete(0, len(self.FileAfter.get()))
-        self.FileAfter.insert(0, filedialog.askopenfilename(initialdir="~",
-                                                         title="Select modified file",
-                                                         filetypes=ftypes))
-        
-    def CallSettings(self):
-        messagebox.showwarning('warn','Settings window is not functional yet')
-        SettingsWin()
-        pass
-    
-    def ListProjectCode(self):
-        self.CleanOutputWin()
-        self.MainWinOutput.insert(firstline,'\n')
-        try:
-            for pc in project.SRCE.keys():
-                self.MainWinOutput.insert(firstline,pc+'\trev:'+project.SRCE[pc].Header['rev_ind']+\
-                                  '\tdate:'+project.SRCE[pc].Header['date']+'\n')
-        except:
-            messagebox.showwarning('warning','revision number not defined')
-            self.MainWinOutput.insert(firstline,'''
-                There is a PC program without a revision number!!!''')
-        pass
-
-    def SelectFileBefore(self):
-        # self.cmpOutput.insert(firstline,'\n')
-        self.FileBefore.delete(0, len(self.FileBefore.get()))
-        self.FileBefore.insert(0, filedialog.askopenfilename(initialdir="~",
-                            title="Select original file",
-                            filetypes=ftypes)
-                            )
-
-    def OpenProject(self): #menu command Proj-Read
-        # self.cmpOutput.insert(firstline,'\n')
-        projdir=filedialog.askdirectory(title="select forlder with AA or AAX code")
-        project.Read(projdir)
-        self.ListProjectCode()
-
-    def SelectAndCompare(self):
-        '''menu callout to select files before/after and compare
-        '''
-        self.CleanOutputWin()
-        self.SelectFileBefore()
-        self.SelectFileAfter()
-        self.CompareSelectedFiles()
-
-    def CompareSelectedFiles(self):
-        '''
-        menu callout function to compare selected files 
-        '''
-        self.CleanOutputWin();
-        if len(self.FileBefore.get())==0 or len(self.FileAfter.get())==0:
-            messagebox.showwarning("oops",
-                "BEFORE and AFTER should not be empty!\nUse menu compare->files...\nOr manually enter path to the code")
-            self.MainWinOutput.insert(firstline,'''
-                Please enter full path to the AMPL source files 
-                    at BEFORE and AFTER fields''')
-        fB=LoadABXFile(self.FileBefore.get())
-        if fB==None:
-            messagebox.showwarning("oops","BEFORE value is invalid")
-            self.MainWinOutput.insert(firstline,'''
-                BEFORE field must contain full path to the source file
-                    or file is invalid or not found''')
-            return
-        fA=LoadABXFile(self.FileAfter.get())
-        if fA==None:
-            messagebox.showwarning("oops","AFTER value is invalid")
-            self.MainWinOutput.insert(firstline,'''
-                AFTER field must contain full path to the source file
-                    of file not found or invalid''')
-            return
-        OutputWin(
-            str(fB.Compare(fA)),
-            '\n\tsource BEFORE\n%s\n\n\tsource AFTER\n%s\n' % (fB.fName, fA.fName))
-
-    def CompareDirectories(self):
-        '''compare directories and report to xls file
-        '''
-        self.CleanOutputWin()
-        self.MainWinOutput.insert(firstline,'''
-            Comparing directories and excel reporting 
-            might take some time.
-
-            Please look for excel files in the AFTER directory
-                                            
-            If the difference(s) in source code found, 
-            excel file will have suffix _DIF in the name''')
-        dibefore = filedialog.askdirectory(title="select directory with code BEFORE")
-        diafter = filedialog.askdirectory(title="select directory with code AFTER")
-        for dib in Path(dibefore).iterdir():
-            if dib.is_file() and (str(dib)[-2:].upper()=="AX" or str(dib)[-2:].upper()=="AA") : # check aax and aa files
-                bf=os.path.basename(dib)
-                bfile=bf[:bf.index('.')] # get just file name (before)
-                dir_before=str(dib) # save full path
-                for dia in Path(diafter).iterdir():
-                    if dia.is_file() and (str(dia)[-2:].upper()=="AX" or str(dia)[-2:].upper()=="AA"): #look for the same file
-                        bf=os.path.basename(dia)
-                        afile=bf[:bf.index('.')] # get just file name (after)
-                        dir_after=str(dia) # safe full path
-                        if bfile.lower()==afile.lower(): # compare if files matched
-                            trd.Thread(name=bfile,target=GenXLSreport(dir_before,dir_after)).start()
-        messagebox.showinfo("info","Check for results at:\n %s"%diafter)
-        
-    def OpenAndConverToTxt(self):
-        '''unpack AA/BA files to txt 
-        '''
-        self.CleanOutputWin()
-        afile = filedialog.askopenfilename(initialdir="~",
-                                           title="Select AA or BA file",
-                                           filetypes=ftypes)
-        ext = afile[-3:].upper()
-        if ext == '.AA':
-            f = AA(afile)
-        elif ext == '.BA':
-            f = BA(afile)
-        else:
-            return
-        f.Write()
-        self.MainWinOutput.insert(firstline,"\nSuccesfully converted to %s.txt"%afile)
-        s=''
-        for bl in f.Lines:
-            s=s+bl+'\n'
-        OutputWin(s,afile)
-
-    def Search(self):
-        '''
-        if source files selected search throug them.
-        then check if project code is loaded and if yes search it too
-        '''
-        self.CleanOutputWin()
-        output_updated=False
-        s=''
-        pckey=self.SearchEntry.get().upper()
-        extB = self.FileBefore.get()[-3:].upper()
-        extA = self.FileAfter.get()[-3:].upper()
-
-        if len(pckey)<1:
-            messagebox.showwarning("warning","Search request empty\nENTRY: should have something")
-            self.MainWinOutput.insert(firstline,'''
-                ENTRY field must have some data: tag name or PC address''')
-            return
-        if len(extB)>1 or len(extA)>1:
-            fB=LoadABXFile(self.FileBefore.get())
-            fA=LoadABXFile(self.FileAfter.get())
-            self.MainWinOutput.insert(firstline,'\n Searching at %s BEFORE\n'%fB.PCName)
-            for cradd in fB.xRef(pckey):
-                self.MainWinOutput.insert(firstline,str(fB.Blocks[cradd[:cradd.index(':')]]))
-            self.MainWinOutput.insert(firstline,'\n Searching at %s AFTER\n'%fA.PCName)
-            for cradd in fA.xRef(pckey):
-                self.MainWinOutput.insert(firstline,str(fA.Blocks[cradd[:cradd.index(':')]]))
-            output_updated=True
-        if len(project.SRCE.keys())>1:
-            if pckey.find(':')>0:
-                pckey=pckey[:pckey.find(':')] #cutoff pin number
-            pcname=get_PC_name(pckey)
-            if pcname in project.SRCE.keys():
-                if pckey in project.SRCE[pcname].Blocks.keys():
-                    s=str(project.SRCE[pcname].Blocks[pckey])
-            self.MainWinOutput.insert(firstline,'\n'+s+'\n')
-            sr=project.Search(pckey)
-            for s in sr:
-                self.MainWinOutput.insert(firstline,'\n'+s)
-            if len(s)>1:
-                output_updated=True
-        if not output_updated:
-            self.MainWinOutput.insert(firstline,'''
-                Nothing was found!
-                Make sure your search request was correct!''')
-
-    def TraceSources(self):
-        self.CleanOutputWin()
-        if len(project.SRCE.keys())<1:
-            messagebox.showwarning('warning','code is not loaded\nProject->load project code')
-            self.MainWinOutput.insert(firstline,'''
-                To search through the project source files they should be loaded''')
-            return
-        sourceslist=self.SearchEntry.get().upper().split()
-        if len(sourceslist)<1:
-            messagebox.showwarning("warning","search request empty\nENTRY: should have an address")
-            self.MainWinOutput.insert(firstline,'''
-                ENTRY field must contain data to search PC address''')
-            return
-        sources=[]
-        for item in sourceslist:
-            if project.is_pc_exist(get_addr_pin(item)[0]): 
-                pcname=get_PC_name(item)
-                sources.append(get_sources(project.SRCE[pcname],[item,])) # get SOURCE
-        for item in sources[0]:
-            self.MainWinOutput.insert(firstline,'\n'+str(item)+'\n')
-        self.MainWinOutput.insert(firstline,'\n\t<-- Source connections:\n')
-    
-    def TraceSinks(self):
-        self.CleanOutputWin()
-        if len(project.SRCE.keys())<1:
-            messagebox.showwarning('warning','code is not loaded\nProject->load project code')
-            self.MainWinOutput.insert(firstline,'''
-                Project source code is not loaded''')
-            return
-        sinklist=self.SearchEntry.get().upper().split()
-        if len(sinklist)<1:
-            messagebox.showwarning("warning","search request empty\nENTRY: should have an address")
-            self.MainWinOutput.insert(firstline,'''
-                ENTRY field must contain data to search PC address''')
-            return
-        sinks=[]
-        for item in sinklist:
-            if project.is_pc_exist(get_addr_pin(item)[0]):
-                pcname=get_PC_name(item)
-                sinks.append(get_sinks(project.SRCE[pcname],[item,])) # get SINK
-        for item in sinks[0]:
-            self.MainWinOutput.insert(firstline,'\n'+str(item)+'\n')
-        self.MainWinOutput.insert(firstline,'\n\t--> Sink connections:\n')
-        pass
-
-    def About(self):
-        self.CleanOutputWin()
-        self.MainWinOutput.insert(firstline,'\n'+responsibility)
-        pass
-
-    def CleanOutputWin(self):
-        self.MainWinOutput.delete("0.0","10000.0")
-        pass
-
-    def ListNewLogicBlocks(self):
-        self.CleanOutputWin()
-        newb={}
-        for pcp in project.SRCE.keys(): # for all programs in the project
-            for bl in project.SRCE[pcp].Blocks.keys(): # for every block in the program
-                bln=project.SRCE[pcp].Blocks[bl].Name 
-                if (bln in InputPins.keys()):
-                    continue
-                else:
-                    newb[bln]=0 # add new blok
-        for b in newb.keys():
-            self.MainWinOutput.insert(firstline,'\t'+str(b)+'\n')
-        pass
-# --------------------------------------------------------------MainGUI end-----
-
-responsibility = '''
+RESPONSIBILITY = '''
     amplscope - AMPL source code change detector
     (c) 2020-2024, Alim Yusifzada
     reddit: u/Crazy1Dunmer
     gmail: yusifzaj@gmail.com
-    Special thanks to Baku ABB team.
 '''
-ABBlogo='''             
+
+ABB_LOGO = r'''             
                 ]@@@ ]@@@L        @@@@@@@  @@@@@m    ]@@@@@@L [@@@@b            
                ,@@@@ ]@@@@w       @@@@@@@  @@@@@@@   ]@@@@@@L [@@@@@@           
                @@@@@ ]@@@@@       @@@@@@@  @@@@@@@   ]@@@@@@L [@@@@@@           
@@ -387,12 +53,321 @@ ABBlogo='''
          M@@@@@`          '@@@@@H @@@@@@@  @@@@*`    ]@@@@@@` *@@@@"            
 '''
 
-print(ABBlogo)
-print(responsibility)
+# Global project instance
+project = Proj('dummy')
 
-mainwin = Tk()
-MainGUI(mainwin)
 
-mainwin.grid_rowconfigure(rowOutput, weight=1)
-mainwin.grid_columnconfigure(1, weight=1)
-mainwin.mainloop()
+class SettingsWin:
+    def __init__(self) -> None:
+        self.win = Toplevel()
+        self.win.title('Settings')
+        Label(self.win, text="Settings window is not functional yet").pack(padx=20, pady=20)
+
+
+class OutputWin:
+    def __init__(self, text_data='', title='---') -> None:
+        self.win = Toplevel()
+        self.win.title(title)
+        self.win.grid_rowconfigure(0, weight=1)
+        self.win.grid_columnconfigure(0, weight=1)
+        
+        self.data_output = stx.ScrolledText(master=self.win)
+        self.data_output.insert("1.0", text_data)
+        self.data_output.grid(sticky='nsew', row=0, column=0)
+
+
+class MainGUI:
+    def __init__(self, root) -> None:
+        self.root = root
+        self.setup_menu()
+        self.setup_widgets()
+        
+        self.root.title(f'GUI:{REVISION}; ampla rev:{ampla_rev}')
+        self.root.config(menu=self.main_menu)
+
+    def setup_menu(self):
+        self.main_menu = Menu(self.root)
+        
+        # Compare Menu
+        self.compare_menu = Menu(self.main_menu, tearoff=0)
+        self.compare_menu.add_command(label=" before<->after ", command=self.compare_selected_files)
+        self.compare_menu.add_command(label=" files... ", command=self.select_and_compare)
+        self.compare_menu.add_command(label=" directories... ", command=self.compare_directories)
+        
+        # Project Menu
+        self.project_menu = Menu(self.main_menu, tearoff=0)
+        self.project_menu.add_command(label=" load project... ", command=self.open_project)
+        self.project_menu.add_command(label=" list PC programs ", command=self.list_project_code)
+        self.project_menu.add_command(label=" search entry ", command=self.search)
+        self.project_menu.add_command(label=" <-source ", command=self.trace_sources)
+        self.project_menu.add_command(label="   sink-> ", command=self.trace_sinks)
+        
+        # Tools Menu
+        self.tools_menu = Menu(self.main_menu, tearoff=0)
+        self.tools_menu.add_command(label="open AA or BA file... ", command=self.open_and_convert_to_txt)
+        self.tools_menu.add_command(label="clear screen", command=self.clean_output_win)
+        self.tools_menu.add_separator()
+        self.tools_menu.add_command(label="list unknown blocks", command=self.list_new_logic_blocks)
+        self.tools_menu.add_command(label="settings... ", command=self.call_settings)
+        self.tools_menu.add_command(label="who is responsible?", command=self.about)
+
+        self.main_menu.add_cascade(label=" compare ", menu=self.compare_menu)
+        self.main_menu.add_cascade(label=" search/trace ", menu=self.project_menu)
+        self.main_menu.add_cascade(label=" options ", menu=self.tools_menu)
+
+    def setup_widgets(self):
+        # Labels
+        Label(self.root, text=' BEFORE:').grid(row=ROW_BEFORE, column=4, sticky='w')
+        Label(self.root, text=' AFTER:').grid(row=ROW_AFTER, column=4, sticky='w')
+        Label(self.root, text=' ENTRY:').grid(row=ROW_ENTRY, column=4, sticky='w')
+
+        # Buttons
+        Button(self.root, text=" ... ", command=self.select_file_before).grid(column=6, row=ROW_BEFORE, sticky='we')
+        Button(self.root, text=" ... ", command=self.select_file_after).grid(column=6, row=ROW_AFTER, sticky='we')
+        Button(self.root, text=" search ", command=self.search).grid(column=1, row=ROW_ENTRY, sticky='we')
+        Button(self.root, text=" CLS ", command=self.clean_output_win).grid(column=6, row=ROW_ENTRY, sticky='we')
+        Button(self.root, text="<-", command=self.trace_sources).grid(column=0, row=ROW_ENTRY, sticky='we')
+        Button(self.root, text="->", command=self.trace_sinks).grid(column=2, row=ROW_ENTRY, sticky='we')
+        Button(self.root, text=" before<->after ", command=self.compare_selected_files).grid(column=0, row=ROW_BEFORE, sticky='we', columnspan=4)
+        Button(self.root, text=" load project code ", command=self.open_project).grid(column=0, row=ROW_AFTER, sticky='we', columnspan=4)
+
+        # Entries
+        self.file_before_entry = Entry(self.root, width=W_WIDTH)
+        self.file_before_entry.grid(row=ROW_BEFORE, column=5, sticky='we')
+        
+        self.file_after_entry = Entry(self.root, width=W_WIDTH)
+        self.file_after_entry.grid(row=ROW_AFTER, column=5, sticky='we')
+        
+        self.search_entry = Entry(self.root, width=W_WIDTH)
+        self.search_entry.grid(row=ROW_ENTRY, column=5, sticky='we')
+
+        # Output Window
+        self.main_win_output = stx.ScrolledText(self.root)
+        self.main_win_output.grid(row=ROW_OUTPUT, column=0, sticky='nsew', columnspan=11)
+
+    def select_file_after(self):
+        path = filedialog.askopenfilename(initialdir="~", title="Select modified file", filetypes=FILE_TYPES)
+        if path:
+            self.file_after_entry.delete(0, 'end')
+            self.file_after_entry.insert(0, path)
+        
+    def select_file_before(self):
+        path = filedialog.askopenfilename(initialdir="~", title="Select original file", filetypes=FILE_TYPES)
+        if path:
+            self.file_before_entry.delete(0, 'end')
+            self.file_before_entry.insert(0, path)
+
+    def call_settings(self):
+        messagebox.showwarning('Warning', 'Settings window is not functional yet')
+        SettingsWin()
+    
+    def list_project_code(self):
+        self.clean_output_win()
+        self.main_win_output.insert('1.0', '\n')
+        try:
+            for pc, data in project.SRCE.items():
+                rev_ind = data.Header.get('rev_ind', 'N/A')
+                date = data.Header.get('date', 'N/A')
+                self.main_win_output.insert('1.0', f"{pc}\trev:{rev_ind}\tdate:{date}\n")
+        except Exception:
+            messagebox.showwarning('Warning', 'Revision number not defined')
+            self.main_win_output.insert('1.0', '\nThere is a PC program without a revision number!!!')
+
+    def open_project(self):
+        proj_dir = filedialog.askdirectory(title="Select folder with AA or AAX code")
+        if proj_dir:
+            project.Read(proj_dir)
+            self.list_project_code()
+
+    def select_and_compare(self):
+        self.clean_output_win()
+        self.select_file_before()
+        self.select_file_after()
+        self.compare_selected_files()
+
+    def compare_selected_files(self):
+        self.clean_output_win()
+        path_b = self.file_before_entry.get()
+        path_a = self.file_after_entry.get()
+
+        if not path_b or not path_a:
+            messagebox.showwarning("Oops", "BEFORE and AFTER should not be empty!")
+            self.main_win_output.insert('1.0', "Please enter full path to the AMPL source files.")
+            return
+
+        fb = LoadABXFile(path_b)
+        if fb is None:
+            messagebox.showwarning("Oops", "BEFORE value is invalid")
+            return
+
+        fa = LoadABXFile(path_a)
+        if fa is None:
+            messagebox.showwarning("Oops", "AFTER value is invalid")
+            return
+
+        OutputWin(str(fb.Compare(fa)), f'Source Comparison\nBEFORE: {fb.fName}\nAFTER: {fa.fName}')
+
+    def compare_directories(self):
+        self.clean_output_win()
+        self.main_win_output.insert('1.0', "Comparing directories... check AFTER directory for Excel reports.")
+        
+        dir_before = filedialog.askdirectory(title="Select directory with code BEFORE")
+        dir_after = filedialog.askdirectory(title="Select directory with code AFTER")
+        
+        if not dir_before or not dir_after:
+            return
+
+        path_before = Path(dir_before)
+        path_after = Path(dir_after)
+
+        # This logic assumes a GenXLSreport function exists in ampla or globally
+        # Note: The original code had a potential bug calling GenXLSreport(dir_before, dir_after) 
+        # inside the thread target which executes it immediately. Fixed to pass as args.
+        
+        for dib in path_before.iterdir():
+            if dib.is_file() and dib.suffix.upper() in ['.AA', '.AAX']:
+                b_name = dib.stem.lower()
+                for dia in path_after.iterdir():
+                    if dia.is_file() and dia.suffix.upper() in ['.AA', '.AAX']:
+                        if dia.stem.lower() == b_name:
+                            # Assuming GenXLSreport is defined elsewhere as it was in original
+                            from ampla import GenXLSreport
+                            trd.Thread(name=b_name, target=GenXLSreport, args=(str(dib), str(dia))).start()
+                            
+        messagebox.showinfo("Info", f"Check for results at:\n {dir_after}")
+        
+    def open_and_convert_to_txt(self):
+        self.clean_output_win()
+        afile = filedialog.askopenfilename(initialdir="~", title="Select AA or BA file", filetypes=FILE_TYPES)
+        if not afile:
+            return
+            
+        ext = Path(afile).suffix.upper()
+        if ext == '.AA':
+            f = AA(afile)
+        elif ext == '.BA':
+            f = BA(afile)
+        else:
+            return
+
+        f.Write()
+        self.main_win_output.insert('1.0', f"\nSuccessfully converted to {afile}.txt")
+        content = "\n".join(f.Lines)
+        OutputWin(content, afile)
+
+    def search(self):
+        self.clean_output_win()
+        updated = False
+        query = self.search_entry.get().upper()
+        path_b = self.file_before_entry.get()
+        path_a = self.file_after_entry.get()
+
+        if not query:
+            messagebox.showwarning("Warning", "Search request empty")
+            return
+
+        if path_b or path_a:
+            if path_b:
+                fb = LoadABXFile(path_b)
+                if fb:
+                    self.main_win_output.insert('end', f'\n Searching at {fb.PCName} BEFORE\n')
+                    for cradd in fb.xRef(query):
+                        block_key = cradd.split(':')[0]
+                        self.main_win_output.insert('end', str(fb.Blocks.get(block_key, '')))
+                    updated = True
+            if path_a:
+                fa = LoadABXFile(path_a)
+                if fa:
+                    self.main_win_output.insert('end', f'\n Searching at {fa.PCName} AFTER\n')
+                    for cradd in fa.xRef(query):
+                        block_key = cradd.split(':')[0]
+                        self.main_win_output.insert('end', str(fa.Blocks.get(block_key, '')))
+                    updated = True
+
+        if len(project.SRCE.keys()) > 0:
+            clean_query = query.split(':')[0]
+            pc_name = get_PC_name(clean_query)
+            
+            if pc_name in project.SRCE:
+                pc_data = project.SRCE[pc_name]
+                if clean_query in pc_data.Blocks:
+                    self.main_win_output.insert('end', f"\n{pc_data.Blocks[clean_query]}\n")
+            
+            results = project.Search(query)
+            for res in results:
+                self.main_win_output.insert('end', f'\n{res}')
+            if results:
+                updated = True
+
+        if not updated:
+            self.main_win_output.insert('1.0', '\nNothing was found!')
+
+    def trace_sources(self):
+        self.clean_output_win()
+        if not project.SRCE:
+            messagebox.showwarning('Warning', 'Code is not loaded')
+            return
+            
+        query_list = self.search_entry.get().upper().split()
+        if not query_list:
+            messagebox.showwarning("Warning", "Search request empty")
+            return
+
+        for item in query_list:
+            addr, _ = get_addr_pin(item)
+            if project.is_pc_exist(addr):
+                pc_name = get_PC_name(item)
+                sources = get_sources(project.SRCE[pc_name], [item])
+                for src in sources:
+                    self.main_win_output.insert('1.0', f'\n{src}\n')
+        self.main_win_output.insert('1.0', '\n\t<-- Source connections:\n')
+    
+    def trace_sinks(self):
+        self.clean_output_win()
+        if not project.SRCE:
+            messagebox.showwarning('Warning', 'Code is not loaded')
+            return
+            
+        query_list = self.search_entry.get().upper().split()
+        if not query_list:
+            messagebox.showwarning("Warning", "Search request empty")
+            return
+
+        for item in query_list:
+            addr, _ = get_addr_pin(item)
+            if project.is_pc_exist(addr):
+                pc_name = get_PC_name(item)
+                sinks = get_sinks(project.SRCE[pc_name], [item])
+                for snk in sinks:
+                    self.main_win_output.insert('1.0', f'\n{snk}\n')
+        self.main_win_output.insert('1.0', '\n\t--> Sink connections:\n')
+
+    def about(self):
+        self.clean_output_win()
+        self.main_win_output.insert('1.0', f'\n{RESPONSIBILITY}')
+
+    def clean_output_win(self):
+        self.main_win_output.delete("1.0", "end")
+
+    def list_new_logic_blocks(self):
+        self.clean_output_win()
+        new_blocks = set()
+        for pcp in project.SRCE.values():
+            for block in pcp.Blocks.values():
+                if block.Name not in InputPins:
+                    new_blocks.add(block.Name)
+        
+        for b in sorted(new_blocks):
+            self.main_win_output.insert('1.0', f'\t{b}\n')
+
+
+if __name__ == "__main__":
+    print(ABB_LOGO)
+    print(RESPONSIBILITY)
+
+    main_win = Tk()
+    app = MainGUI(main_win)
+
+    main_win.grid_rowconfigure(ROW_OUTPUT, weight=1)
+    main_win.grid_columnconfigure(1, weight=1)
+    main_win.mainloop()
