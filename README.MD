@@ -62,10 +62,3 @@ These top-level collection drivers ingest, merge, and maintain parsed controller
 ### 3. Binary Layout Extensions: `class AA` & `class BA`
 For packed, compressed legacy environments that store information as binary/hex segments rather than exposed flat Unicode text files, these variants leverage a decryption processor utility (`readA`) to transparently decompress and format raw lines before running the string layout engines.
 
----
-
-## 🎛️ Project Structure Overview
-
-The `Proj` class provides a unified interface for interacting with multiple source programs managed by a single controller workspace.
-
-### Object Hierarchy
