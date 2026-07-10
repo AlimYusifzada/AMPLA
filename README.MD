@@ -25,7 +25,7 @@ The `ampla` library parses text-based industrial configuration files into a grap
 
 ---
 
-## 🛠️ Detailed Class Breakdown
+## 🛠️ Class Breakdown
 
 ### 1. The Primitive Unit: `class block`
 Every individual execution logic module (e.g., `AND`, `OR`, `MOVE`) or database record instance (e.g., an analog input link) maps directly to a `block` instance.
