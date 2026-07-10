@@ -57,10 +57,12 @@ GenXLSreport('source_code_before.aa','source_code_after.aax')
 
 ## Project Structure Overview
 The Proj class manages multiple source codes from a single controller.
-Object Hierarchy nodeX (Proj instance) Acts as a dictionary of PC programs.
+Object Hierarchy nodeX (Proj instance) acts as a dictionary of PC programs.
 Example: nodeX = Proj(path_to_SRCE)
+
 pc10 (Program instance) Accessed via nodeX["PC10"].
 Acts as a dictionary of logic blocks within that specific PC program.
+
 BLOCK (Logic Block object) Accessed via pc10["PC10.3.2.1"]. Contains the specific block logic and data.
 
 ```python
