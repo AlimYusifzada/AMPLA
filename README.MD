@@ -52,6 +52,7 @@ aa_after = AAX('source_code_after.aax')
 print(aa_before.compare(aa_after))
 
 GenXLSreport('source_code_before.aa','source_code_after.aax')
+'''
 
 ## Project Structure Overview
 
@@ -75,7 +76,7 @@ Object Hierarchy
                 Accessed via pc10["PC10.3.2.1"].
 
                 Contains the specific block logic and data.
-
+'''
 # 1. Initialize the project controller
 nodeX = Proj(path_to_SRCE)
 
@@ -84,3 +85,4 @@ pc10 = nodeX["PC10"]
 
 # 3. Retrieve the target logic block object
 logic_block = pc10["PC10.3.2.1"]
+'''
