@@ -3,13 +3,9 @@
 The ampla library is built around a key pattern: Parsing text-based industrial configuration files into a graph of interconnected Python dictionary nodes.
 
 File Input (.AAX/.BAX) ──> Parsed into ──> Class: AAX / BAX
-
                                                           │
-
                                                 Maintains a dictionary of
-
                                                           ▼
-
                                                   Class: block
                                                   (Address/Pins/Value)
 
