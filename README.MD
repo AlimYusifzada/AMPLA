@@ -52,3 +52,35 @@ aa_after = AAX('source_code_after.aax')
 print(aa_before.compare(aa_after))
 
 GenXLSreport('source_code_before.aa','source_code_after.aax')
+
+## Project Structure Overview
+
+The Proj class manages multiple source codes from a single controller.
+Object Hierarchy
+
+    nodeX (Proj instance)
+
+        Acts as a dictionary of PC programs.
+
+        Example: nodeX = Proj(path_to_SRCE)
+
+        pc10 (Program instance)
+
+            Accessed via nodeX["PC10"].
+
+            Acts as a dictionary of logic blocks within that specific PC program.
+
+            BLOCK (Logic Block object)
+
+                Accessed via pc10["PC10.3.2.1"].
+
+                Contains the specific block logic and data.
+
+# 1. Initialize the project controller
+nodeX = Proj(path_to_SRCE)
+
+# 2. Access a specific PC program
+pc10 = nodeX["PC10"]
+
+# 3. Retrieve the target logic block object
+logic_block = pc10["PC10.3.2.1"]
