@@ -408,7 +408,7 @@ class AAX:
             line_elements = current_line.split()
             elements_count = len(line_elements)
 
-            if elements_count == 0:
+            if elements_count == 0: #no words in the line
                 continue
 
             first_elem = line_elements[0]

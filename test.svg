@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- White Background -->
+  <rect width="512" height="512" fill="#FFFFFF"/>
+
+  <defs>
+    <!-- Main Chassis Gradient -->
+    <linearGradient id="chassisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+
+    <!-- Header / Brand Gradient -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#0891B2"/>
+    </linearGradient>
+
+    <!-- Folder/Stash Accent Gradient -->
+    <linearGradient id="folderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+
+    <!-- Soft Drop Shadow -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#0F172A" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#dropShadow)">
+    <!-- Main Server Box Frame -->
+    <rect x="112" y="80" width="288" height="352" rx="28" fill="url(#chassisGrad)"/>
+
+    <!-- Server Header Bar with Status Indicator -->
+    <rect x="112" y="80" width="288" height="64" rx="28" fill="url(#brandGrad)"/>
+    <rect x="112" y="116" width="288" height="28" fill="url(#brandGrad)"/>
+    
+    <!-- Header Power & Connection LEDs -->
+    <circle cx="152" cy="112" r="7" fill="#4ADE80"/>
+    <circle cx="176" cy="112" r="7" fill="#60A5FA"/>
+    <circle cx="200" cy="112" r="7" fill="#F43F5E"/>
+
+    <!-- Server Bay 1 -->
+    <rect x="140" y="168" width="232" height="64" rx="14" fill="#334155"/>
+    <circle cx="168" cy="200" r="6" fill="#4ADE80"/>
+    <circle cx="188" cy="200" r="6" fill="#38BDF8"/>
+    <line x1="216" y1="200" x2="344" y2="200" stroke="#64748B" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- Server Bay 2 (Active File/Stash Bay) -->
+    <rect x="140" y="248" width="232" height="76" rx="14" fill="#1E293B" stroke="#334155" stroke-width="4"/>
+    <!-- Folder Icon Inside Active Bay -->
+    <path d="M 168 272 L 198 272 L 210 282 L 344 282 C 348.4 282 352 285.6 352 290 L 352 306 C 352 310.4 348.4 314 344 314 L 168 314 C 163.6 314 160 310.4 160 306 L 160 280 C 160 275.6 163.6 272 168 272 Z" fill="url(#folderGrad)"/>
+
+    <!-- Server Bay 3 -->
+    <rect x="140" y="340" width="232" height="64" rx="14" fill="#334155"/>
+    <circle cx="168" cy="372" r="6" fill="#4ADE80"/>
+    <circle cx="188" cy="372" r="6" fill="#64748B"/>
+    <line x1="216" y1="372" x2="344" y2="372" stroke="#64748B" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

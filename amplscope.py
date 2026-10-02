@@ -318,6 +318,9 @@ class MainGUI:
             if project.is_pc_exist(addr):
                 pc_name = get_PC_name(item)
                 sources = get_sources(project.SRCE[pc_name], [item])
+
+                #add addr as Mermaid node and links with sources.
+                
                 for src in sources:
                     self.main_win_output.insert('1.0', f'\n{src}\n')
         self.main_win_output.insert('1.0', '\n\t<-- Source connections:\n')
